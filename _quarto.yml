@@ -1,0 +1,26 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "OptiFert: Evaluation der Digit Soil Technologie"
+  author: "ZHAW / Agroscope"
+  date: today
+  repo-url: https://github.com/ptochosgeorgos/Optifert
+  repo-actions: [edit, issue]
+  chapters:
+    - index.qmd
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-title: "Inhaltsverzeichnis"
+    number-sections: true
+    code-fold: true
+    code-summary: "R-Code anzeigen"
+
+execute:
+  warning: false
+  message: false
