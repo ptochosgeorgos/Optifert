@@ -196,3 +196,42 @@ ggplot(df_pca, aes(x = PC1, y = PC2, color = Verfahren)) +
 ```
 
 
+```{r}
+# Paket für die Anordnung von Plots laden
+library(gridExtra)
+
+# Plot 1: Nitrat (NO3) in Blautönen
+p_no3 <- ggplot(df_pca, aes(x = PC1, y = PC2, color = NO3)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_point(size = 4, alpha = 0.9) +
+  scale_color_gradient(low = "lightblue", high = "darkblue", na.value = "grey80") +
+  theme_minimal(base_size = 12) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(
+    title = "PCA vs. Nitrat",
+    x = "PC1 - Biol. Gesamtaktivität",
+    y = "PC2",
+    color = "NO3"
+  )
+
+# Plot 2: Ammonium (NH4) in Rottönen
+p_nh4 <- ggplot(df_pca, aes(x = PC1, y = PC2, color = NH4)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_point(size = 4, alpha = 0.9) +
+  scale_color_gradient(low = "#ffcccc", high = "darkred", na.value = "grey80") +
+  theme_minimal(base_size = 12) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(
+    title = "PCA vs. Ammonium",
+    x = "PC1 - Biol. Gesamtaktivität",
+    y = "PC2",
+    color = "NH4"
+  )
+
+# Beide Plots nebeneinander darstellen
+grid.arrange(p_no3, p_nh4, ncol = 2)
+```
+
+

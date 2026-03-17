@@ -81,25 +81,52 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+</section>
+<section id="explorative-datenanalyse-enzymaktivität-pro-verfahren" class="level1">
+<h1>3. Explorative Datenanalyse: Enzymaktivität pro Verfahren</h1>
+<p>Analog zu den Laborwerten betrachten wir nun die Signale der Digit Soil Sensoren. Zeigen die fünf gemessenen Enzyme (LAP, NAG, GLS, MUP, MUX) ebenfalls deutliche Unterschiede zwischen den Düngungsstrategien?</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="DEMO_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="DEMO_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="zusammenhänge-korrelations-heatmap" class="level1">
+<h1>4. Zusammenhänge: Korrelations-Heatmap</h1>
+<p>Um zu verstehen, wie die biologischen Prozesse im Boden gekoppelt sind, betrachten wir die Korrelationen zwischen allen Enzymen und den Nmin-Werten. Da Bodendaten oft Ausreißer haben und nicht immer perfekt linear sind, verwenden wir hier die robuste Spearman-Rangkorrelation.</p>
+<p>Dunkelblaue Felder zeigen starke positive Zusammenhänge (z.B. wenn Enzym A hoch ist, ist auch Enzym B hoch).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="DEMO_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
 <section id="biologisches-profil-robuste-pca" class="level1">
-<h1>3. Biologisches Profil (Robuste PCA)</h1>
-<p>Um die Komplexität der fünf gemessenen Enzyme (LAP, NAG, GLS, MUP, MUX) zu reduzieren, führen wir eine robuste Hauptkomponentenanalyse (rPCA) nach Hubert durch. Diese Methode ist unempfindlich gegenüber Ausreißern (z.B. durch lokale Hotspots wie Regenwurmlosung).</p>
-<p>Die erste Hauptkomponente (PC1) repräsentiert in der Regel den Index der biologischen Gesamtaktivität.</p>
+<h1>5. Biologisches Profil (Robuste PCA)</h1>
+<p>Da die Enzymaktivitäten stark miteinander korrelieren (Multikollinearität) und die Bodendaten natürliche, extreme Ausreißer aufweisen, ist eine Dimensionsreduktion zwingend erforderlich.</p>
+<p>Wir verwenden eine robuste Hauptkomponentenanalyse (rPCA nach Hubert). Sie bündelt die 5 Enzym-Variablen auf zwei Hauptachsen, ohne sich von einzelnen Messfehlern oder lokalen biologischen “Hotspots” verzerren zu lassen. Die erste Achse (PC1) kann dabei als robuster Index der biologischen Gesamtaktivität interpretiert werden.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="DEMO_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="DEMO_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="DEMO_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
