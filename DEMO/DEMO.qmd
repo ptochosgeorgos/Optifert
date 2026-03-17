@@ -61,6 +61,49 @@ df_final |>
   )
 ```
 
+# 3. Explorative Datenanalyse: Enzymaktivität pro Verfahren
+
+Analog zu den Laborwerten betrachten wir nun die Signale der Digit Soil Sensoren. Zeigen die fünf gemessenen Enzyme (LAP, NAG, GLS, MUP, MUX) ebenfalls deutliche Unterschiede zwischen den Düngungsstrategien?
+
+```{r}
+df_final |> 
+  # Nur Zeilen behalten, die alle Enzymwerte haben
+  drop_na(LAP, NAG, GLS, MUP, MUX, Verfahren) |> 
+  
+  # Ins Long-Format umformen (alle 5 Enzyme untereinander)
+  pivot_longer(
+    cols = c(LAP, NAG, GLS, MUP, MUX), 
+    names_to = "Enzym", 
+    values_to = "Aktivitaet"
+  ) |> 
+  
+  # Der Boxplot
+  ggplot(aes(x = Verfahren, y = Aktivitaet, fill = Verfahren)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 21, outlier.size = 2) +
+  
+  # facet_wrap für die 5 Enzyme (ncol = 3 macht es schön übersichtlich)
+  facet_wrap(~ Enzym, scales = "free_y", ncol = 3) +
+  
+  # Optik
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  labs(
+    title = "Verteilung der Enzymaktivitäten im Boden",
+    subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren",
+    x = "Düngungsverfahren",
+    y = "Enzymaktivität"
+  )
+```
+
+# 4. Zusammenhänge: Korrelations-Heatmap
+
+Um zu verstehen, wie die biologischen Prozesse im Boden gekoppelt sind, betrachten wir die Korrelationen zwischen allen Enzymen und den Nmin-Werten. Da Bodendaten oft Ausreißer haben und nicht immer perfekt linear sind, verwenden wir hier die robuste Spearman-Rangkorrelation.
+
+Dunkelblaue Felder zeigen starke positive Zusammenhänge (z.B. wenn Enzym A hoch ist, ist auch Enzym B hoch).
 
 ```{r}
 #| fig-width: 8
