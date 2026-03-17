@@ -10,6 +10,7 @@ book:
   repo-actions: [edit, issue]
   chapters:
     - index.qmd
+    - DEMO/DEMO.qmd
 
 format:
   html:
