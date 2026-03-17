@@ -124,4 +124,15 @@ df_final <- df_temporal |>
 # Aufräumen des Arbeitsspeichers
 rm(df_demo_raw, df_demo_clean, df_eea_raw, df_eea_clean, df_nmin_raw, df_nmin_clean, df_temporal, spaltennamen)
 
+# ==============================================================================
+# 6. DATEN EXPORT FÜR EXTERNE PARTNER (Zentraler Projektordner)
+# ==============================================================================
+
+# Prüfen, ob der zentrale Ordner "../Data" existiert, falls nicht, erstellen
+if (!dir.exists("../Data")) {
+  dir.create("../Data")
+}
+
+# Export des finalen, bereinigten Datensatzes als CSV
+write_csv(df_final, "../Data/DEMO_2025_cleansed.csv")
 

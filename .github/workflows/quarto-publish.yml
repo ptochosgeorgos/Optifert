@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-      - master  # Je nachdem, wie Ihr Hauptbranch heißt
+      - master
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Wichtig, damit der Bot die Webseite pushen darf
+      contents: write 
 
     steps:
       - name: 1. Repository klonen
@@ -19,11 +19,17 @@ jobs:
       - name: 2. R installieren
         uses: r-lib/actions/setup-r@v2
         with:
-          use-public-rspm: true # Beschleunigt die Paket-Installation massiv
+          use-public-rspm: true
 
-      - name: 3. R-Pakete installieren
-        run: |
-          Rscript -e 'install.packages(c("tidyverse", "lubridate", "readxl", "rrcov", "gridExtra"), repos = "https://packagemanager.posit.co/cran/latest")'
+      - name: 3. System-Bibliotheken und R-Pakete installieren
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::tidyverse
+            any::lubridate
+            any::readxl
+            any::rrcov
+            any::gridExtra
 
       - name: 4. Quarto installieren
         uses: quarto-dev/quarto-actions/setup@v2

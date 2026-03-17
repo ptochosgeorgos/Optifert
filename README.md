@@ -33,10 +33,19 @@ Um einen neuen Kurzbericht (z. B. für ein neues Feld) hinzuzufügen:
 
 ## Roadmap
 - [x] Definition der Datenstruktur (Flat CSV/Parquet)
-- [ ] Setup der Quarto-Book Architektur
-- [ ] Erstellung der explorativen Basis-Plots (Kovariaten, Zeitreihen)
-- [ ] Implementierung der Hauptkomponentenanalyse (PCA) zur Lösung von Multikollinearität
+- [x] Setup der Quarto-Book Architektur
+- [x] Erstellung der explorativen Basis-Plots (Kovariaten, Zeitreihen)
+- [x] Implementierung der Hauptkomponentenanalyse (PCA) zur Lösung von Multikollinearität
 - [ ] Integration einer optionalen Shinylive-App für explorative Datenfilterung durch Externe
+
+## 📊 Datenzugriff für externe Partner
+
+Der vollständig bereinigte und zusammengeführte Datensatz der aktuellen Kampagne (inkl. Enzymaktivitäten, Nmin-Laborwerten und Erträgen) wird durch das Skript `DEMO/01_Setup.R` generiert.
+
+Die finale Exportdatei liegt zentral im Hauptordner `Data/`:
+* **Datei:** `Data/DEMO_2025_cleansed.csv`
+* **Format:** CSV (Comma Separated Values), UTF-8, Spaltentrennzeichen ist ein Komma (`,`).
+* **Inhalt:** Jede Zeile repräsentiert eine Einzelprobe (inkl. Replikate A/B) mit den verknüpften Metadaten zum Parzellen-Setup und dem jeweiligen Düngungsverfahren.
 
 ## Contributing
 Wir begrüssen die Zusammenarbeit mit Projektpartnern. Wenn Sie neue Sensordaten oder Referenzwerte hinzufügen möchten, stellen Sie bitte sicher, dass diese der Struktur in der `digitsoil_master.csv` entsprechen. 
