@@ -1,0 +1,136 @@
+---
+title: "Langzeitversuch DEMO"
+format: html
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| echo: false
+# Bibliotheken und zentrales Daten-Setup laden
+library(tidyverse)
+library(rrcov)
+
+# Das Setup-Skript wird still im Hintergrund ausgeführt und liefert df_final
+source("01_setup.R")
+```
+
+# 1. Versuchsbeschreibung
+
+Der Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und den Ertrag.
+
+In der aktuellen Kampagne (2025) prüfen wir mithilfe der Digit Soil Sensoren, ob die enzymatische Aktivität (EEA) im Boden als robuster Proxy für die Stickstoffmineralisierung (Nmin) und das allgemeine biologische Ertragspotenzial herangezogen werden kann.
+
+# 2. Explorative Datenanalyse: Nmin pro Verfahren
+
+Bevor wir die Sensordaten (Enzyme) betrachten, verschaffen wir uns einen Überblick über die Referenzwerte aus dem Labor. Wie verteilen sich Ammonium (NH4) und Nitrat (NO3) in den unterschiedlichen Düngungsverfahren?
+
+```{r}
+df_final |> 
+  # 1. Nur Zeilen mit gültigen Werten behalten
+  drop_na(NH4, NO3, Verfahren) |> 
+  
+  # 2. Umformen ins "Long-Format", damit wir NH4 und NO3 nebeneinander plotten können
+  pivot_longer(
+    cols = c(NH4, NO3), 
+    names_to = "Nmin_Typ", 
+    values_to = "Konzentration"
+  ) |> 
+  
+  # 3. Der Plot
+  ggplot(aes(x = Verfahren, y = Konzentration, fill = Verfahren)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 21, outlier.size = 3) +
+  
+  # Teilt den Plot in zwei nebeneinanderliegende Bereiche (NH4 und NO3)
+  facet_wrap(~ Nmin_Typ, scales = "free_y") +
+  
+  # Optik
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  labs(
+    title = "Verteilung von Ammonium und Nitrat im Boden",
+    subtitle = "Vergleich der Düngungsverfahren (Laborwerte)",
+    x = "Düngungsverfahren",
+    y = "Konzentration (mg/kg)"
+  )
+```
+
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+
+df_final |> 
+  # Wir filtern fehlende Werte für diesen Plot heraus
+  drop_na(NAG, NO3, Verfahren) |> 
+  ggplot(aes(x = NAG, y = NO3, color = Verfahren)) +
+  geom_point(size = 3, alpha = 0.7) +
+  # Eine simple lineare Trendlinie (ohne Konfidenzintervall für bessere Lesbarkeit)
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  theme_minimal(base_size = 14) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(
+    title = "Stickstoff-Dynamik: NAG-Aktivität vs. Nitrat",
+    subtitle = "Messpunkte auf Ebene der Einzelproben (Replikate A/B)",
+    x = "NAG Aktivität (Digit Soil)",
+    y = "Nitrat (mg/kg)",
+    color = "Behandlung"
+  )
+```
+
+# 3. Biologisches Profil (Robuste PCA)
+
+Um die Komplexität der fünf gemessenen Enzyme (LAP, NAG, GLS, MUP, MUX) zu reduzieren, führen wir eine robuste Hauptkomponentenanalyse (rPCA) nach Hubert durch. Diese Methode ist unempfindlich gegenüber Ausreißern (z.B. durch lokale Hotspots wie Regenwurmlosung).
+
+Die erste Hauptkomponente (PC1) repräsentiert in der Regel den Index der biologischen Gesamtaktivität.
+
+```{r}
+# Daten für die PCA vorbereiten (vollständige Enzym-Zeilen zwingend erforderlich)
+df_pca <- df_final |> 
+  drop_na(LAP, NAG, GLS, MUP, MUX, Verfahren)
+
+# Robuste PCA berechnen (Zentrierung und Skalierung ist aktiv)
+pca_rob <- PcaHubert(df_pca |> select(LAP, NAG, GLS, MUP, MUX), scale = TRUE)
+
+# Scores extrahieren und an den Datensatz anheften
+df_pca <- df_pca |> 
+  mutate(
+    PC1 = getScores(pca_rob)[, 1],
+    PC2 = getScores(pca_rob)[, 2]
+  )
+
+# Erklärte Varianz berechnen
+eigenvals <- getEigenvalues(pca_rob)
+var_pc1 <- round((eigenvals[1] / sum(eigenvals)) * 100, 1)
+var_pc2 <- round((eigenvals[2] / sum(eigenvals)) * 100, 1)
+```
+
+```{r}
+#| fig-width: 8
+#| fig-height: 6
+
+ggplot(df_pca, aes(x = PC1, y = PC2, color = Verfahren)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_point(size = 4, alpha = 0.8) +
+  
+  # Konfidenz-Ellipsen für die Verfahren hinzufügen, falls genug Punkte vorhanden sind
+  stat_ellipse(aes(group = Verfahren), type = "norm", linetype = "dotted", alpha = 0.5) +
+  
+  theme_minimal(base_size = 14) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(
+    title = "Robuste PCA der Bodenenzyme",
+    subtitle = "Gruppierung der Verfahren nach biologischer Gesamtaktivität",
+    x = paste0("PC1 - Index der biol. Gesamtaktivität (", var_pc1, "%)"),
+    y = paste0("PC2 - Enzymatischer Shift (", var_pc2, "%)"),
+    color = "Behandlung"
+  )
+```
+
