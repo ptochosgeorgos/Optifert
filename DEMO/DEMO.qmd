@@ -253,3 +253,8 @@ Die explorative Datenanalyse des Jahres 2025 zeigt die Leistungsfähigkeit der D
 Nächste methodische Schritte:
 Da die einfache explorative Analyse (PCA) zeigt, dass räumliche Hintergrundeffekte (Noise) stark ausgeprägt sind, ist der Einsatz einfacher linearer Modelle zur Ertragsvorhersage nicht zielführend.
 Die finale agronomische Auswertung wird sich daher auf Linear Mixed-Effects Models (LMM) stützen. Durch die Integration von Parzellennummern und Messdaten als Zufallseffekte (Random Effects) können wir die räumlich-zeitliche Varianz mathematisch isolieren und den reinen Einfluss der enzymatischen Aktivität auf den finalen Pflanzenertrag bzw. Nährstoffentzug präzise quantifizieren.
+
+
+
+
+Frank, diese Änderung siehst du nun (-:)
