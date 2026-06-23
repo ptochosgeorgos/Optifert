@@ -9,7 +9,7 @@ Dieses Repository enthält die Datenpipeline und das methodische Framework zur E
 Das Ziel dieser Kurzberichte ist es, die Vorhersagekraft der schnellen enzymatischen Vor-Ort-Messungen (z.B. Phosphatasen, Glucosidasen) mit klassischen, laborbasierten GRUD-Methoden (P-H2O, P-AAE, Nmin) sowie Ertragsdaten aus Langzeitversuchen zu vergleichen. 
 
 Die Ergebnisse werden automatisiert als interaktives **Quarto-Book** auf GitHub Pages publiziert.
-👉 **[Hier klicken, um die aktuellen Auswertungsberichte zu lesen]**(https://<ihr-github-username>.github.io/optifert-digitsoil) *(Link anpassen!)*
+👉 **[Hier klicken, um die aktuellen Auswertungsberichte zu lesen]**(https://ptochosgeorgos.github.io/Optifert/)
 
 ## Visuals
 *(Hier fügen wir später einen Screenshot des gerenderten Quarto-Books oder einen exemplarischen Korrelations-Plot ein).*
@@ -19,12 +19,12 @@ Um dieses Projekt lokal auszuführen und die Daten zu analysieren, benötigen Si
 
 1. Klonen Sie dieses Repository auf Ihren lokalen Rechner:
     
-    git clone https://github.com/<ihr-github-username>/optifert-digitsoil.git
+    git clone https://github.com/ptochosgeorgos/Optifert.git
     
 2. Öffnen Sie die Datei `OptiFert_DigitSoil.Rproj` in RStudio.
 
 ## Usage
-Das Projekt verwendet eine flache Datenstruktur (Tidy Data). Die Master-Datenbank (`data/digitsoil_master.csv`) enthält alle Sensor- und Labor-Referenzwerte.
+Das Projekt verwendet eine flache Datenstruktur (Tidy Data). Die Master-Datenbank (`digitsoil_master.csv`) enthält alle Sensor- und Labor-Referenzwerte und liegt im Hauptverzeichnis.
 
 Um einen neuen Kurzbericht (z. B. für ein neues Feld) hinzuzufügen:
 1. Erstellen Sie eine neue `.qmd` Datei im Hauptverzeichnis (z. B. `02_feldversuch_xy.qmd`).
@@ -40,12 +40,12 @@ Um einen neuen Kurzbericht (z. B. für ein neues Feld) hinzuzufügen:
 
 ## 📊 Datenzugriff für externe Partner
 
-Der vollständig bereinigte und zusammengeführte Datensatz der aktuellen Kampagne (inkl. Enzymaktivitäten, Nmin-Laborwerten und Erträgen) wird durch das Skript `DEMO/01_Setup.R` generiert.
+Der vollständig bereinigte und zusammengeführte Datensatz der aktuellen Kampagnen (inkl. Enzymaktivitäten, Nmin-Laborwerten und Erträgen) wird durch das Skript `scripts/01_build_master_data.R` generiert.
 
-Die finale Exportdatei liegt zentral im Hauptordner `Data/`:
-* **Datei:** `Data/DEMO_2025_cleansed.csv`
+Die finale Exportdatei liegt im Hauptordner:
+* **Datei:** `digitsoil_master.csv`
 * **Format:** CSV (Comma Separated Values), UTF-8, Spaltentrennzeichen ist ein Komma (`,`).
-* **Inhalt:** Jede Zeile repräsentiert eine Einzelprobe (inkl. Replikate A/B) mit den verknüpften Metadaten zum Parzellen-Setup und dem jeweiligen Düngungsverfahren.
+* **Inhalt:** Jede Zeile repräsentiert eine Einzelprobe (inkl. Replikate A/B) mit den verknüpften Metadaten zum Parzellen-Setup und dem jeweiligen Düngungsverfahren für verschiedene LTEs und Jahre.
 
 ## Contributing
 Wir begrüssen die Zusammenarbeit mit Projektpartnern. Wenn Sie neue Sensordaten oder Referenzwerte hinzufügen möchten, stellen Sie bitte sicher, dass diese der Struktur in der `digitsoil_master.csv` entsprechen. 

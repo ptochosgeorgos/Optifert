@@ -13,17 +13,17 @@ execute:
 library(tidyverse)
 library(rrcov)
 
-# Das Setup-Skript wird still im Hintergrund ausgeführt und liefert df_final
-source("01_setup.R")
+# Das Setup-Skript hat den Master-Datensatz generiert
+df_final <- read_csv("../digitsoil_master.csv", show_col_types = FALSE) |> filter(LTE == "DEMO")
 ```
 
 # 1. Hintergrund und Methodik
 
 Der Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und das Ertragspotenzial.
 
-Die agronomische Herausforderung besteht darin, dass die reine Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor oft nur eine statische Momentaufnahme darstellt. In der aktuellen Kampagne (2025) evaluieren wir daher den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und sollen als robuster Proxy für das kontinuierliche Mineralisierungspotenzial der Bodenbiologie dienen.
+Die agronomische Fragestellung berücksichtigt, dass die Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor eine statische Messung darstellt. In der aktuellen Kampagne (2025) evaluieren wir den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und quantifizieren das Mineralisierungspotenzial der Bodenbiologie.
 
-Die Datenaufbereitung für diese Analyse berücksichtigt bewusst die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die oft enorme mikrobielle Heterogenität des Bodens (z.B. durch lokale Hotspots organischer Substanz) realitätsnah abzubilden.
+Die Datenaufbereitung für diese Analyse integriert die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die mikrobielle Heterogenität des Bodens abzubilden.
 
 # 2. Explorative Datenanalyse: Nmin pro Verfahren
 
@@ -67,9 +67,9 @@ df_final |>
 
 # 3. Sensor-Signale: Enzymatische Aktivität (EEA)
 
-Analog zu den Nmin-Werten analysieren wir nun die Rohsignale der fünf Digit Soil Sensoren (LAP, NAG, GLS, MUP, MUX).
+Analog zu den Nmin-Werten analysieren wir die Rohsignale der fünf Digit Soil Sensoren (LAP, NAG, GLS, MUP, MUX).
 
-Während Nmin das Endprodukt der Mineralisierung darstellt, messen diese Enzyme die Rate der Umsetzungsprozesse. Beispielsweise spiegeln LAP und NAG den Stickstoffkreislauf wider, während GLS für den Kohlenstoffabbau steht. Die zentrale Fragestellung in diesem Schritt ist: Weisen die Sensordaten eine ähnliche Sensitivität gegenüber den Düngungsverfahren auf wie die klassischen Laborwerte? Wenn die Boxplots der Enzyme ähnliche relative Muster aufweisen wie die Nmin-Plots (z.B. Erhöhung bei organischen Verfahren wie "MIST"), bestätigt dies die Funktionsfähigkeit der Sensorik unter Feldbedingungen.
+Während Nmin das Produkt der Mineralisierung darstellt, messen diese Enzyme die Raten der Umsetzungsprozesse. LAP und NAG spiegeln den Stickstoffkreislauf wider, während GLS für den Kohlenstoffabbau steht. Die Fragestellung ist: Weisen die Sensordaten eine messbare Sensitivität gegenüber den Düngungsverfahren auf? Gleiche relative Muster in den Boxplots der Enzyme und Nmin-Werte (z.B. erhöhte Werte bei organischen Verfahren wie "MIST") dokumentieren die Reaktion der Sensorik auf die Behandlungen.
 
 ```{r}
 df_final |> 
@@ -107,13 +107,13 @@ df_final |>
 
 # 4. Systemische Kopplung: Korrelationsanalyse
 
-Um die biologische Validität der Sensoren zu prüfen, untersuchen wir die Zusammenhänge der Variablen untereinander. Da enzymatische Reaktionen biologischen Sättigungskurven unterliegen und nicht zwingend perfekt linear verlaufen, verwenden wir die robuste Spearman-Rangkorrelation.
+Zur Überprüfung der Zusammenhänge der Variablen untereinander verwenden wir die Spearman-Rangkorrelation, da enzymatische Reaktionen Sättigungskurven aufweisen können und nicht zwingend linear verlaufen.
 
-In der folgenden Heatmap suchen wir nach zwei Schlüsselmustern:
+In der folgenden Heatmap werden zwei Muster analysiert:
 
-1. Multikollinearität der Enzyme: Eine starke positive Korrelation (Dunkelblau, R² > 0.6) der Enzyme untereinander ist agronomisch zu erwarten, da ein aktives Bodenleben in der Regel alle Stoffkreisläufe (C, N, P) simultan hochfährt.
+1. Multikollinearität der Enzyme: Eine positive Korrelation der Enzyme untereinander wird erwartet, da die Stoffkreisläufe (C, N, P) im Boden gekoppelt ablaufen.
 
-2. Kopplung an Nmin: Eine signifikante Korrelation zwischen den N-spezifischen Enzymen (insbesondere NAG/LAP) und den Nmin-Laborwerten (NH4/NO3) ist der direkte Indikator dafür, dass der Sensor das tatsächliche Nachlieferungsvermögen des Bodens abbildet.
+2. Kopplung an Nmin: Eine Korrelation zwischen den N-spezifischen Enzymen (NAG/LAP) und den Nmin-Laborwerten (NH4/NO3) zeigt an, inwiefern der Sensor das Nachlieferungsvermögen des Bodens abbildet.
 
 ```{r}
 # 1. Daten auswählen und Korrelationsmatrix berechnen
@@ -154,11 +154,11 @@ ggplot(cor_data, aes(x = Var1, y = Var2, fill = Korrelation)) +
 
 # 5. Biologisches Profil und Dimensionsreduktion
 
-Die vorherige Heatmap zeigt oft starke Interkorrelationen zwischen den fünf gemessenen Enzymen. Um diese Komplexität für weitere Auswertungen zu reduzieren und das "Rauschen" von überlappenden Signalen zu minimieren, führen wir eine robuste Hauptkomponentenanalyse (rPCA nach Hubert) durch.
+Aufgrund der Interkorrelationen zwischen den fünf Enzymen führen wir eine Hauptkomponentenanalyse (rPCA nach Hubert) durch, um die Dimensionalität der Daten zu reduzieren.
 
-Im Gegensatz zu einer klassischen PCA ist dieser Algorithmus unempfindlich gegenüber extremen Ausreißern, wie sie im Boden durch lokale Hotspots unweigerlich entstehen. Die PCA ist ein unüberwachtes Verfahren (Unsupervised Learning) – der Algorithmus kennt die Düngungsverfahren nicht, sondern sucht rein nach den stärksten Varianzmustern in der Bodenbiologie.
+Dieser Algorithmus ist unempfindlich gegenüber Ausreißern. Die PCA identifiziert als unüberwachtes Verfahren die stärksten Varianzmuster ohne Vorwissen über die Düngungsverfahren.
 
-Die erste Hauptkomponente (PC1) bündelt die gemeinsame Varianz der Sensoren und dient als Index der biologischen Gesamtaktivität. Wir visualisieren diese PCA und färben die Messpunkte im Nachhinein nach den Düngungsverfahren ein. Ein starker Overlap der Ellipsen bedeutet, dass die natürliche räumliche Bodenheterogenität in diesem Datensatz den makroskopischen Treatment-Effekt der Düngung überlagert.
+Die erste Hauptkomponente (PC1) bündelt die gemeinsame Varianz der Sensoren und quantifiziert die biologische Aktivität. Ein starker Overlap der Ellipsen in der Visualisierung zeigt, dass die räumliche Bodenheterogenität den Treatment-Effekt der Düngung überlagert.
 
 
 ```{r}
@@ -246,15 +246,196 @@ p_nh4 <- ggplot(df_pca, aes(x = PC1, y = PC2, color = NH4)) +
 grid.arrange(p_no3, p_nh4, ncol = 2)
 ```
 
-# 6. Zusammenfassung und Ausblick
+# 6. Mechanistisches N-Balance Modell (Intervall-basiert)
 
-Die explorative Datenanalyse des Jahres 2025 zeigt die Leistungsfähigkeit der Digit Soil Sensoren unter realen Feldbedingungen auf. Die Messungen offenbaren eine erhebliche räumliche Varianz auf Ebene der Replikate (Probe A vs. B), welche die natürliche Komplexität des Bodenmikrobioms widerspiegelt.
+Die explorative Datenanalyse zeigt Varianzen auf Ebene der Replikate. Zur Quantifizierung des biologischen Beitrags zur Stickstoffmineralisierung verwenden wir ein lineares gemischtes Modell (Linear Mixed-Effects Model, LMM) für die Longitudinaldaten.
 
-Nächste methodische Schritte:
-Da die einfache explorative Analyse (PCA) zeigt, dass räumliche Hintergrundeffekte (Noise) stark ausgeprägt sind, ist der Einsatz einfacher linearer Modelle zur Ertragsvorhersage nicht zielführend.
-Die finale agronomische Auswertung wird sich daher auf Linear Mixed-Effects Models (LMM) stützen. Durch die Integration von Parzellennummern und Messdaten als Zufallseffekte (Random Effects) können wir die räumlich-zeitliche Varianz mathematisch isolieren und den reinen Einfluss der enzymatischen Aktivität auf den finalen Pflanzenertrag bzw. Nährstoffentzug präzise quantifizieren.
+## 6.1 Die Idee: Massenbilanz als Rahmen
 
+Das statistische Modell basiert auf der physikalischen Massenbilanz. Für die Intervalle ($t_1 \rightarrow t_2$) wird die Änderung im mineralisierten Stickstoff in kg/ha berechnet ($dN$). Hierzu wird die Konzentration ($mg/kg$) mit einem Standardfaktor (z.B. 4.5 für 0-30 cm Bodentiefe bei Lagerungsdichte 1.5) in $kg/ha$ konvertiert. 
 
+Der pflanzliche Entzug (`Interval_N_Entzug_kg_ha`) wird direkt von der $\Delta N_{min}$ subtrahiert, anstatt als eigener Fixed Effect im Modell geschätzt zu werden. Die resultierende abhängige Variable $dN$ wird dann durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschung) erklärt:
 
+$$dN \sim PC1 + PC2 + Precip + Precip^2$$
 
-Frank, diese Änderung siehst du nun (-:)
+## 6.2 Variablen und Designmatrix
+
+Das Modell (`lmer`) verwendet folgende Struktur:
+
+*   **Abhängige Variable ($Y$):** `dN` ($kg/ha$) - Die bereinigte Nettoveränderung des mineralischen Stickstoffs im Boden ($\Delta N_{min} \times 4.5 - N_{Entzug}$).
+*   **Fixed Effects:**
+    *   `PC1`: Index der biologischen Gesamtaktivität.
+    *   `PC2`: Enzymatischer Shift (zweite Hauptkomponente).
+    *   `Cum_Precip_mm`: Kumulierte Niederschlagssumme zwischen $t_1$ und $t_2$ (Open-Meteo API) als Proxy für Auswaschungsverluste.
+*   **Random Effects:**
+    *   `(1 | ParzNrFeld)`: Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie.
+
+## 6.3 Voraussetzungen und Annahmen
+
+Für die Modellierung gelten folgende Annahmen:
+1.  **Konvertierungsfaktor:** Die Umrechnung von $mg/kg$ in $kg/ha$ erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, $1.5 \ g/cm^3$).
+2.  **Ertrags-Baseline (Mais):** Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (`Total_N_Entzug_kg_ha`) der jeweiligen Parzelle exklusiv für die Kultur *Mais* (`Kultur == "MA"`) berechnet.
+3.  **Logistischer Pflanzenentzug (S-Kurve):** Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis $10^\circ C$) modelliert:
+    $$ N_{up}(GDD) = \frac{N_{max}}{1 + \exp(-0.012 \cdot (GDD - 750))} $$
+    Die Parameter sind:
+    *   $N_{max} =$ Historischer Mais-Entzug der Parzelle
+    *   Wachstumsrate ($r$) $= 0.012$
+    *   Wendepunkt ($GDD_{inf}$) $= 750 \ GDD$ (entspricht ca. BBCH 51, schnelles vegetatives Wachstum).
+    Der berechnete Netto-Entzug im Intervall $t_1 \rightarrow t_2$ wird dann direkt von $\Delta N_{min}$ abgezogen.
+4.  **Zeitliche Integration:** Die Enzymmessung zum Zeitpunkt $t_2$ repräsentiert das Intervall $t_1 \rightarrow t_2$.
+
+## 6.4 Modell-Implementierung in R
+
+```{r}
+library(lme4)
+library(lmerTest) 
+
+# 1. Daten vorbereiten und Variablen transformieren
+df_model <- df_pca |>
+  mutate(
+    # Konvertierung mg/kg -> kg/ha (Faktor 4.5 für 30cm Tiefe)
+    Delta_Nmin_kgha = Delta_Nmin * 4.5,
+    # Verrechnung des Entzugs direkt in der Zielvariable
+    dN = Delta_Nmin_kgha - Interval_N_Entzug_kg_ha
+  ) |>
+  drop_na(dN, PC1, PC2, Cum_Precip_mm, ParzNrFeld)
+
+# 2. Das LMM fitten
+n_balance_model <- lmer(
+  dN ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1 | ParzNrFeld),
+  data = df_model
+)
+
+# 3. Modellzusammenfassung
+summary(n_balance_model)
+
+# 4. Parameter extrahieren für den Bericht
+mod_sum <- summary(n_balance_model)
+coefs <- mod_sum$coefficients
+
+pc1_est <- round(coefs["PC1", "Estimate"], 2)
+pc1_pval <- round(coefs["PC1", "Pr(>|t|)"], 3)
+pc1_pval_text <- ifelse(pc1_pval < 0.001, "< 0.001", paste0("= ", pc1_pval))
+
+pc2_est <- round(coefs["PC2", "Estimate"], 2)
+pc2_pval <- round(coefs["PC2", "Pr(>|t|)"], 3)
+pc2_pval_text <- ifelse(pc2_pval < 0.001, "< 0.001", paste0("= ", pc2_pval))
+
+precip_est <- round(coefs["Cum_Precip_mm", "Estimate"], 2)
+precip2_est <- round(coefs["I(Cum_Precip_mm^2)", "Estimate"], 4)
+
+# 5. Modellperformance Metriken
+library(MuMIn)
+rmse_val <- round(sqrt(mean(residuals(n_balance_model)^2)), 2)
+r2 <- r.squaredGLMM(n_balance_model)
+r2m <- round(r2[1, "R2m"], 3)
+r2c <- round(r2[1, "R2c"], 3)
+```
+
+Die PCA-Ladungen definieren die Hauptkomponenten wie folgt: PC1 weist gleichgerichtete, negative Ladungen für NAG, GLS, MUP und MUX auf und quantifiziert die allgemeine enzymatische Aktivität. PC2 weist eine positive Ladung für GLS (Kohlenstoffzyklus) und negative Ladungen für NAG und MUP (Stickstoff- und Phosphorzyklus) auf. PC2 quantifiziert die Verschiebung des enzymatischen Profils zwischen Kohlenstoff- und Nährstoffumsatz.
+
+Daraus wird folgende Hypothese für das N-Balance Modell abgeleitet: Eine erhöhte relative Aktivität kohlenstoffabbauender Enzyme (hoher PC2-Wert) führt durch mikrobielle Immobilisierung zu einer Reduktion des verfügbaren Stickstoffs.
+
+Die Modellergebnisse für die Variable $dN$ zeigen:
+PC1 (allgemeine Aktivität) weist keinen signifikanten Effekt auf die Nettoveränderung auf (`r pc1_est` kg N/ha pro Index-Einheit, p `r pc1_pval_text`). 
+PC2 weist einen nicht-signifikanten Koeffizienten auf (`r pc2_est` kg N/ha, p `r pc2_pval_text`). Im bereinigten Sommer-Datensatz ist der isolierte enzymatische Effekt linear nicht dominant.
+Der Niederschlag zeigt einen starken nicht-linearen (quadratischen) Effekt. Die linearen und quadratischen Terme (`r precip_est` bzw. `r precip2_est`) quantifizieren den überproportionalen Auswaschungsverlust bei extremen Niederschlägen.
+
+Die Modellperformance ist hoch: Das Modell erklärt marginal (nur durch Fixed Effects) `r r2m * 100`% der Varianz ($R^2_m = `r r2m`$) und konditional (inklusive Parzellen-Baselines) `r r2c * 100`% der Varianz ($R^2_c = `r r2c`$). Der durchschnittliche Vorhersagefehler (RMSE) beträgt `r rmse_val` kg N/ha.
+
+## 6.5 Modell-Evaluation und Visualisierung
+
+Um den biologischen Effekt zu isolieren und visuell greifbar zu machen, betrachten wir das Modell in zwei Dimensionen (Partielle Residuen) und in drei Dimensionen (Regressionsebene).
+
+### Partielle Residuen: Der isolierte biologische Effekt (PC2)
+
+Da der Niederschlag die Varianz von $dN$ stark dominiert, berechnen wir die partiellen Residuen. Dabei wird der mathematische Effekt von Niederschlag und allgemeiner Aktivität (PC1) herausgerechnet, um isoliert die Beziehung zwischen dem C/N-Enzymshift (PC2) und der verbleibenden Stickstoffdynamik darzustellen.
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+
+df_model$dN_partial_PC2 <- df_model$dN - 
+  (coefs["Cum_Precip_mm", "Estimate"] * df_model$Cum_Precip_mm) - 
+  (coefs["I(Cum_Precip_mm^2)", "Estimate"] * (df_model$Cum_Precip_mm^2)) - 
+  (coefs["PC1", "Estimate"] * df_model$PC1)
+
+ggplot(df_model, aes(x = PC2, y = dN_partial_PC2)) +
+  geom_point(size = 3, alpha = 0.7, color = "#2c3e50") +
+  geom_smooth(method = "lm", color = "#e74c3c", fill = "#e74c3c", alpha = 0.2) +
+  theme_minimal() +
+  labs(
+    title = "Partielle Residuen: Einfluss des C/N-Shifts (PC2)",
+    subtitle = "Bereinigt um Niederschlag und allgemeine Aktivität",
+    x = "PC2 (Enzymatischer Shift Richtung Kohlenstoff)",
+    y = "Bereinigtes dN [kg N/ha]"
+  )
+```
+
+### 3D-Visualisierung der Regressionsebene
+
+Das Modell definiert eine Ebene im dreidimensionalen Raum, aufgespannt durch den biologischen Shift (PC2) und den physikalischen Verlust (Niederschlag). Die interaktive Grafik erlaubt es, die Modellfläche und die Beobachtungen räumlich zu explorieren.
+
+```{r, message=FALSE, warning=FALSE}
+library(plotly)
+
+# Erstelle ein Grid für die Ebene
+pc2_seq <- seq(min(df_model$PC2), max(df_model$PC2), length.out = 20)
+precip_seq <- seq(min(df_model$Cum_Precip_mm), max(df_model$Cum_Precip_mm), length.out = 20)
+
+grid <- expand.grid(PC2 = pc2_seq, Cum_Precip_mm = precip_seq)
+
+# Berechne Z-Werte der Regressionsebene (Basislinie = 0 für Random Effects, PC1 = 0)
+grid$dN_pred <- coefs["(Intercept)", "Estimate"] +
+                coefs["PC2", "Estimate"] * grid$PC2 +
+                coefs["Cum_Precip_mm", "Estimate"] * grid$Cum_Precip_mm +
+                coefs["I(Cum_Precip_mm^2)", "Estimate"] * (grid$Cum_Precip_mm^2)
+
+# Umformen in eine Matrix für plotly::add_surface
+z_matrix <- matrix(grid$dN_pred, nrow = length(pc2_seq), ncol = length(precip_seq))
+
+# Interaktiver Plotly-Graph
+plot_ly() |>
+  # Reale Datenpunkte
+  add_markers(
+    data = df_model, 
+    x = ~PC2, 
+    y = ~Cum_Precip_mm, 
+    z = ~dN,
+    marker = list(size = 4, color = "#2980b9", opacity = 0.8),
+    name = "Beobachtungen"
+  ) |>
+  # Regressionsebene
+  add_surface(
+    x = ~pc2_seq, 
+    y = ~precip_seq, 
+    z = ~z_matrix,
+    opacity = 0.6,
+    colorscale = "Viridis",
+    name = "Modell-Ebene"
+  ) |>
+  layout(
+    scene = list(
+      xaxis = list(title = "PC2 (C/N Shift)"),
+      yaxis = list(title = "Niederschlag (mm)"),
+      zaxis = list(title = "dN (kg N/ha)")
+    ),
+    title = "3D Modell-Ebene: Stickstoff-Massenbilanz"
+  )
+```
+
+## 6.6 Synthese und Interpretation der Felddaten
+
+Die Modellierung der Netto-Stickstoffveränderung ($dN$) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert ($p < 0.001$). 
+
+Die beobachteten Netto-Mineralisierungsraten verhalten sich im Wesentlichen wie ein physikalisches System, in dem moderate Niederschläge vom Boden gepuffert werden, während Extremereignisse zu einem quadratisch ansteigenden Auswaschungsverlust führen. Ein robustes biologisches Signal, welches auf eine enzymatische Steuerung der Netto-Mineralisierung im Makromaßstab hindeutet, lässt sich aus den vorliegenden Daten nicht sicher extrahieren.
+
+Das Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten und den in-situ Stickstoffflüssen lässt verschiedene Interpretationen zu:
+
+1.  **Hypothese 1: Dominanz makroskopischer Flüsse**
+    Es ist davon auszugehen, dass die schiere Masse des durch starken Sommerniederschlag verlagerten Stickstoffs (Auswaschung, Denitrifikation) so groß ist, dass sie jeglichen mikrobiologischen Netto-Beitrag überlagert. Das biologische Signal fungiert unter diesen Witterungsbedingungen lediglich als Rauschen innerhalb der dominanten physikalischen Massenbilanz.
+    
+2.  **Hypothese 2: Diskrepanz zwischen potenzieller und realer Aktivität**
+    Die Reaktionsplatten messen die enzymatische *Potenzialaktivität* unter laboroptimierten Bedingungen (Substratsättigung, optimale Pufferung). Im Feld sind diese Enzyme jedoch Limitationen durch Diffusion, Trockenheit und fehlende Substratverfügbarkeit unterworfen. Das Laborpotenzial lässt sich folglich nicht zwingend als reale Umsetzungsrate in die Feldskala übersetzen.
+
+3.  **Hypothese 3: Technische Varianz und Sensorrauschen**
+    Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.

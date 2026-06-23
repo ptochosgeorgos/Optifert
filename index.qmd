@@ -3,3 +3,21 @@
 Willkommen zum Evaluierungsbericht des Projekts **OptiFert**. 
 
 Dieses interaktive Dokument dient der methodischen und statistischen Überprüfung der enzymatischen Vor-Ort-Sensoren von Digit Soil im Vergleich zu klassischen Laboranalysen (GRUD).
+
+## Methodik: Digit Soil SEAR (BOB) Technologie
+
+Für die enzymatischen Messungen in diesem Projekt wurde das **SEAR (Soil Enzymatic Activity Reader)** System von Digit Soil (intern oft als "BOB" bezeichnet) verwendet. Im Gegensatz zu klassischen, laborintensiven photometrischen Assays ermöglicht das SEAR-System eine miniaturisierte, feldnahe Quantifizierung der extrazellulären Enzymaktivität.
+
+### Funktionsprinzip
+Das System basiert auf einer **fluorogenen Reaktion**. Es verwendet spezielle Reaktionsplatten (Reaction Plates), die mit fluoreszierenden Substraten beschichtet sind. Diese Substrate sind in eine Agarose-Gel-Matrix eingebettet und werden in direkten Kontakt mit der Bodenprobe gebracht. 
+
+Wenn die bodeneigenen Enzyme das spezifische Substrat spalten, wird ein Fluorophor freigesetzt. Die entstehende Fluoreszenz wird durch das transparente Gel optisch gemessen. Die Zunahme der Fluoreszenz über die Zeit ist direkt proportional zur potenziellen enzymatischen Umsatzrate.
+
+### Gemessene Leitenzyme
+Das System erfasst spezifische "molekulare Scheren", die Indikatoren für den Abbau von organischer Substanz und die Nährstoffmineralisierung sind. Die in diesem Bericht verwendeten Hauptkomponenten (PC1 und PC2) basieren primär auf den folgenden Enzymen:
+- **LAP (Leucin-Aminopeptidase):** Indikator für den Proteinabbau (Stickstoffzyklus).
+- **NAG (N-Acetyl-β-D-glucosaminidase):** Indikator für den Chitinabbau (Kohlenstoff- und Stickstoffzyklus).
+- **GLS (β-Glucosidase):** Indikator für den Celluloseabbau (Kohlenstoffzyklus).
+- **MUP / MUX (Phosphatasen/Xylosidasen):** Indikatoren für die Phosphor- bzw. Hemizellulosemineralisierung.
+
+Der entscheidende methodische Vorteil des Systems ist die Standardisierung und die Möglichkeit, Messungen zeitnah an frischen Proben durchzuführen, was Transportartefakte minimiert. Da die Messung jedoch unter optimalen Puffer- und Substratsättigungsbedingungen stattfindet, repräsentiert das Signal die *Potenzialaktivität* der mikrobiellen Gemeinschaft, nicht zwingend die durch Trockenheit oder Substratmangel limitierte *reale* In-situ-Aktivität.
