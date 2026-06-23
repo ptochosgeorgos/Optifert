@@ -32,6 +32,7 @@ jobs:
             any::gridExtra
             any::lme4
             any::lmerTest
+            any::MuMIn
 
       - name: 4. Quarto installieren
         uses: quarto-dev/quarto-actions/setup@v2
