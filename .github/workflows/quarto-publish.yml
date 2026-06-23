@@ -30,6 +30,7 @@ jobs:
             any::readxl
             any::rrcov
             any::gridExtra
+            any::lme4
 
       - name: 4. Quarto installieren
         uses: quarto-dev/quarto-actions/setup@v2
