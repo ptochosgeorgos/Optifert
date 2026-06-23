@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>1&nbsp; Langzeitversuch DEMO – OptiFert: Evaluation der Digit Soil Technologie</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -33,15 +36,14 @@ ul.task-list li input[type="checkbox"] {
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-00ccf60c28c3bdf2d57f5131fbf16f11.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ae37cc8db5ab82bc4e5e9ffa304b8b83.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -70,6 +72,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -137,7 +168,13 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#sensor-signale-enzymatische-aktivität-eea" id="toc-sensor-signale-enzymatische-aktivität-eea" class="nav-link" data-scroll-target="#sensor-signale-enzymatische-aktivität-eea"><span class="header-section-number">4</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</a></li>
   <li><a href="#systemische-kopplung-korrelationsanalyse" id="toc-systemische-kopplung-korrelationsanalyse" class="nav-link" data-scroll-target="#systemische-kopplung-korrelationsanalyse"><span class="header-section-number">5</span> 4. Systemische Kopplung: Korrelationsanalyse</a></li>
   <li><a href="#biologisches-profil-und-dimensionsreduktion" id="toc-biologisches-profil-und-dimensionsreduktion" class="nav-link" data-scroll-target="#biologisches-profil-und-dimensionsreduktion"><span class="header-section-number">6</span> 5. Biologisches Profil und Dimensionsreduktion</a></li>
-  <li><a href="#zusammenfassung-und-ausblick" id="toc-zusammenfassung-und-ausblick" class="nav-link" data-scroll-target="#zusammenfassung-und-ausblick"><span class="header-section-number">7</span> 6. Zusammenfassung und Ausblick</a></li>
+  <li><a href="#mechanistisches-n-balance-modell-intervall-basiert" id="toc-mechanistisches-n-balance-modell-intervall-basiert" class="nav-link" data-scroll-target="#mechanistisches-n-balance-modell-intervall-basiert"><span class="header-section-number">7</span> 6. Mechanistisches N-Balance Modell (Intervall-basiert)</a>
+  <ul class="collapse">
+  <li><a href="#die-idee-massenbilanz-als-rahmen" id="toc-die-idee-massenbilanz-als-rahmen" class="nav-link" data-scroll-target="#die-idee-massenbilanz-als-rahmen"><span class="header-section-number">7.1</span> 6.1 Die Idee: Massenbilanz als Rahmen</a></li>
+  <li><a href="#variablen-und-designmatrix" id="toc-variablen-und-designmatrix" class="nav-link" data-scroll-target="#variablen-und-designmatrix"><span class="header-section-number">7.2</span> 6.2 Variablen und Designmatrix</a></li>
+  <li><a href="#voraussetzungen-und-annahmen" id="toc-voraussetzungen-und-annahmen" class="nav-link" data-scroll-target="#voraussetzungen-und-annahmen"><span class="header-section-number">7.3</span> 6.3 Voraussetzungen und Annahmen</a></li>
+  <li><a href="#modell-implementierung-in-r" id="toc-modell-implementierung-in-r" class="nav-link" data-scroll-target="#modell-implementierung-in-r"><span class="header-section-number">7.4</span> 6.4 Modell-Implementierung in R</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/ptochosgeorgos/Optifert/edit/main/DEMO/DEMO.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ptochosgeorgos/Optifert/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -166,8 +203,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="hintergrund-und-methodik" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> 1. Hintergrund und Methodik</h1>
 <p>Der Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und das Ertragspotenzial.</p>
-<p>Die agronomische Herausforderung besteht darin, dass die reine Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor oft nur eine statische Momentaufnahme darstellt. In der aktuellen Kampagne (2025) evaluieren wir daher den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und sollen als robuster Proxy für das kontinuierliche Mineralisierungspotenzial der Bodenbiologie dienen.</p>
-<p>Die Datenaufbereitung für diese Analyse berücksichtigt bewusst die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die oft enorme mikrobielle Heterogenität des Bodens (z.B. durch lokale Hotspots organischer Substanz) realitätsnah abzubilden.</p>
+<p>Die agronomische Fragestellung berücksichtigt, dass die Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor eine statische Messung darstellt. In der aktuellen Kampagne (2025) evaluieren wir den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und quantifizieren das Mineralisierungspotenzial der Bodenbiologie.</p>
+<p>Die Datenaufbereitung für diese Analyse integriert die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die mikrobielle Heterogenität des Bodens abzubilden.</p>
 </section>
 <section id="explorative-datenanalyse-nmin-pro-verfahren" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> 2. Explorative Datenanalyse: Nmin pro Verfahren</h1>
@@ -185,8 +222,8 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="sensor-signale-enzymatische-aktivität-eea" class="level1" data-number="4">
 <h1 data-number="4"><span class="header-section-number">4</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</h1>
-<p>Analog zu den Nmin-Werten analysieren wir nun die Rohsignale der fünf Digit Soil Sensoren (LAP, NAG, GLS, MUP, MUX).</p>
-<p>Während Nmin das Endprodukt der Mineralisierung darstellt, messen diese Enzyme die Rate der Umsetzungsprozesse. Beispielsweise spiegeln LAP und NAG den Stickstoffkreislauf wider, während GLS für den Kohlenstoffabbau steht. Die zentrale Fragestellung in diesem Schritt ist: Weisen die Sensordaten eine ähnliche Sensitivität gegenüber den Düngungsverfahren auf wie die klassischen Laborwerte? Wenn die Boxplots der Enzyme ähnliche relative Muster aufweisen wie die Nmin-Plots (z.B. Erhöhung bei organischen Verfahren wie “MIST”), bestätigt dies die Funktionsfähigkeit der Sensorik unter Feldbedingungen.</p>
+<p>Analog zu den Nmin-Werten analysieren wir die Rohsignale der fünf Digit Soil Sensoren (LAP, NAG, GLS, MUP, MUX).</p>
+<p>Während Nmin das Produkt der Mineralisierung darstellt, messen diese Enzyme die Raten der Umsetzungsprozesse. LAP und NAG spiegeln den Stickstoffkreislauf wider, während GLS für den Kohlenstoffabbau steht. Die Fragestellung ist: Weisen die Sensordaten eine messbare Sensitivität gegenüber den Düngungsverfahren auf? Gleiche relative Muster in den Boxplots der Enzyme und Nmin-Werte (z.B. erhöhte Werte bei organischen Verfahren wie “MIST”) dokumentieren die Reaktion der Sensorik auf die Behandlungen.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -199,11 +236,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="systemische-kopplung-korrelationsanalyse" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> 4. Systemische Kopplung: Korrelationsanalyse</h1>
-<p>Um die biologische Validität der Sensoren zu prüfen, untersuchen wir die Zusammenhänge der Variablen untereinander. Da enzymatische Reaktionen biologischen Sättigungskurven unterliegen und nicht zwingend perfekt linear verlaufen, verwenden wir die robuste Spearman-Rangkorrelation.</p>
-<p>In der folgenden Heatmap suchen wir nach zwei Schlüsselmustern:</p>
+<p>Zur Überprüfung der Zusammenhänge der Variablen untereinander verwenden wir die Spearman-Rangkorrelation, da enzymatische Reaktionen Sättigungskurven aufweisen können und nicht zwingend linear verlaufen.</p>
+<p>In der folgenden Heatmap werden zwei Muster analysiert:</p>
 <ol type="1">
-<li><p>Multikollinearität der Enzyme: Eine starke positive Korrelation (Dunkelblau, R² &gt; 0.6) der Enzyme untereinander ist agronomisch zu erwarten, da ein aktives Bodenleben in der Regel alle Stoffkreisläufe (C, N, P) simultan hochfährt.</p></li>
-<li><p>Kopplung an Nmin: Eine signifikante Korrelation zwischen den N-spezifischen Enzymen (insbesondere NAG/LAP) und den Nmin-Laborwerten (NH4/NO3) ist der direkte Indikator dafür, dass der Sensor das tatsächliche Nachlieferungsvermögen des Bodens abbildet.</p></li>
+<li><p>Multikollinearität der Enzyme: Eine positive Korrelation der Enzyme untereinander wird erwartet, da die Stoffkreisläufe (C, N, P) im Boden gekoppelt ablaufen.</p></li>
+<li><p>Kopplung an Nmin: Eine Korrelation zwischen den N-spezifischen Enzymen (NAG/LAP) und den Nmin-Laborwerten (NH4/NO3) zeigt an, inwiefern der Sensor das Nachlieferungsvermögen des Bodens abbildet.</p></li>
 </ol>
 <div class="cell">
 <div class="cell-output-display">
@@ -217,9 +254,9 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="biologisches-profil-und-dimensionsreduktion" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> 5. Biologisches Profil und Dimensionsreduktion</h1>
-<p>Die vorherige Heatmap zeigt oft starke Interkorrelationen zwischen den fünf gemessenen Enzymen. Um diese Komplexität für weitere Auswertungen zu reduzieren und das “Rauschen” von überlappenden Signalen zu minimieren, führen wir eine robuste Hauptkomponentenanalyse (rPCA nach Hubert) durch.</p>
-<p>Im Gegensatz zu einer klassischen PCA ist dieser Algorithmus unempfindlich gegenüber extremen Ausreißern, wie sie im Boden durch lokale Hotspots unweigerlich entstehen. Die PCA ist ein unüberwachtes Verfahren (Unsupervised Learning) – der Algorithmus kennt die Düngungsverfahren nicht, sondern sucht rein nach den stärksten Varianzmustern in der Bodenbiologie.</p>
-<p>Die erste Hauptkomponente (PC1) bündelt die gemeinsame Varianz der Sensoren und dient als Index der biologischen Gesamtaktivität. Wir visualisieren diese PCA und färben die Messpunkte im Nachhinein nach den Düngungsverfahren ein. Ein starker Overlap der Ellipsen bedeutet, dass die natürliche räumliche Bodenheterogenität in diesem Datensatz den makroskopischen Treatment-Effekt der Düngung überlagert.</p>
+<p>Aufgrund der Interkorrelationen zwischen den fünf Enzymen führen wir eine Hauptkomponentenanalyse (rPCA nach Hubert) durch, um die Dimensionalität der Daten zu reduzieren.</p>
+<p>Dieser Algorithmus ist unempfindlich gegenüber Ausreißern. Die PCA identifiziert als unüberwachtes Verfahren die stärksten Varianzmuster ohne Vorwissen über die Düngungsverfahren.</p>
+<p>Die erste Hauptkomponente (PC1) bündelt die gemeinsame Varianz der Sensoren und quantifiziert die biologische Aktivität. Ein starker Overlap der Ellipsen in der Visualisierung zeigt, dass die räumliche Bodenheterogenität den Treatment-Effekt der Düngung überlagert.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -239,13 +276,79 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </section>
-<section id="zusammenfassung-und-ausblick" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> 6. Zusammenfassung und Ausblick</h1>
-<p>Die explorative Datenanalyse des Jahres 2025 zeigt die Leistungsfähigkeit der Digit Soil Sensoren unter realen Feldbedingungen auf. Die Messungen offenbaren eine erhebliche räumliche Varianz auf Ebene der Replikate (Probe A vs.&nbsp;B), welche die natürliche Komplexität des Bodenmikrobioms widerspiegelt.</p>
-<p>Nächste methodische Schritte: Da die einfache explorative Analyse (PCA) zeigt, dass räumliche Hintergrundeffekte (Noise) stark ausgeprägt sind, ist der Einsatz einfacher linearer Modelle zur Ertragsvorhersage nicht zielführend. Die finale agronomische Auswertung wird sich daher auf Linear Mixed-Effects Models (LMM) stützen. Durch die Integration von Parzellennummern und Messdaten als Zufallseffekte (Random Effects) können wir die räumlich-zeitliche Varianz mathematisch isolieren und den reinen Einfluss der enzymatischen Aktivität auf den finalen Pflanzenertrag bzw. Nährstoffentzug präzise quantifizieren.</p>
-<p>Frank, diese Änderung siehst du nun (-:)</p>
+<section id="mechanistisches-n-balance-modell-intervall-basiert" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> 6. Mechanistisches N-Balance Modell (Intervall-basiert)</h1>
+<p>Die explorative Datenanalyse zeigt Varianzen auf Ebene der Replikate. Zur Quantifizierung des biologischen Beitrags zur Stickstoffmineralisierung verwenden wir ein lineares gemischtes Modell (Linear Mixed-Effects Model, LMM) für die Longitudinaldaten.</p>
+<section id="die-idee-massenbilanz-als-rahmen" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="die-idee-massenbilanz-als-rahmen"><span class="header-section-number">7.1</span> 6.1 Die Idee: Massenbilanz als Rahmen</h2>
+<p>Das statistische Modell basiert auf der physikalischen Massenbilanz. Für die Intervalle (<span class="math inline">\(t_1 \rightarrow t_2\)</span>) wird die Änderung im mineralisierten Stickstoff in kg/ha berechnet (<span class="math inline">\(dN\)</span>). Hierzu wird die Konzentration (<span class="math inline">\(mg/kg\)</span>) mit einem Standardfaktor (z.B. 4.5 für 0-30 cm Bodentiefe bei Lagerungsdichte 1.5) in <span class="math inline">\(kg/ha\)</span> konvertiert.</p>
+<p>Der pflanzliche Entzug (<code>Interval_N_Entzug_kg_ha</code>) wird direkt von der <span class="math inline">\(\Delta N_{min}\)</span> subtrahiert, anstatt als eigener Fixed Effect im Modell geschätzt zu werden. Die resultierende abhängige Variable <span class="math inline">\(dN\)</span> wird dann durch die Enzym-Hauptkomponenten und den Niederschlag erklärt:</p>
+<p><span class="math display">\[dN \sim PC1 + PC2 + Cum\_Precip\_mm\]</span></p>
+</section>
+<section id="variablen-und-designmatrix" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="variablen-und-designmatrix"><span class="header-section-number">7.2</span> 6.2 Variablen und Designmatrix</h2>
+<p>Das Modell (<code>lmer</code>) verwendet folgende Struktur:</p>
+<ul>
+<li><strong>Abhängige Variable (<span class="math inline">\(Y\)</span>):</strong> <code>dN</code> (<span class="math inline">\(kg/ha\)</span>) - Die bereinigte Nettoveränderung des mineralischen Stickstoffs im Boden (<span class="math inline">\(\Delta N_{min} \times 4.5 - N_{Entzug}\)</span>).</li>
+<li><strong>Fixed Effects:</strong>
+<ul>
+<li><code>PC1</code>: Index der biologischen Gesamtaktivität.</li>
+<li><code>PC2</code>: Enzymatischer Shift (zweite Hauptkomponente).</li>
+<li><code>Cum_Precip_mm</code>: Kumulierte Niederschlagssumme zwischen <span class="math inline">\(t_1\)</span> und <span class="math inline">\(t_2\)</span> (Open-Meteo API) als Proxy für Auswaschungsverluste.</li>
+</ul></li>
+<li><strong>Random Effects:</strong>
+<ul>
+<li><code>(1 | ParzNrFeld)</code>: Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie.</li>
+</ul></li>
+</ul>
+</section>
+<section id="voraussetzungen-und-annahmen" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="voraussetzungen-und-annahmen"><span class="header-section-number">7.3</span> 6.3 Voraussetzungen und Annahmen</h2>
+<p>Für die Modellierung gelten folgende Annahmen: 1. <strong>Konvertierungsfaktor:</strong> Die Umrechnung von <span class="math inline">\(mg/kg\)</span> in <span class="math inline">\(kg/ha\)</span> erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, <span class="math inline">\(1.5 \ g/cm^3\)</span>). 2. <strong>Proportionaler Pflanzenentzug (GDD):</strong> Der Gesamtstickstoffentzug zur Ernte wird anhand der kumulierten Wachstumsgradtage auf die Intervalle verteilt und von <span class="math inline">\(\Delta N_{min}\)</span> abgezogen. 3. <strong>Düngungs-Zeitpunkt:</strong> Basisgaben und Nachdüngungen werden summarisch dem Saatzeitpunkt (<span class="math inline">\(t_1\)</span>) zugerechnet. 4. <strong>Zeitliche Integration:</strong> Die Enzymmessung zum Zeitpunkt <span class="math inline">\(t_2\)</span> repräsentiert das Intervall <span class="math inline">\(t_1 \rightarrow t_2\)</span>.</p>
+</section>
+<section id="modell-implementierung-in-r" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="modell-implementierung-in-r"><span class="header-section-number">7.4</span> 6.4 Modell-Implementierung in R</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: dN ~ PC1 + PC2 + Cum_Precip_mm + (1 | ParzNrFeld)
+   Data: df_model
+
+REML criterion at convergence: 274.4
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.96902 -0.57942  0.07573  0.53253  2.40232 
+
+Random effects:
+ Groups     Name        Variance Std.Dev.
+ ParzNrFeld (Intercept) 11.54    3.397   
+ Residual               53.87    7.339   
+Number of obs: 40, groups:  ParzNrFeld, 10
+
+Fixed effects:
+              Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)    9.75137    2.03557 20.38016   4.790 0.000106 ***
+PC1           -0.07983    1.00660 33.64761  -0.079 0.937258    
+PC2           -3.80419    1.63795 35.70573  -2.323 0.026022 *  
+Cum_Precip_mm -0.29171    0.01704 29.32851 -17.119  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) PC1    PC2   
+PC1         -0.261              
+PC2         -0.054 -0.016       
+Cum_Prcp_mm -0.622  0.543  0.037</code></pre>
+</div>
+</div>
+<p>Die PCA-Ladungen definieren die Hauptkomponenten wie folgt: PC1 weist gleichgerichtete, negative Ladungen für NAG, GLS, MUP und MUX auf und quantifiziert die allgemeine enzymatische Aktivität. PC2 weist eine positive Ladung für GLS (Kohlenstoffzyklus) und negative Ladungen für NAG und MUP (Stickstoff- und Phosphorzyklus) auf. PC2 quantifiziert die Verschiebung des enzymatischen Profils zwischen Kohlenstoff- und Nährstoffumsatz.</p>
+<p>Daraus wird folgende Hypothese für das N-Balance Modell abgeleitet: Eine erhöhte relative Aktivität kohlenstoffabbauender Enzyme (hoher PC2-Wert) führt durch mikrobielle Immobilisierung zu einer Reduktion des verfügbaren Stickstoffs.</p>
+<p>Die Modellergebnisse für die Variable <span class="math inline">\(dN\)</span> zeigen: PC1 (allgemeine Aktivität) weist keinen signifikanten Effekt auf die Nettoveränderung auf (-0.08 kg N/ha pro Index-Einheit, p = 0.937). PC2 weist einen signifikanten negativen Koeffizienten auf (-3.8 kg N/ha, p = 0.026). Eine Verschiebung der Aktivität zugunsten des Kohlenstoffabbaus ist empirisch mit einer reduzierten Netto-Stickstoffmineralisierung assoziiert. Der Niederschlag als physikalische Verlustgröße (Auswaschung) wirkt erwartungsgemäß negativ (-0.29 kg N/ha pro mm).</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
