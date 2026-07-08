@@ -6,7 +6,7 @@
 library("purrr")
 
 srcdir <- "~/mnt/Data-Work-RE/27_Natural_Resources-RE/273_GSF_Work/NährstoffManagementSysteme/Drittmittelprojekte/2024_32er_Lysimeter/04_Database"
-trgdir <- "data/Lysimeter"
+trgdir <- "data/Lysimeter/raw_data"
 
 # Delete old versions
 fold <- list.files(trgdir, full.names = TRUE)
