@@ -10,7 +10,6 @@ book:
   repo-actions: [edit, issue]
   chapters:
     - index.qmd
-    - reports/DEMO.qmd
     - reports/Lysimeter.qmd
 format:
   html:
