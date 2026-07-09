@@ -20,8 +20,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html",
-    "href": "DEMO/DEMO.html",
+    "objectID": "reports/DEMO.html",
+    "href": "reports/DEMO.html",
     "title": "1  Langzeitversuch DEMO",
     "section": "",
     "text": "2 1. Hintergrund und Methodik\nDer Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und das Ertragspotenzial.\nDie agronomische Fragestellung berücksichtigt, dass die Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor eine statische Messung darstellt. In der aktuellen Kampagne (2025) evaluieren wir den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und quantifizieren das Mineralisierungspotenzial der Bodenbiologie.\nDie Datenaufbereitung für diese Analyse integriert die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die mikrobielle Heterogenität des Bodens abzubilden.",
@@ -30,8 +30,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html#die-idee-massenbilanz-als-rahmen",
-    "href": "DEMO/DEMO.html#die-idee-massenbilanz-als-rahmen",
+    "objectID": "reports/DEMO.html#die-idee-massenbilanz-als-rahmen",
+    "href": "reports/DEMO.html#die-idee-massenbilanz-als-rahmen",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.1 6.1 Die Idee: Massenbilanz als Rahmen",
     "text": "7.1 6.1 Die Idee: Massenbilanz als Rahmen\nDas statistische Modell basiert auf der physikalischen Massenbilanz. Für die Intervalle (\\(t_1 \\rightarrow t_2\\)) wird die Änderung im mineralisierten Stickstoff in kg/ha berechnet (\\(dN\\)). Hierzu wird die Konzentration (\\(mg/kg\\)) mit einem Standardfaktor (z.B. 4.5 für 0-30 cm Bodentiefe bei Lagerungsdichte 1.5) in \\(kg/ha\\) konvertiert.\nDer pflanzliche Entzug (Interval_N_Entzug_kg_ha) wird direkt von der \\(\\Delta N_{min}\\) subtrahiert, anstatt als eigener Fixed Effect im Modell geschätzt zu werden. Die resultierende abhängige Variable \\(dN\\) wird dann durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschung) erklärt:\n\\[dN \\sim PC1 + PC2 + Precip + Precip^2\\]",
@@ -40,8 +40,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html#variablen-und-designmatrix",
-    "href": "DEMO/DEMO.html#variablen-und-designmatrix",
+    "objectID": "reports/DEMO.html#variablen-und-designmatrix",
+    "href": "reports/DEMO.html#variablen-und-designmatrix",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.2 6.2 Variablen und Designmatrix",
     "text": "7.2 6.2 Variablen und Designmatrix\nDas Modell (lmer) verwendet folgende Struktur:\n\nAbhängige Variable (\\(Y\\)): dN (\\(kg/ha\\)) - Die bereinigte Nettoveränderung des mineralischen Stickstoffs im Boden (\\(\\Delta N_{min} \\times 4.5 - N_{Entzug}\\)).\nFixed Effects:\n\nPC1: Index der biologischen Gesamtaktivität.\nPC2: Enzymatischer Shift (zweite Hauptkomponente).\nCum_Precip_mm: Kumulierte Niederschlagssumme zwischen \\(t_1\\) und \\(t_2\\) (Open-Meteo API) als Proxy für Auswaschungsverluste.\n\nRandom Effects:\n\n(1 | ParzNrFeld): Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie.",
@@ -50,8 +50,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html#voraussetzungen-und-annahmen",
-    "href": "DEMO/DEMO.html#voraussetzungen-und-annahmen",
+    "objectID": "reports/DEMO.html#voraussetzungen-und-annahmen",
+    "href": "reports/DEMO.html#voraussetzungen-und-annahmen",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.3 6.3 Voraussetzungen und Annahmen",
     "text": "7.3 6.3 Voraussetzungen und Annahmen\nFür die Modellierung gelten folgende Annahmen: 1. Konvertierungsfaktor: Die Umrechnung von \\(mg/kg\\) in \\(kg/ha\\) erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, \\(1.5 \\ g/cm^3\\)). 2. Ertrags-Baseline (Mais): Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (Total_N_Entzug_kg_ha) der jeweiligen Parzelle exklusiv für die Kultur Mais (Kultur == \"MA\") berechnet. 3. Logistischer Pflanzenentzug (S-Kurve): Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis \\(10^\\circ C\\)) modelliert: \\[ N_{up}(GDD) = \\frac{N_{max}}{1 + \\exp(-0.012 \\cdot (GDD - 750))} \\] Die Parameter sind: * \\(N_{max} =\\) Historischer Mais-Entzug der Parzelle * Wachstumsrate (\\(r\\)) \\(= 0.012\\) * Wendepunkt (\\(GDD_{inf}\\)) \\(= 750 \\ GDD\\) (entspricht ca. BBCH 51, schnelles vegetatives Wachstum). Der berechnete Netto-Entzug im Intervall \\(t_1 \\rightarrow t_2\\) wird dann direkt von \\(\\Delta N_{min}\\) abgezogen. 4. Zeitliche Integration: Die Enzymmessung zum Zeitpunkt \\(t_2\\) repräsentiert das Intervall \\(t_1 \\rightarrow t_2\\).",
@@ -60,8 +60,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html#modell-implementierung-in-r",
-    "href": "DEMO/DEMO.html#modell-implementierung-in-r",
+    "objectID": "reports/DEMO.html#modell-implementierung-in-r",
+    "href": "reports/DEMO.html#modell-implementierung-in-r",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.4 6.4 Modell-Implementierung in R",
     "text": "7.4 6.4 Modell-Implementierung in R\n\n\nLinear mixed model fit by REML. t-tests use Satterthwaite's method [\nlmerModLmerTest]\nFormula: dN ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1 | ParzNrFeld)\n   Data: df_model\n\nREML criterion at convergence: 532.7\n\nScaled residuals: \n     Min       1Q   Median       3Q      Max \n-2.50367 -0.43462 -0.01447  0.44291  1.89461 \n\nRandom effects:\n Groups     Name        Variance Std.Dev.\n ParzNrFeld (Intercept)  91.63    9.573  \n Residual               383.76   19.590  \nNumber of obs: 60, groups:  ParzNrFeld, 10\n\nFixed effects:\n                     Estimate Std. Error         df t value Pr(&gt;|t|)    \n(Intercept)        -2.589e+02  3.241e+01  5.185e+01  -7.988 1.36e-10 ***\nPC1                 8.499e-01  2.130e+00  5.497e+01   0.399    0.691    \nPC2                -5.547e+00  3.436e+00  5.371e+01  -1.614    0.112    \nCum_Precip_mm       5.672e+00  6.414e-01  5.021e+01   8.843 8.21e-12 ***\nI(Cum_Precip_mm^2) -2.826e-02  2.861e-03  5.002e+01  -9.879 2.40e-13 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nCorrelation of Fixed Effects:\n            (Intr) PC1    PC2    Cm_Pr_\nPC1          0.238                     \nPC2          0.404  0.018              \nCum_Prcp_mm -0.981 -0.251 -0.352       \nI(Cm_Pr_^2)  0.961  0.271  0.325 -0.995\nfit warnings:\nSome predictor variables are on very different scales: consider rescaling. \nYou may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.\n\n\nDie PCA-Ladungen definieren die Hauptkomponenten wie folgt: PC1 weist gleichgerichtete, negative Ladungen für NAG, GLS, MUP und MUX auf und quantifiziert die allgemeine enzymatische Aktivität. PC2 weist eine positive Ladung für GLS (Kohlenstoffzyklus) und negative Ladungen für NAG und MUP (Stickstoff- und Phosphorzyklus) auf. PC2 quantifiziert die Verschiebung des enzymatischen Profils zwischen Kohlenstoff- und Nährstoffumsatz.\nDaraus wird folgende Hypothese für das N-Balance Modell abgeleitet: Eine erhöhte relative Aktivität kohlenstoffabbauender Enzyme (hoher PC2-Wert) führt durch mikrobielle Immobilisierung zu einer Reduktion des verfügbaren Stickstoffs.\nDie Modellergebnisse für die Variable \\(dN\\) zeigen: PC1 (allgemeine Aktivität) weist keinen signifikanten Effekt auf die Nettoveränderung auf (0.85 kg N/ha pro Index-Einheit, p = 0.691). PC2 weist einen nicht-signifikanten Koeffizienten auf (-5.55 kg N/ha, p = 0.112). Im bereinigten Sommer-Datensatz ist der isolierte enzymatische Effekt linear nicht dominant. Der Niederschlag zeigt einen starken nicht-linearen (quadratischen) Effekt. Die linearen und quadratischen Terme (5.67 bzw. -0.0283) quantifizieren den überproportionalen Auswaschungsverlust bei extremen Niederschlägen.\nDie Modellperformance ist hoch: Das Modell erklärt marginal (nur durch Fixed Effects) 74.9% der Varianz (\\(R^2_m = 0.749\\)) und konditional (inklusive Parzellen-Baselines) 79.7% der Varianz (\\(R^2_c = 0.797\\)). Der durchschnittliche Vorhersagefehler (RMSE) beträgt 17.87 kg N/ha.",
@@ -70,8 +70,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html#modell-evaluation-und-visualisierung",
-    "href": "DEMO/DEMO.html#modell-evaluation-und-visualisierung",
+    "objectID": "reports/DEMO.html#modell-evaluation-und-visualisierung",
+    "href": "reports/DEMO.html#modell-evaluation-und-visualisierung",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.5 6.5 Modell-Evaluation und Visualisierung",
     "text": "7.5 6.5 Modell-Evaluation und Visualisierung\nUm den biologischen Effekt zu isolieren und visuell greifbar zu machen, betrachten wir das Modell in zwei Dimensionen (Partielle Residuen) und in drei Dimensionen (Regressionsebene).\n\n7.5.1 Partielle Residuen: Der isolierte biologische Effekt (PC2)\nDa der Niederschlag die Varianz von \\(dN\\) stark dominiert, berechnen wir die partiellen Residuen. Dabei wird der mathematische Effekt von Niederschlag und allgemeiner Aktivität (PC1) herausgerechnet, um isoliert die Beziehung zwischen dem C/N-Enzymshift (PC2) und der verbleibenden Stickstoffdynamik darzustellen.\n\n\n\n\n\n\n\n\n\n\n\n7.5.2 3D-Visualisierung der Regressionsebene\nDas Modell definiert eine Ebene im dreidimensionalen Raum, aufgespannt durch den biologischen Shift (PC2) und den physikalischen Verlust (Niederschlag). Die interaktive Grafik erlaubt es, die Modellfläche und die Beobachtungen räumlich zu explorieren.",
@@ -80,8 +80,8 @@
     ]
   },
   {
-    "objectID": "DEMO/DEMO.html#synthese-und-interpretation-der-felddaten",
-    "href": "DEMO/DEMO.html#synthese-und-interpretation-der-felddaten",
+    "objectID": "reports/DEMO.html#synthese-und-interpretation-der-felddaten",
+    "href": "reports/DEMO.html#synthese-und-interpretation-der-felddaten",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.6 6.6 Synthese und Interpretation der Felddaten",
     "text": "7.6 6.6 Synthese und Interpretation der Felddaten\nDie Modellierung der Netto-Stickstoffveränderung (\\(dN\\)) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert (\\(p &lt; 0.001\\)).\nDie beobachteten Netto-Mineralisierungsraten verhalten sich im Wesentlichen wie ein physikalisches System, in dem moderate Niederschläge vom Boden gepuffert werden, während Extremereignisse zu einem quadratisch ansteigenden Auswaschungsverlust führen. Ein robustes biologisches Signal, welches auf eine enzymatische Steuerung der Netto-Mineralisierung im Makromaßstab hindeutet, lässt sich aus den vorliegenden Daten nicht sicher extrahieren.\nDas Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten und den in-situ Stickstoffflüssen lässt verschiedene Interpretationen zu:\n\nHypothese 1: Dominanz makroskopischer Flüsse Es ist davon auszugehen, dass die schiere Masse des durch starken Sommerniederschlag verlagerten Stickstoffs (Auswaschung, Denitrifikation) so groß ist, dass sie jeglichen mikrobiologischen Netto-Beitrag überlagert. Das biologische Signal fungiert unter diesen Witterungsbedingungen lediglich als Rauschen innerhalb der dominanten physikalischen Massenbilanz.\nHypothese 2: Diskrepanz zwischen potenzieller und realer Aktivität Die Reaktionsplatten messen die enzymatische Potenzialaktivität unter laboroptimierten Bedingungen (Substratsättigung, optimale Pufferung). Im Feld sind diese Enzyme jedoch Limitationen durch Diffusion, Trockenheit und fehlende Substratverfügbarkeit unterworfen. Das Laborpotenzial lässt sich folglich nicht zwingend als reale Umsetzungsrate in die Feldskala übersetzen.\nHypothese 3: Technische Varianz und Sensorrauschen Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.",
