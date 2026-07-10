@@ -10,7 +10,8 @@ book:
   repo-actions: [edit, issue]
   chapters:
     - index.qmd
-    - reports/Lysimeter.qmd
+    - reports/DEMO.qmd
+
 format:
   html:
     theme: cosmo
