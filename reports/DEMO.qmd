@@ -275,12 +275,12 @@ Das Modell (`lmer`) verwendet folgende Struktur:
 Für die Modellierung gelten folgende Annahmen:
 1.  **Konvertierungsfaktor:** Die Umrechnung von $mg/kg$ in $kg/ha$ erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, $1.5 \ g/cm^3$).
 2.  **Ertrags-Baseline (Mais):** Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (`Total_N_Entzug_kg_ha`) der jeweiligen Parzelle exklusiv für die Kultur *Mais* (`Kultur == "MA"`) berechnet.
-3.  **Logistischer Pflanzenentzug (S-Kurve):** Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis $10^\circ C$) modelliert:
+3.  **Logistischer Pflanzenentzug (S-Kurve):** Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis $10^\circ C$) modelliert [@archontoulisNonlinearRegressionModels2015; @overmanMathematicalModelsCrop2002]:
     $$ N_{up}(GDD) = \frac{N_{max}}{1 + \exp(-0.012 \cdot (GDD - 750))} $$
     Die Parameter sind:
     *   $N_{max} =$ Historischer Mais-Entzug der Parzelle
     *   Wachstumsrate ($r$) $= 0.012$
-    *   Wendepunkt ($GDD_{inf}$) $= 750 \ GDD$ (entspricht ca. BBCH 51, schnelles vegetatives Wachstum).
+    *   Wendepunkt ($GDD_{inf}$) $= 750 \ GDD$ (entspricht ca. BBCH 51, dem Zeitpunkt der maximalen täglichen N-Aufnahme bei Mais [@benderNutrientUptakePartitioning2013]).
     Der berechnete Netto-Entzug im Intervall $t_1 \rightarrow t_2$ wird dann direkt von $\Delta N_{min}$ abgezogen.
 4.  **Zeitliche Integration:** Die Enzymmessung zum Zeitpunkt $t_2$ repräsentiert das Intervall $t_1 \rightarrow t_2$.
 
@@ -439,3 +439,60 @@ Das Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten u
 
 3.  **Hypothese 3: Technische Varianz und Sensorrauschen**
     Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.
+
+# 7. Saisonaler Ansatz: Erste vs. Letzte Messung
+
+Als alternativen Ansatz zur Intervall-basierten Modellierung betrachten wir nun ausschließlich die Nettoveränderung über die gesamte Vegetationsperiode. Hierbei verwenden wir lediglich die erste und die letzte Messung jeder Parzelle.
+
+Die Fragestellung lautet: Kann die saisonale Veränderung der Enzymaktivität ($\\Delta$PC1 und $\\Delta$PC2) die saisonale Stickstoff-Nettoveränderung ($dN$) erklären, wenn wir die Varianz durch Witterung ausschließen? Da der Niederschlag über die gesamte Saison für alle Parzellen im Versuch identisch ist, fungiert er im Querschnitt dieses Modells lediglich als Konstante und fällt somit als erklärende Variable weg. Die Enzymdynamik rückt dadurch völlig in den Fokus.
+
+```{r}
+# 1. Daten aggregieren auf Saison-Ebene (Erste bis Letzte Messung)
+df_season <- df_pca |>
+  group_by(UID, ParzNrFeld, Probe) |>
+  arrange(Datum) |>
+  filter(n() >= 2) |>
+  summarise(
+    Nmin_first = first(NH4 + NO3),
+    Nmin_last = last(NH4 + NO3),
+    PC1_first = first(PC1),
+    PC1_last = last(PC1),
+    PC2_first = first(PC2),
+    PC2_last = last(PC2),
+    Season_N_Entzug = sum(Interval_N_Entzug_kg_ha[-1], na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    Delta_Nmin = Nmin_last - Nmin_first,
+    Delta_PC1 = PC1_last - PC1_first,
+    Delta_PC2 = PC2_last - PC2_first,
+    Delta_Nmin_kgha = Delta_Nmin * 4.5,
+    dN_season = Delta_Nmin_kgha - Season_N_Entzug
+  ) |>
+  drop_na(dN_season, Delta_PC1, Delta_PC2, ParzNrFeld)
+
+# 2. Modell fitten (Niederschlag entfällt als Fixed Effect)
+model_season <- lmer(dN_season ~ Delta_PC1 + Delta_PC2 + (1 | ParzNrFeld), data = df_season)
+
+summary(model_season)
+```
+
+Wie die Modellzusammenfassung zeigt, bleiben auch über die gesamte Saison hinweg die Veränderungen im Enzymprofil ($\\Delta$PC1 und $\\Delta$PC2) als Prädiktoren für die Stickstoffbilanz statistisch nicht signifikant ($p > 0.05$).
+
+Wir können dies visuell überprüfen. Da der Niederschlag in dieser Betrachtung konstant ist, entspricht die saisonale Netto-Stickstoffveränderung ($dN$) direkt dem (unbereinigten) partiellen Residuum in Bezug auf den C/N-Shift. Wir tragen dieses gegen $\\Delta$PC2 auf:
+
+```{r}
+ggplot(df_season, aes(x = Delta_PC2, y = dN_season)) +
+  geom_point(size = 3, alpha = 0.7, color = "#2c3e50") +
+  geom_smooth(method = "lm", color = "#e74c3c", fill = "#e74c3c", alpha = 0.2) +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Saisonale Netto-Stickstoffveränderung vs. C/N-Shift",
+    subtitle = "Gesamte Saison (Erste vs. Letzte Messung)",
+    x = expression(paste(Delta, "PC2 (Saisonaler Enzymatischer Shift)")),
+    y = "Saisonales dN [kg N/ha]"
+  )
+```
+
+Dies bestätigt unsere vorherigen Hypothesen: Auch bei Betrachtung des größtmöglichen Intervalls (gesamte Saison) ist das biologische Signal der Potenzial-Enzymmessung (Digit Soil) nicht ausreichend konsistent oder nicht dominant genug, um die verbleibende Varianz in der in-situ Stickstoffmassenbilanz zwischen den Parzellen signifikant zu erklären.
+

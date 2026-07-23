@@ -2,6 +2,8 @@ project:
   type: book
   output-dir: docs
 
+bibliography: references.bib
+
 book:
   title: "OptiFert: Evaluation der Digit Soil Technologie"
   author: "ZHAW / Agroscope"
