@@ -15,6 +15,10 @@ library(rrcov)
 
 # Das Setup-Skript hat den Master-Datensatz generiert
 NMin_EEA <- read_csv2("../data/Lysimeter/raw_data/Lysimeter_NMin_EEA.csv", show_col_types = FALSE)
+
+# Leachate und Wetterdaten laden
+leachate <- readRDS("../data/Lysimeter/prep_data/leachate_postsummer25.rds")
+weather <- read_csv("../data/Lysimeter/raw_data/Lysimeter_weather.csv", show_col_types = FALSE)
 ```
 
 # 1. Hintergrund und Methodik
