@@ -40,7 +40,7 @@ Um einen neuen Kurzbericht (z. B. für ein neues Feld) hinzuzufügen:
 
 ## 📊 Datenzugriff für externe Partner
 
-Der vollständig bereinigte und zusammengeführte Datensatz der aktuellen Kampagnen (inkl. Enzymaktivitäten, Nmin-Laborwerten und Erträgen) wird durch das Skript `scripts/01_build_master_data.R` generiert.
+Der vollständig bereinigte und zusammengeführte Datensatz der aktuellen Kampagnen (inkl. Enzymaktivitäten, Nmin-Laborwerten und Erträgen) wird durch das Skript `scripts/01_build_DEMO_master_data.R` generiert.
 
 Die finale Exportdatei liegt im Hauptordner:
 * **Datei:** `digitsoil_master.csv`

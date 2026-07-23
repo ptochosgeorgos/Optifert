@@ -1,5 +1,5 @@
 # ==============================================================================
-# SCRIPT: 01_build_master_data.R
+# SCRIPT: 01_build_DEMO_master_data.R
 # ZWECK:  Generic Datenimport, Bereinigung und Merging für mehrere LTEs
 # ==============================================================================
 
