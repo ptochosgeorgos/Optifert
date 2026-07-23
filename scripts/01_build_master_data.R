@@ -13,7 +13,8 @@ library(jsonlite)
 # ==============================================================================
 config <- tibble::tribble(
   ~LTE,   ~Year, ~Meteo_Lat, ~Meteo_Lon, ~EEA_File,                                       ~Nmin_File,             ~Yield_File,                        ~Yield_Sheet,
-  "DEMO", 2025,  47.428,     8.520,      "data/eea_report_LTE_2025_basic_analysis.CSV",  "data/DEMO_Nmin.xlsx",  "data/demo89_20_plant_220411.xlsx", "Ertrag_89_19"
+  "DEMO", 2025,  47.428,     8.520,      "data/DEMO/DEMO_25_EEA_Jasmins_recalc.xlsx",  "data/DEMO/DEMO_Nmin.xlsx",  "data/DEMO/demo89_20_plant_220411.xlsx", "Ertrag_89_19",
+  "Lysimeter", 2025, 47.254, 8.310, "data/Lysimeter/Lysimeter_NMin_EEA.csv", "data/Lysimeter/Lysimeter_NMin_EEA.csv", "", ""
 )
 
 # Hilfsfunktion: Open-Meteo Daten laden
