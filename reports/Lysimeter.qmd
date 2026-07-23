@@ -14,7 +14,7 @@ library(tidyverse)
 library(rrcov)
 
 # Das Setup-Skript hat den Master-Datensatz generiert
-NMin_EEA <- read_csv2("../data/Lysimeter/Lysimeter_NMin_EEA.csv", show_col_types = FALSE)
+NMin_EEA <- read_csv2("../data/Lysimeter/raw_data/Lysimeter_NMin_EEA.csv", show_col_types = FALSE)
 ```
 
 # 1. Hintergrund und Methodik
