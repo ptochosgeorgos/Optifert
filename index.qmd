@@ -21,3 +21,4 @@ Das System erfasst spezifische "molekulare Scheren", die Indikatoren für den Ab
 - **MUP / MUX (Phosphatasen/Xylosidasen):** Indikatoren für die Phosphor- bzw. Hemizellulosemineralisierung.
 
 Der entscheidende methodische Vorteil des Systems ist die Standardisierung und die Möglichkeit, Messungen zeitnah an frischen Proben durchzuführen, was Transportartefakte minimiert. Da die Messung jedoch unter optimalen Puffer- und Substratsättigungsbedingungen stattfindet, repräsentiert das Signal die *Potenzialaktivität* der mikrobiellen Gemeinschaft, nicht zwingend die durch Trockenheit oder Substratmangel limitierte *reale* In-situ-Aktivität.
+
