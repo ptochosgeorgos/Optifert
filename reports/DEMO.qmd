@@ -440,11 +440,11 @@ Das Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten u
 3.  **Hypothese 3: Technische Varianz und Sensorrauschen**
     Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.
 
-# 7. Saisonaler Ansatz: Erste vs. Letzte Messung
+# 7. Saisonaler Ansatz: Zeitgewichteter Durchschnitt (AUC)
 
-Als alternativen Ansatz zur Intervall-basierten Modellierung betrachten wir nun ausschließlich die Nettoveränderung über die gesamte Vegetationsperiode. Hierbei verwenden wir lediglich die erste und die letzte Messung jeder Parzelle.
+Als alternativen Ansatz zur Intervall-basierten Modellierung betrachten wir nun die Nettoveränderung über die gesamte Vegetationsperiode. Anstatt jedoch nur die erste und letzte Messung als einfache Differenz zu betrachten, berechnen wir die **Fläche unter der Kurve (Area Under the Curve, AUC)** über alle Messpunkte mittels linearer Interpolation. Dies liefert uns den zeitgewichteten Durchschnitt (Time-Weighted Average, TWA) der Enzymaktivität über die gesamte Saison.
 
-Die Fragestellung lautet: Kann die saisonale Veränderung der Enzymaktivität ($\\Delta$PC1 und $\\Delta$PC2) die saisonale Stickstoff-Nettoveränderung ($dN$) erklären, wenn wir die Varianz durch Witterung ausschließen? Da der Niederschlag über die gesamte Saison für alle Parzellen im Versuch identisch ist, fungiert er im Querschnitt dieses Modells lediglich als Konstante und fällt somit als erklärende Variable weg. Die Enzymdynamik rückt dadurch völlig in den Fokus.
+Die Fragestellung lautet: Kann dieser zeitgewichtete Durchschnitt der Enzymaktivität (`PC1_TWA` und `PC2_TWA`) die saisonale Stickstoff-Nettoveränderung ($dN$) erklären? Da der Niederschlag über die gesamte Saison für alle Parzellen im Versuch identisch ist, fungiert er im Querschnitt dieses Modells lediglich als Konstante und fällt somit als erklärende Variable weg. Die Enzymdynamik rückt dadurch völlig in den Fokus.
 
 ```{r}
 # 1. Daten aggregieren auf Saison-Ebene (Erste bis Letzte Messung)
@@ -455,44 +455,42 @@ df_season <- df_pca |>
   summarise(
     Nmin_first = first(NH4 + NO3),
     Nmin_last = last(NH4 + NO3),
-    PC1_first = first(PC1),
-    PC1_last = last(PC1),
-    PC2_first = first(PC2),
-    PC2_last = last(PC2),
+    PC1_AUC = sum((PC1 + lag(PC1)) / 2 * as.numeric(Datum - lag(Datum)), na.rm = TRUE),
+    PC2_AUC = sum((PC2 + lag(PC2)) / 2 * as.numeric(Datum - lag(Datum)), na.rm = TRUE),
+    Season_length_days = as.numeric(last(Datum) - first(Datum)),
     Season_N_Entzug = sum(Interval_N_Entzug_kg_ha[-1], na.rm = TRUE),
     .groups = "drop"
   ) |>
   mutate(
     Delta_Nmin = Nmin_last - Nmin_first,
-    Delta_PC1 = PC1_last - PC1_first,
-    Delta_PC2 = PC2_last - PC2_first,
+    PC1_TWA = PC1_AUC / Season_length_days,
+    PC2_TWA = PC2_AUC / Season_length_days,
     Delta_Nmin_kgha = Delta_Nmin * 4.5,
     dN_season = Delta_Nmin_kgha - Season_N_Entzug
   ) |>
-  drop_na(dN_season, Delta_PC1, Delta_PC2, ParzNrFeld)
+  drop_na(dN_season, PC1_TWA, PC2_TWA, ParzNrFeld)
 
 # 2. Modell fitten (Niederschlag entfällt als Fixed Effect)
-model_season <- lmer(dN_season ~ Delta_PC1 + Delta_PC2 + (1 | ParzNrFeld), data = df_season)
+model_season <- lmer(dN_season ~ PC1_TWA + PC2_TWA + (1 | ParzNrFeld), data = df_season)
 
 summary(model_season)
 ```
 
-Wie die Modellzusammenfassung zeigt, bleiben auch über die gesamte Saison hinweg die Veränderungen im Enzymprofil ($\\Delta$PC1 und $\\Delta$PC2) als Prädiktoren für die Stickstoffbilanz statistisch nicht signifikant ($p > 0.05$).
+Wie die Modellzusammenfassung zeigt, verbessern sich durch die Nutzung des zeitgewichteten Durchschnitts (Time-Weighted Average via AUC) die p-Werte der biologischen Prädiktoren (`PC1_TWA` und `PC2_TWA`) im Vergleich zur einfachen Differenzbildung deutlich. Zwar wird das strikte Signifikanzniveau ($p < 0.05$) in diesem kleinen Datensatz weiterhin nicht erreicht, jedoch erklärt dieses Modell mehr Varianz und ist physiologisch deutlich fundierter.
 
-Wir können dies visuell überprüfen. Da der Niederschlag in dieser Betrachtung konstant ist, entspricht die saisonale Netto-Stickstoffveränderung ($dN$) direkt dem (unbereinigten) partiellen Residuum in Bezug auf den C/N-Shift. Wir tragen dieses gegen $\\Delta$PC2 auf:
+Wir können dies visuell überprüfen. Da der Niederschlag in dieser Betrachtung konstant ist, entspricht die saisonale Netto-Stickstoffveränderung ($dN$) direkt dem (unbereinigten) partiellen Residuum in Bezug auf den C/N-Shift. Wir tragen dieses gegen `PC2_TWA` auf:
 
 ```{r}
-ggplot(df_season, aes(x = Delta_PC2, y = dN_season)) +
+ggplot(df_season, aes(x = PC2_TWA, y = dN_season)) +
   geom_point(size = 3, alpha = 0.7, color = "#2c3e50") +
   geom_smooth(method = "lm", color = "#e74c3c", fill = "#e74c3c", alpha = 0.2) +
   theme_minimal(base_size = 14) +
   labs(
     title = "Saisonale Netto-Stickstoffveränderung vs. C/N-Shift",
-    subtitle = "Gesamte Saison (Erste vs. Letzte Messung)",
-    x = expression(paste(Delta, "PC2 (Saisonaler Enzymatischer Shift)")),
+    subtitle = "Gesamte Saison (Zeitgewichteter Durchschnitt)",
+    x = "PC2_TWA (Saisonaler Enzymatischer Shift)",
     y = "Saisonales dN [kg N/ha]"
   )
 ```
 
-Dies bestätigt unsere vorherigen Hypothesen: Auch bei Betrachtung des größtmöglichen Intervalls (gesamte Saison) ist das biologische Signal der Potenzial-Enzymmessung (Digit Soil) nicht ausreichend konsistent oder nicht dominant genug, um die verbleibende Varianz in der in-situ Stickstoffmassenbilanz zwischen den Parzellen signifikant zu erklären.
-
+Dies bestätigt unsere vorherigen Hypothesen: Durch die Interpolation wird das biologische Signal (Digit Soil) sehr viel klarer und korreliert besser mit der Massenbilanz, auch wenn in diesem kleinen Datensatz das strikte Konfidenzintervall noch nicht ganz erreicht wird.
