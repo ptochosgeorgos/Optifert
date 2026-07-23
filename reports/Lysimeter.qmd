@@ -19,6 +19,15 @@ NMin_EEA <- read_csv2("../data/Lysimeter/raw_data/Lysimeter_NMin_EEA.csv", show_
 # Leachate und Wetterdaten laden
 leachate <- readRDS("../data/Lysimeter/prep_data/leachate_postsummer25.rds")
 weather <- read_csv("../data/Lysimeter/raw_data/Lysimeter_weather.csv", show_col_types = FALSE)
+
+# Soil Water Content (SWC) via SwissFlux API laden
+source("../custom_scripts/fetch_swissflux.R")
+# Lade SWC-Daten passend zur Saison (01.01.2024 bis 31.12.2025)
+swc_data <- fetch_swissflux_data(measurement = "SWC", interval = "1d", from = "2024-01-01T00:00:00Z", to = "2025-12-31T23:59:59Z")
+
+# Ertrags- und Wachstumsdaten laden
+crop_yield <- read_csv("../data/Lysimeter/raw_data/Lysimeter_crop_WW25.csv", show_col_types = FALSE)
+crop_growth <- read_csv("../data/Lysimeter/raw_data/Lysimeter_crop_WW25_growth.csv", show_col_types = FALSE)
 ```
 
 # 1. Hintergrund und Methodik
@@ -423,19 +432,94 @@ plot_ly() |>
   )
 ```
 
-## 6.6 Synthese und Interpretation der Felddaten
+## 6.6 Modellierung der Stickstoff-Auswaschung (N-Leaching)
 
-Die Modellierung der Netto-Stickstoffveränderung ($dN$) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert ($p < 0.001$). 
+Um zu verstehen, welche Faktoren die Stickstoff-Auswaschung (`Nleach`) steuern, führen wir nun die verschiedenen hochauflösenden Datenquellen zusammen. Wir aggregieren die stündlichen Wetter- und Bodenfeuchtedaten exakt auf die Intervalle zwischen den diskreten Enzymmessungen (NMin_EEA). Gleichzeitig berechnen wir für diese Intervalle den zeitgewichteten Durchschnitt (Time-Weighted Average, TWA) der enzymatischen Signaturen (PC1 und PC2). Zusätzlich integrieren wir die täglichen Wachstumsgradtage (GDD) als Proxy für die Pflanzenentwicklung.
 
-Die beobachteten Netto-Mineralisierungsraten verhalten sich im Wesentlichen wie ein physikalisches System, in dem moderate Niederschläge vom Boden gepuffert werden, während Extremereignisse zu einem quadratisch ansteigenden Auswaschungsverlust führen. Ein robustes biologisches Signal, welches auf eine enzymatische Steuerung der Netto-Mineralisierung im Makromaßstab hindeutet, lässt sich aus den vorliegenden Daten nicht sicher extrahieren.
+```{r}
+#| warning: false
+# 1. Wetter & GDD Aggregation
+weather_daily <- weather |>
+  mutate(date = as.Date(datetime)) |>
+  group_by(date) |>
+  summarise(
+    precip_sum = sum(precipitation, na.rm = TRUE),
+    temp_median = median(air_temp_mean, na.rm = TRUE),
+    soil_temp_10cm_median = median(soil_temp_10cm, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    # Basis-Temperatur 0°C für Winterweizen
+    GDD = ifelse(temp_median > 0, temp_median, 0),
+    GDD_cum = cumsum(GDD)
+  )
 
-Das Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten und den in-situ Stickstoffflüssen lässt verschiedene Interpretationen zu:
+swc_daily <- swc_data |> 
+  mutate(date = as.Date(Time)) |> 
+  select(date, SWC = Value)
 
-1.  **Hypothese 1: Dominanz makroskopischer Flüsse**
-    Es ist davon auszugehen, dass die schiere Masse des durch starken Sommerniederschlag verlagerten Stickstoffs (Auswaschung, Denitrifikation) so groß ist, dass sie jeglichen mikrobiologischen Netto-Beitrag überlagert. Das biologische Signal fungiert unter diesen Witterungsbedingungen lediglich als Rauschen innerhalb der dominanten physikalischen Massenbilanz.
+env_daily <- weather_daily |> left_join(swc_daily, by = "date")
+
+# 2. PCA der Enzymdaten
+df_pca <- NMin_EEA |> 
+  mutate(LAP = as.numeric(LAP)) |>
+  drop_na(LAP, NAG, GLS, MUP, MUX)
+
+pca_rob <- PcaHubert(df_pca |> select(LAP, NAG, GLS, MUP, MUX), scale = TRUE)
+df_pca <- df_pca |> mutate(PC1 = getScores(pca_rob)[, 1], PC2 = getScores(pca_rob)[, 2])
+
+# 3. Intervall-Bildung
+intervals <- df_pca |>
+  group_by(id_lysi) |>
+  arrange(date_parsed) |>
+  mutate(
+    t2 = date_parsed,
+    t1 = lag(date_parsed),
+    PC1_t1 = lag(PC1),
+    PC1_t2 = PC1,
+    PC2_t1 = lag(PC2),
+    PC2_t2 = PC2
+  ) |>
+  filter(!is.na(t1)) |>
+  select(id_lysi, t1, t2, PC1_t1, PC1_t2, PC2_t1, PC2_t2) |>
+  ungroup()
+
+# 4. Variablen pro Intervall aggregieren
+df_model <- intervals |>
+  rowwise() |>
+  mutate(
+    PC1_TWA = (PC1_t1 + PC1_t2) / 2,
+    PC2_TWA = (PC2_t1 + PC2_t2) / 2,
+    Interval_Precip = sum(env_daily$precip_sum[env_daily$date > t1 & env_daily$date <= t2], na.rm = TRUE),
+    Interval_Temp = median(env_daily$temp_median[env_daily$date > t1 & env_daily$date <= t2], na.rm = TRUE),
+    Interval_SWC = median(env_daily$SWC[env_daily$date > t1 & env_daily$date <= t2], na.rm = TRUE),
     
-2.  **Hypothese 2: Diskrepanz zwischen potenzieller und realer Aktivität**
-    Die Reaktionsplatten messen die enzymatische *Potenzialaktivität* unter laboroptimierten Bedingungen (Substratsättigung, optimale Pufferung). Im Feld sind diese Enzyme jedoch Limitationen durch Diffusion, Trockenheit und fehlende Substratverfügbarkeit unterworfen. Das Laborpotenzial lässt sich folglich nicht zwingend als reale Umsetzungsrate in die Feldskala übersetzen.
+    GDD_t1 = env_daily$GDD_cum[env_daily$date == t1][1],
+    GDD_t2 = env_daily$GDD_cum[env_daily$date == t2][1],
+    Delta_GDD = GDD_t2 - GDD_t1,
+    
+    Interval_Nleach = sum(leachate$Nleach[leachate$id_lysi == id_lysi & leachate$date > t1 & leachate$date <= t2], na.rm = TRUE)
+  ) |>
+  ungroup()
 
-3.  **Hypothese 3: Technische Varianz und Sensorrauschen**
-    Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.
+# 5. Ertragsdaten anfügen (als Proxy für N-Uptake-Potenzial)
+df_model <- df_model |> left_join(crop_yield |> select(id_lysi, korn_TS, stroh_TS), by = "id_lysi")
+
+# Bereinigung fehlender Werte
+df_model_clean <- df_model |> drop_na(Interval_Nleach, PC1_TWA, PC2_TWA, Interval_Precip, Interval_SWC, Delta_GDD)
+```
+
+Mit dem vollständig zusammengeführten Datensatz fitten wir nun ein lineares gemischtes Modell (Linear Mixed-Effects Model). Um numerische Konvergenzprobleme durch die stark unterschiedlichen Skalen (GDD vs. SWC) zu vermeiden, skalieren wir alle Prädiktoren (z-Transformation).
+
+```{r}
+library(lme4)
+library(lmerTest)
+
+model_leach <- lmer(Interval_Nleach ~ scale(PC1_TWA) + scale(PC2_TWA) + scale(Interval_Precip) + scale(Interval_SWC) + scale(Delta_GDD) + (1 | id_lysi), data = df_model_clean)
+
+summary(model_leach)
+```
+
+### Interpretation der Auswaschungs-Treiber
+
+Die obige Zusammenfassung zeigt uns nun für die Lysimeteranlage, welche Faktoren die tatsächliche Nitratauswaschung (Leaching) signifikant steuern, wenn wir das volle Zusammenspiel aus mikrobiologischer Aktivität, Pflanzenwachstum und physikalischen Wasserflüssen betrachten.
