@@ -13,6 +13,7 @@ book:
   chapters:
     - index.qmd
     - reports/DEMO.qmd
+    - reports/Lysimeter.qmd
 
 format:
   html:
