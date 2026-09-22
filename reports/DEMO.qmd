@@ -12,10 +12,9 @@ execute:
 # Bibliotheken und zentrales Daten-Setup laden
 library(tidyverse)
 library(rrcov)
-library(this.path)
 
 # Das Setup-Skript hat den Master-Datensatz generiert
-df_final <- read_csv(here("../data/DEMO/prep_data/DEMO_2025_cleansed.csv"), show_col_types = FALSE)
+df_final <- read_csv("../data/DEMO/prep_data/DEMO_2025_cleansed.csv", show_col_types = FALSE)
 ```
 
 # 1. Hintergrund und Methodik
@@ -68,16 +67,16 @@ df_final |>
 
 # 3. Sensor-Signale: Enzymatische Aktivität (EEA)
 
-Analog zu den Nmin-Werten analysieren wir die Rohsignale der fünf Digit Soil Sensoren (LAP, NAG, GLS, MUP, MUX).
+Analog zu den Nmin-Werten analysieren wir die Rohsignale der Digit Soil Sensoren. Ursprünglich wurden fünf Enzymaktivitäten erfasst (LAP, NAG, GLS, MUP, MUX). In den Messreihen zeigte sich jedoch, dass das Enzym LAP (Leucin-Aminopeptidase) erhebliche Messausfälle und unvollständige Werte (hoher NA-Anteil) aufweist. Um einen übermässigen Ausschluss valider Probenahmezeitpunkte bei multivariaten Analysen zu vermeiden, konzentriert sich die Auswertung auf die vier verlässlich quantifizierten Enzyme: **NAG, GLS, MUP und MUX**.
 
-Während Nmin das Produkt der Mineralisierung darstellt, messen diese Enzyme die Raten der Umsetzungsprozesse. LAP und NAG spiegeln den Stickstoffkreislauf wider, während GLS für den Kohlenstoffabbau steht. Die Fragestellung ist: Weisen die Sensordaten eine messbare Sensitivität gegenüber den Düngungsverfahren auf? Gleiche relative Muster in den Boxplots der Enzyme und Nmin-Werte (z.B. erhöhte Werte bei organischen Verfahren wie "MIST") dokumentieren die Reaktion der Sensorik auf die Behandlungen.
+Während Nmin das Produkt der Mineralisierung darstellt, messen diese Enzyme die Raten der mikrobiellen Umsetzungsprozesse. NAG spiegelt den Stickstoffkreislauf wider, während GLS für den Kohlenstoffabbau, MUP für den Phosphorkreislauf und MUX für Hemicellulose steht. Die Fragestellung ist: Weisen die Sensordaten eine messbare Sensitivität gegenüber den Düngungsverfahren auf? Gleiche relative Muster in den Boxplots der Enzyme und Nmin-Werte (z.B. erhöhte Werte bei organischen Verfahren wie "MIST") dokumentieren die Reaktion der Sensorik auf die Behandlungen.
 
 ```{r}
 df_final |> 
-  # Nur Zeilen behalten, die alle Enzymwerte haben
+  # Nur Zeilen behalten, die alle 4 Enzymwerte haben
   drop_na(NAG, GLS, MUP, MUX, Verfahren) |> 
   
-  # Ins Long-Format umformen (alle 5 Enzyme untereinander)
+  # Ins Long-Format umformen (alle 4 Enzyme untereinander)
   pivot_longer(
     cols = c(NAG, GLS, MUP, MUX), 
     names_to = "Enzym", 
@@ -88,8 +87,8 @@ df_final |>
   ggplot(aes(x = Verfahren, y = Aktivitaet, fill = Verfahren)) +
   geom_boxplot(alpha = 0.7, outlier.shape = 21, outlier.size = 2) +
   
-  # facet_wrap für die 5 Enzyme (ncol = 3 macht es schön übersichtlich)
-  facet_wrap(~ Enzym, scales = "free_y", ncol = 3) +
+  # facet_wrap für die 4 Enzyme
+  facet_wrap(~ Enzym, scales = "free_y", ncol = 2) +
   
   # Optik
   theme_minimal(base_size = 14) +
@@ -100,7 +99,7 @@ df_final |>
   ) +
   labs(
     title = "Verteilung der Enzymaktivitäten im Boden",
-    subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren",
+    subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren (NAG, GLS, MUP, MUX)",
     x = "Düngungsverfahren",
     y = "Enzymaktivität"
   )
@@ -114,7 +113,7 @@ In der folgenden Heatmap werden zwei Muster analysiert:
 
 1. Multikollinearität der Enzyme: Eine positive Korrelation der Enzyme untereinander wird erwartet, da die Stoffkreisläufe (C, N, P) im Boden gekoppelt ablaufen.
 
-2. Kopplung an Nmin: Eine Korrelation zwischen den N-spezifischen Enzymen (NAG/LAP) und den Nmin-Laborwerten (NH4/NO3) zeigt an, inwiefern der Sensor das Nachlieferungsvermögen des Bodens abbildet.
+2. Kopplung an Nmin: Eine Korrelation zwischen dem N-spezifischen Enzym NAG und den Nmin-Laborwerten (NH4/NO3) zeigt an, inwiefern der Sensor das Nachlieferungsvermögen des Bodens abbildet.
 
 ```{r}
 # 1. Daten auswählen und Korrelationsmatrix berechnen

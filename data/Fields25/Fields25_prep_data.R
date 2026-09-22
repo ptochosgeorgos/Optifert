@@ -1,10 +1,38 @@
 library(tidyverse)
 library(readr)
 library(jsonlite)
-library(this.path)
 library(glue)
 
-rm(list = ls())
+# Robuste Pfad-Ermittlung
+get_script_dir <- function() {
+  if (requireNamespace("this.path", quietly = TRUE)) {
+    return(this.path::here())
+  }
+  cmd_args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- grep("^--file=", cmd_args, value = TRUE)
+  if (length(file_arg) > 0) {
+    return(dirname(normalizePath(sub("^--file=", "", file_arg))))
+  }
+  if (dir.exists("data/Fields25")) {
+    return(normalizePath("data/Fields25"))
+  }
+  return(getwd())
+}
+script_dir <- get_script_dir()
+here <- function(...) file.path(script_dir, ...)
+
+# ==============================================================================
+# 0. STANDORT- & VERSUCHS-KONFIGURATION
+# ==============================================================================
+site_config <- list(
+  lte          = "Fields25",
+  site_name    = "On-Farm Trials 2025",
+  farms_file   = "raw_data/Fields25_Farms.csv",
+  default_plz  = 8046,
+  latitude     = 47.428,  # Referenzkoordinaten (z.B. Reckenholz)
+  longitude    = 8.520,
+  base_temp    = 6        # Für Silomais (SM) / Körnermais (KM)
+)
 
 # Nmin ----
 
@@ -127,7 +155,18 @@ Nmin_4 <- Nmin_3 |>
     Depth = case_when( # Korrektur für Landis
       Site == 700 & Date == "T1" & Treatment == "empfohlen" & Depth == "30" ~ "60",
       Site == 700 & Date == "T1" & Treatment == "empfohlen" & Depth == "60" ~ "30",
-      .default = Depth)
+      .default = Depth),
+    
+    # Standardisiertes Schema
+    date = Date,
+    year = as.numeric(as.character(Year)),
+    plot_nr = as.numeric(as.character(Site)),
+    crop = Crop,
+    treatment = Treatment,
+    depth = Depth,
+    NH4 = Ammonium_mgKgTS,
+    NO3 = Nitrat_mgKgTS,
+    Ntot = NMin.Gesamt
   )
 
 saveRDS(
@@ -218,8 +257,24 @@ EEA3 <- EEA2 |>
       Site == 708 & Treatment == "empfohlen" & Date %in% c("T1","T3") ~ "null",
       Site == 708 & Treatment == "null" & Date %in% c("T1","T3") ~ "empfohlen",
       .default = Treatment)
+  ) |>
+  rename_with(~ case_when(
+    str_starts(., "LEU") ~ "LAP",
+    str_starts(., "GLA") ~ "NAG",
+    str_starts(., "GLS") ~ "GLS",
+    str_starts(., "PHO") ~ "MUP",
+    str_starts(., "XYL") ~ "MUX",
+    .default = .
+  )) |>
+  mutate(
+    date = Date,
+    year = as.numeric(as.character(Year)),
+    plot_nr = as.numeric(as.character(Site)),
+    crop = Crop,
+    treatment = Treatment,
+    depth = Depth,
+    rep = Rep
   )
-
 
 saveRDS(
   EEA3,
@@ -335,9 +390,41 @@ Yield <- maisnet |>
                                Treatment == "Variante: Null-Düngung" ~ "null",
                                Treatment == "Variante: betriebsübliche Düngung" ~ "ueblich")) 
 
-fert_harv <- left_join(Fert2,Yield)
+fert_harv <- left_join(Fert2,Yield) |>
+  mutate(
+    plot_nr = ID,
+    treatment = Treatment,
+    yield = coalesce(GrainYield, SiloYield),
+    yield_type = ifelse(!is.na(GrainYield), "grain", "silo"),
+    yield_unit = "dt/ha"
+  )
 
 saveRDS(
   fert_harv,
   here("prep_data/Fields25_Fert_Yield.rds")
 )
+
+# ==============================================================================
+# 5. KONSOLIDIERTER & STANDARDISIERTER DATENSATZ (Fields25_cleansed)
+# ==============================================================================
+
+nmin_sub <- Nmin_4 |>
+  select(date, plot_nr, treatment, depth, any_of(c("NH4", "NO3", "Ntot"))) |>
+  distinct()
+
+yield_sub <- fert_harv |>
+  select(plot_nr, treatment, yield, yield_type, yield_unit) |>
+  distinct(plot_nr, treatment, .keep_all = TRUE)
+
+fields_cleansed <- EEA3 |>
+  left_join(nmin_sub, by = c("date", "plot_nr", "treatment", "depth")) |>
+  left_join(yield_sub, by = c("plot_nr", "treatment")) |>
+  mutate(
+    LTE = site_config$lte,
+    across(c(LAP, NAG, GLS, MUP, MUX), as.numeric)
+  )
+
+write_csv(fields_cleansed, here("prep_data/Fields25_cleansed.csv"))
+saveRDS(fields_cleansed, here("prep_data/Fields25_cleansed.rds"))
+cat("  Fields25_cleansed erfolgreich gespeichert (", nrow(fields_cleansed), " Zeilen)\n")
+

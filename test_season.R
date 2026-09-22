@@ -4,10 +4,11 @@ library(lme4)
 library(lmerTest)
 
 # Lade Daten
-df_final <- read_csv("/home/marc/Documents/Agroscope/Optifert/digitsoil_master.csv", show_col_types = FALSE) |> filter(LTE == "DEMO")
+df_final <- read_csv("data/DEMO/prep_data/DEMO_cleansed.csv", show_col_types = FALSE)
 
-df_pca <- df_final |> drop_na(LAP, NAG, GLS, MUP, MUX, Verfahren)
-pca_rob <- PcaHubert(df_pca |> select(LAP, NAG, GLS, MUP, MUX), scale = TRUE)
+
+df_pca <- df_final |> drop_na(NAG, GLS, MUP, MUX, Verfahren)
+pca_rob <- PcaHubert(df_pca |> select(NAG, GLS, MUP, MUX), scale = TRUE)
 df_pca <- df_pca |> mutate(PC1 = getScores(pca_rob)[, 1], PC2 = getScores(pca_rob)[, 2])
 
 df_season <- df_pca |>

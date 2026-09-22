@@ -34,6 +34,9 @@ jobs:
             any::lmerTest
             any::MuMIn
             any::plotly
+            any::httr2
+            any::jsonlite
+            any::this.path
 
       - name: 4. Quarto installieren
         uses: quarto-dev/quarto-actions/setup@v2

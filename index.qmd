@@ -18,7 +18,32 @@ Das System erfasst spezifische "molekulare Scheren", die Indikatoren für den Ab
 - **LAP (Leucin-Aminopeptidase):** Indikator für den Proteinabbau (Stickstoffzyklus).
 - **NAG (N-Acetyl-β-D-glucosaminidase):** Indikator für den Chitinabbau (Kohlenstoff- und Stickstoffzyklus).
 - **GLS (β-Glucosidase):** Indikator für den Celluloseabbau (Kohlenstoffzyklus).
-- **MUP / MUX (Phosphatasen/Xylosidasen):** Indikatoren für die Phosphor- bzw. Hemizellulosemineralisierung.
+- **MUP (Phosphatase):** Indikator für die Phosphormineralisierung.
+- **MUX (Xylosidase):** Indikator für die Hemicellulosemineralisierung.
 
 Der entscheidende methodische Vorteil des Systems ist die Standardisierung und die Möglichkeit, Messungen zeitnah an frischen Proben durchzuführen, was Transportartefakte minimiert. Da die Messung jedoch unter optimalen Puffer- und Substratsättigungsbedingungen stattfindet, repräsentiert das Signal die *Potenzialaktivität* der mikrobiellen Gemeinschaft, nicht zwingend die durch Trockenheit oder Substratmangel limitierte *reale* In-situ-Aktivität.
 
+## Standardisiertes Datenbankschema (Data Dictionary)
+
+Um die Daten aus verschiedenen Teilprojekten (DEMO, Fields25, Lysimeter) harmonisiert auswerten zu können, verwenden alle aufbereiteten Datensätze ein einheitliches, tidy Spaltenschema (Snake-Case mit etablierten chemischen/enzymatischen Großbuchstaben):
+
+| Spaltenname | Typ | Einheit / Format | Beschreibung |
+| :--- | :--- | :--- | :--- |
+| `date` | Date | `YYYY-MM-DD` | Datum der Probenahme bzw. Messung |
+| `year` | integer | `YYYY` | Versuchsjahr |
+| `plot_nr` | numeric | - | Parzellen-, Lysimeter- oder Standortnummer |
+| `treatment` | factor | - | Düngungsverfahren / Behandlungsvariante (z.B. `null`, `ueblich`, `empfohlen`) |
+| `crop` | factor | - | Kulturart (z.B. `MA` = Mais, `WW` = Winterweizen, `KM` = Körnermais) |
+| `rep` | character | - | Feldreplikat bzw. Probenwiederholung (`A`, `B`, `1`, `2`) |
+| `NH4` | numeric | mg/kg TS bzw. mg N/L | Ammonium-Stickstoff |
+| `NO3` | numeric | mg/kg TS bzw. mg N/L | Nitrat-Stickstoff |
+| `Ntot` | numeric | kg N/ha bzw. mg/kg TS | Gesamter mineralischer Stickstoff ($N_{min} = NH_4 + NO_3$) |
+| `delta_nmin` | numeric | kg N/ha | Nettoveränderung des $N_{min}$ zwischen Messintervallen |
+| `LAP` | numeric | pmol min⁻¹ | Leucin-Aminopeptidase (Peptidabbau / N-Zyklus) |
+| `NAG` | numeric | pmol min⁻¹ | N-Acetyl-$\beta$-D-glucosaminidase (Chitinabbau / C- & N-Zyklus) |
+| `GLS` | numeric | pmol min⁻¹ | $\beta$-Glucosidase (Celluloseabbau / C-Zyklus) |
+| `MUP` | numeric | pmol min⁻¹ | Phosphatase (Phosphorzyklus) |
+| `MUX` | numeric | pmol min⁻¹ | $\beta$-Xylosidase (Hemicelluloseabbau / C-Zyklus) |
+| `yield` | numeric | variabel | Ertragsmenge der Ernte bzw. Biomasse |
+| `yield_type` | character | - | Ertragsfraktion (`korn_TS`, `stroh_TS`, `silo_TS`, `total_hp_ts`) |
+| `yield_unit` | character | `dt/ha`, `kg/ha`, `kg/a` | Physikalische Einheit des Ertrags |

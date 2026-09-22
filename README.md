@@ -24,10 +24,10 @@ Um dieses Projekt lokal auszuführen und die Daten zu analysieren, benötigen Si
 2. Öffnen Sie die Datei `OptiFert_DigitSoil.Rproj` in RStudio.
 
 ## Usage
-Das Projekt verwendet eine flache Datenstruktur (Tidy Data). Die Master-Datenbank (`digitsoil_master.csv`) enthält alle Sensor- und Labor-Referenzwerte und liegt im Hauptverzeichnis.
+Das Projekt verwendet eine flache Datenstruktur (Tidy Data). Die Datenaufbereitung erfolgt vollständig modular in den jeweiligen Teilprojekt-Ordnern (`data/<Subprojekt>/<Subprojekt>_prep_data.R`) und legt harmonisierte Daten in `data/<Subprojekt>/prep_data/` ab.
 
-Um einen neuen Kurzbericht (z. B. für ein neues Feld) hinzuzufügen:
-1. Erstellen Sie eine neue `.qmd` Datei im Hauptverzeichnis (z. B. `02_feldversuch_xy.qmd`).
+Um einen neuen Versuchsbericht hinzuzufügen:
+1. Erstellen Sie eine neue `.qmd` Datei im Ordner `reports/` (z. B. `reports/Fields25.qmd`).
 2. Fügen Sie die Datei in der `_quarto.yml` unter `chapters:` hinzu.
 3. Klicken Sie in RStudio auf den Button **"Render Book"** (oder nutzen Sie das Terminal: `quarto render`), um das HTML-Buch lokal zu generieren.
 
@@ -36,16 +36,42 @@ Um einen neuen Kurzbericht (z. B. für ein neues Feld) hinzuzufügen:
 - [x] Setup der Quarto-Book Architektur
 - [x] Erstellung der explorativen Basis-Plots (Kovariaten, Zeitreihen)
 - [x] Implementierung der Hauptkomponentenanalyse (PCA) zur Lösung von Multikollinearität
+- [x] Modulare Auslagerung von Wetter- (Open-Meteo) und Nmin-Berechnungen (`scripts/meteo_nmin_utils.R`)
+- [x] Dezentrale Datenaufbereitung direkt in den Subprojekt-Ordnern (`data/<Subprojekt>/`)
 - [ ] Integration einer optionalen Shinylive-App für explorative Datenfilterung durch Externe
 
-## 📊 Datenzugriff für externe Partner
+## 📊 Datenstruktur & Aufbereitung
 
-Der vollständig bereinigte und zusammengeführte Datensatz der aktuellen Kampagnen (inkl. Enzymaktivitäten, Nmin-Laborwerten und Erträgen) wird durch das Skript `scripts/01_build_master_data.R` generiert.
+Die Daten jedes Teilprojekts werden autonom und reproduzierbar über das jeweilige Vorbereitungsskript aufbereitet:
+* **DEMO:** `data/DEMO/DEMO_prep_data.R` $\rightarrow$ `data/DEMO/prep_data/DEMO_cleansed.csv`
+* **Fields25:** `data/Fields25/Fields25_prep_data.R` $\rightarrow$ `data/Fields25/prep_data/Fields25_cleansed.csv`
+* **Lysimeter:** `data/Lysimeter/Lysimeter_prep_data.R` $\rightarrow$ `data/Lysimeter/prep_data/Lysimeter_cleansed.csv`
 
-Die finale Exportdatei liegt im Hauptordner:
-* **Datei:** `digitsoil_master.csv`
-* **Format:** CSV (Comma Separated Values), UTF-8, Spaltentrennzeichen ist ein Komma (`,`).
-* **Inhalt:** Jede Zeile repräsentiert eine Einzelprobe (inkl. Replikate A/B) mit den verknüpften Metadaten zum Parzellen-Setup und dem jeweiligen Düngungsverfahren für verschiedene LTEs und Jahre.
+
+### 📋 Standardisiertes Datenbankschema (Tidy Data)
+
+Alle bereinigten Tabellen (`prep_data/`) und Master-Dateien folgen folgendem einheitlichen Benennungsschema:
+
+| Spaltenname | Typ | Einheit / Format | Beschreibung |
+| :--- | :--- | :--- | :--- |
+| `date` | Date | `YYYY-MM-DD` | Datum der Probenahme bzw. Messung |
+| `year` | integer | `YYYY` | Versuchsjahr |
+| `plot_nr` | numeric | - | Parzellen-, Lysimeter- oder Standortnummer |
+| `treatment` | factor | - | Düngungsverfahren / Behandlungsvariante (z.B. `null`, `ueblich`, `empfohlen`) |
+| `crop` | factor | - | Kulturart (z.B. `MA` = Mais, `WW` = Winterweizen, `KM` = Körnermais) |
+| `rep` | character | - | Feldreplikat bzw. Probenwiederholung (`A`, `B`, `1`, `2`) |
+| `NH4` | numeric | mg/kg TS bzw. mg N/L | Ammonium-Stickstoff |
+| `NO3` | numeric | mg/kg TS bzw. mg N/L | Nitrat-Stickstoff |
+| `Ntot` | numeric | kg N/ha bzw. mg/kg TS | Gesamter mineralischer Stickstoff ($N_{min} = NH_4 + NO_3$) |
+| `delta_nmin` | numeric | kg N/ha | Nettoveränderung des $N_{min}$ zwischen Messintervallen |
+| `LAP` | numeric | pmol min⁻¹ | Leucin-Aminopeptidase (Peptidabbau / N-Zyklus) |
+| `NAG` | numeric | pmol min⁻¹ | N-Acetyl-$\beta$-D-glucosaminidase (Chitinabbau / C- & N-Zyklus) |
+| `GLS` | numeric | pmol min⁻¹ | $\beta$-Glucosidase (Celluloseabbau / C-Zyklus) |
+| `MUP` | numeric | pmol min⁻¹ | Phosphatase (Phosphorzyklus) |
+| `MUX` | numeric | pmol min⁻¹ | $\beta$-Xylosidase (Hemicelluloseabbau / C-Zyklus) |
+| `yield` | numeric | variabel | Ertragsmenge der Ernte bzw. Biomasse |
+| `yield_type` | character | - | Ertragsfraktion (`korn_TS`, `stroh_TS`, `silo_TS`, `total_hp_ts`) |
+| `yield_unit` | character | `dt/ha`, `kg/ha`, `kg/a` | Physikalische Einheit des Ertrags |
 
 ## Contributing
 Wir begrüssen die Zusammenarbeit mit Projektpartnern. Wenn Sie neue Sensordaten oder Referenzwerte hinzufügen möchten, stellen Sie bitte sicher, dass diese der Struktur in der `digitsoil_master.csv` entsprechen. 
