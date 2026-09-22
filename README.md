@@ -27,7 +27,7 @@ Um dieses Projekt lokal auszuführen und die Daten zu analysieren, benötigen Si
 Das Projekt verwendet eine flache Datenstruktur (Tidy Data). Die Datenaufbereitung erfolgt vollständig modular in den jeweiligen Teilprojekt-Ordnern (`data/<Subprojekt>/<Subprojekt>_prep_data.R`) und legt harmonisierte Daten in `data/<Subprojekt>/prep_data/` ab.
 
 Um einen neuen Versuchsbericht hinzuzufügen:
-1. Erstellen Sie eine neue `.qmd` Datei im Ordner `reports/` (z. B. `reports/Fields25.qmd`).
+1. Erstellen Sie eine neue `.qmd` Datei im Ordner `reports/` (z. B. `reports/Field_Campaign.qmd`).
 2. Fügen Sie die Datei in der `_quarto.yml` unter `chapters:` hinzu.
 3. Klicken Sie in RStudio auf den Button **"Render Book"** (oder nutzen Sie das Terminal: `quarto render`), um das HTML-Buch lokal zu generieren.
 

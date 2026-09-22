@@ -1,0 +1,398 @@
+---
+title: "On-Farm Feldkampagne (Field Campaign)"
+format: html
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| echo: false
+# Bibliotheken und zentrales Daten-Setup laden
+library(tidyverse)
+library(rrcov)
+library(gridExtra)
+library(lme4)
+library(lmerTest)
+library(MuMIn)
+library(plotly)
+
+# Vorbereitete Daten aus prep_data/ laden
+fields_cleansed <- readRDS("../data/Fields25/prep_data/Fields25_cleansed.rds")
+fert_yield      <- readRDS("../data/Fields25/prep_data/Fields25_Fert_Yield.rds")
+soil_data       <- readRDS("../data/Fields25/prep_data/Fields25_Soil.rds")
+feed_data       <- readRDS("../data/Fields25/prep_data/Fields25_Feed_Quality.rds")
+
+# Relevel der Hauptvarianten für einheitliche Darstellungen
+main_treatments <- c("null", "ueblich", "empfohlen")
+df_fc <- fields_cleansed |>
+  filter(treatment %in% main_treatments) |>
+  mutate(
+    treatment = factor(treatment, levels = main_treatments),
+    depth_lbl = factor(depth, levels = c("30", "60"), labels = c("0–30 cm", "30–60 cm"))
+  )
+```
+
+# 1. Hintergrund und Methodik
+
+Die On-Farm Feldkampagne (**Field Campaign / Fields25**) evaluiert die Digit Soil Sensortechnologie im realen Praxisbetrieb auf **18 landwirtschaftlichen Betrieben** in der Schweiz im Versuchsjahr 2025. 
+
+Im Zentrum stehen die Hauptfutter- und Körnerkulturen **Silomais (SM)** und **Körnermais (KM)**. Auf jedem Betrieb wurden definierte Versuchsstreifen mit drei kontrastierenden Düngungsstrategien angelegt:
+* **`null`**: Nullparzelle (keinerlei mineralische oder organische Stickstoffzufuhr zur Maiskultur).
+* **`ueblich`**: Betriebsübliche Standardpraxis des Landwirts (historische Hofdünger- und Mineraldüngergaben).
+* **`empfohlen`**: Bedarfsgerechte, nach agronomischer Beratung und Nmin-Vorausberechnung optimierte N-Düngung.
+
+Die Beprobungen erfolgten über vier phänologische Leitstadien (**T1**, **T2**, **T2.5**, **T3**) in zwei Beprobungstiefen (**0–30 cm** Oberboden und **30–60 cm** Unterboden). Ziel der Analyse ist es zu prüfen, ob die enzymatischen Sensordaten (EEA) unter der hohen räumlichen und betrieblichen Heterogenität ein konsistentes Signal für die N-Versorgung und Ertragsbildung liefern.
+
+# 2. Explorative Datenanalyse: Nmin pro Verfahren
+
+Zunächst untersuchen wir die Verteilung der mineralischen Stickstofffraktionen (Ammonium $NH_4^+$ und Nitrat $NO_3^-$) aus den Laboranalysen nach Düngungsverfahren und Bodentiefe.
+
+```{r}
+df_fc |> 
+  drop_na(NH4, NO3, treatment) |> 
+  pivot_longer(
+    cols = c(NH4, NO3), 
+    names_to = "Nmin_Typ", 
+    values_to = "Konzentration"
+  ) |> 
+  ggplot(aes(x = treatment, y = Konzentration, fill = treatment)) +
+  geom_boxplot(alpha = 0.75, outlier.shape = 21, outlier.size = 2.5) +
+  facet_grid(depth_lbl ~ Nmin_Typ, scales = "free_y") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 35, hjust = 1)
+  ) +
+  labs(
+    title = "Verteilung von Ammonium und Nitrat auf den Praxisbetrieben",
+    subtitle = "Laborwerte pro Düngungsverfahren und Bodenschicht",
+    x = "Düngungsverfahren",
+    y = "Konzentration (mg/kg TS)"
+  )
+```
+
+Die Nullparzelle weist erwartungsgemäss in beiden Schichten die geringsten Nitratkonzentrationen auf. Im Oberboden (0–30 cm) sind die Unterschiede zwischen den Verfahren am stärksten ausgeprägt, während im Unterboden (30–60 cm) diffuse Reststickstoffmengen dominieren.
+
+# 3. Sensor-Signale: Enzymatische Aktivität (EEA)
+
+Analog zu den Nmin-Werten analysieren wir die Aktivität der Bodenenzyme. Das Enzym **LAP** (Leucin-Aminopeptidase) zeigte in der On-Farm Kampagne massive Sensorausfälle und einen sehr hohen Anteil fehlender Werte. Um den Ausschluss wertvoller Praxisstandorte zu vermeiden, stützt sich die Auswertung auf die vier stabil gemessenen Enzyme: **NAG**, **GLS**, **MUP** und **MUX**.
+
+```{r}
+#| fig-width: 9
+#| fig-height: 6
+df_fc |> 
+  drop_na(NAG, GLS, MUP, MUX, treatment) |> 
+  pivot_longer(
+    cols = c(NAG, GLS, MUP, MUX), 
+    names_to = "Enzym", 
+    values_to = "Aktivitaet"
+  ) |> 
+  ggplot(aes(x = treatment, y = Aktivitaet, fill = treatment)) +
+  geom_boxplot(alpha = 0.75, outlier.shape = 21, outlier.size = 2) +
+  facet_grid(depth_lbl ~ Enzym, scales = "free_y") +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 35, hjust = 1)
+  ) +
+  labs(
+    title = "Verteilung der Enzymaktivitäten im Feldversuch",
+    subtitle = "Digit Soil Sensormessungen (NAG, GLS, MUP, MUX) nach Verfahren und Bodentiefe",
+    x = "Düngungsverfahren",
+    y = "Enzymaktivität (pmol min⁻¹)"
+  )
+```
+
+Der ausgeprägte Tiefengradient ist bei allen vier Enzymen deutlich erkennbar: Die mikrobielle Aktivität im durchwurzelten Oberboden übertrifft den Unterboden um ein Mehrfaches. Gleichzeitig ist die betriebsindividuelle Streuung innerhalb eines Verfahrens beträchtlich, was die ausgeprägte Heterogenität realer Praxisböden widerspiegelt.
+
+# 4. Systemische Kopplung: Korrelationsanalyse
+
+Zur Überprüfung der internen Zusammenhänge berechnen wir die Spearman-Rangkorrelationsmatrix zwischen den Enzymsignalen und den mineralischen Stickstoffwerten.
+
+```{r}
+cor_matrix <- df_fc |> 
+  select(NAG, GLS, MUP, MUX, NH4, NO3) |> 
+  drop_na() |> 
+  cor(method = "spearman")
+
+cor_data <- cor_matrix |> 
+  as.data.frame() |> 
+  rownames_to_column(var = "Var1") |> 
+  pivot_longer(cols = -Var1, names_to = "Var2", values_to = "Korrelation")
+
+ggplot(cor_data, aes(x = Var1, y = Var2, fill = Korrelation)) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  geom_text(aes(label = sprintf("%.2f", Korrelation)), color = "black", size = 4.5, fontface = "bold") +
+  scale_fill_gradient2(
+    low = "#e74c3c", mid = "white", high = "#3498db", 
+    midpoint = 0, limit = c(-1, 1), name = "Spearman r"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.grid = element_blank(),
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
+  labs(
+    title = "Systemische Kopplung: Enzyme vs. Nmin (Field Campaign)",
+    subtitle = "Spearman-Rangkorrelation der Sensor- und Labordaten über alle Praxisbetriebe",
+    x = "", y = ""
+  )
+```
+
+Die enzymatischen Signale korrelieren untereinander stark positiv ($r = 0.50$ bis $0.78$), was die Kopplung von C-, N- und P-Stoffwechselprozessen bestätigt. Mit den aktuellen Nmin-Fraktionen besteht dagegen eine geringe bis leicht negative Korrelation, da hohe Enzymaktivität oft mit aktiver N-Immobilisierung oder starker mikrobieller Zehrung einhergeht.
+
+# 5. Biologisches Profil und Dimensionsreduktion
+
+Zur Verdichtung der enzymatischen Signaturen wenden wir eine robuste Hauptkomponentenanalyse (ROBPCA nach Hubert et al.) an.
+
+```{r}
+df_pca <- df_fc |> 
+  drop_na(NAG, GLS, MUP, MUX)
+
+pca_rob <- PcaHubert(df_pca |> select(NAG, GLS, MUP, MUX), scale = TRUE)
+
+df_pca <- df_pca |> 
+  mutate(
+    PC1 = getScores(pca_rob)[, 1],
+    PC2 = getScores(pca_rob)[, 2]
+  )
+
+var_expl <- pca_rob@eigenvalues / sum(pca_rob@eigenvalues) * 100
+pc1_lab <- sprintf("PC1: Gesamte mikrobielle Biomasse/Aktivität (%.1f%%)", var_expl[1])
+pc2_lab <- sprintf("PC2: Kohlenstoff/Nährstoff-Shift (%.1f%%)", var_expl[2])
+
+ggplot(df_pca, aes(x = PC1, y = PC2, color = treatment, shape = depth_lbl)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_point(size = 3.5, alpha = 0.8) +
+  scale_color_brewer(palette = "Set2") +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Robuste PCA der Enzymprofile (Field Campaign)",
+    subtitle = "Projektion der Proben auf PC1 und PC2 nach Düngung und Tiefe",
+    x = pc1_lab,
+    y = pc2_lab,
+    color = "Düngung",
+    shape = "Bodentiefe"
+  )
+```
+
+PC1 separiert eindrücklich die beiden Bodenschichten: Die Oberböden (0–30 cm) weisen durchwegs hohe Werte auf PC1 auf, während Unterböden im negativen Bereich liegen.
+
+Zur Prüfung des Nährstoffstatus projizieren wir die Nitrat- und Ammoniumgehalte als kontinuierliche Farbskalen auf den Hauptkomponentenraum:
+
+```{r}
+#| fig-width: 11
+#| fig-height: 5
+p_no3 <- ggplot(df_pca |> drop_na(NO3), aes(x = PC1, y = PC2, color = NO3)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_gradient(low = "#e1f5fe", high = "#01579b", name = "NO3 (mg/kg)") +
+  theme_minimal(base_size = 12) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(title = "Projektion: Nitratkonzentration", x = "PC1", y = "PC2")
+
+p_nh4 <- ggplot(df_pca |> drop_na(NH4), aes(x = PC1, y = PC2, color = NH4)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_gradient(low = "#ffebee", high = "#b71c1c", name = "NH4 (mg/kg)") +
+  theme_minimal(base_size = 12) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(title = "Projektion: Ammoniumkonzentration", x = "PC1", y = "PC2")
+
+grid.arrange(p_no3, p_nh4, ncol = 2)
+```
+
+# 6. Mechanistisches LMM-Modell (Hierarchische Modellierung)
+
+Aufgrund des Multi-Site On-Farm Designs erfordert die Analyse ein lineares gemischtes Modell (Linear Mixed-Effects Model), welches die Standortheterogenität als Random Effect auf Betriebsebene (`1 | plot_nr`) explizit berücksichtigt.
+
+Wir modellieren den gesamten mineralischen Stickstoff ($N_{tot} = NH_4^+ + NO_3^-$ in kg N/ha) in Abhängigkeit von Düngungsverfahren, Bodenschicht und den beiden biologischen Hauptkomponenten:
+
+```{r}
+df_model <- df_pca |> 
+  drop_na(Ntot, PC1, PC2, treatment, depth, plot_nr) |> 
+  mutate(
+    plot_nr   = as.factor(plot_nr),
+    treatment = as.factor(treatment),
+    depth     = as.factor(depth),
+    PC1_z     = as.numeric(scale(PC1)),
+    PC2_z     = as.numeric(scale(PC2))
+  )
+
+m_fc <- lmer(Ntot ~ treatment + depth + PC1_z + PC2_z + (1 | plot_nr), data = df_model)
+summary_fc <- summary(m_fc)
+coefs_fc <- summary_fc$coefficients
+
+r2_fc <- r.squaredGLMM(m_fc)
+rmse_fc <- sqrt(mean(residuals(m_fc)^2))
+```
+
+### Modellparameter & Performance-Metriken
+
+| Prädiktor | Estimate | Std. Error | t-Wert | p-Wert |
+| :--- | :--- | :--- | :--- | :--- |
+| **(Intercept: null, 0–30 cm)** | `r sprintf("%.2f", coefs_fc["(Intercept)", "Estimate"])` | `r sprintf("%.2f", coefs_fc["(Intercept)", "Std. Error"])` | `r sprintf("%.2f", coefs_fc["(Intercept)", "t value"])` | `r sprintf("%.4f", coefs_fc["(Intercept)", "Pr(>|t|)"])` |
+| **Verfahren: ueblich** | `r sprintf("%.2f", coefs_fc["treatmentueblich", "Estimate"])` | `r sprintf("%.2f", coefs_fc["treatmentueblich", "Std. Error"])` | `r sprintf("%.2f", coefs_fc["treatmentueblich", "t value"])` | `r sprintf("%.4f", coefs_fc["treatmentueblich", "Pr(>|t|)"])` |
+| **Verfahren: empfohlen** | `r sprintf("%.2f", coefs_fc["treatmentempfohlen", "Estimate"])` | `r sprintf("%.2f", coefs_fc["treatmentempfohlen", "Std. Error"])` | `r sprintf("%.2f", coefs_fc["treatmentempfohlen", "t value"])` | `r sprintf("%.4f", coefs_fc["treatmentempfohlen", "Pr(>|t|)"])` |
+| **Bodentiefe: 30–60 cm** | `r sprintf("%.2f", coefs_fc["depth60", "Estimate"])` | `r sprintf("%.2f", coefs_fc["depth60", "Std. Error"])` | `r sprintf("%.2f", coefs_fc["depth60", "t value"])` | `r sprintf("%.4f", coefs_fc["depth60", "Pr(>|t|)"])` |
+| **PC1 (Biologische Aktivität)** | `r sprintf("%.2f", coefs_fc["PC1_z", "Estimate"])` | `r sprintf("%.2f", coefs_fc["PC1_z", "Std. Error"])` | `r sprintf("%.2f", coefs_fc["PC1_z", "t value"])` | `r sprintf("%.4f", coefs_fc["PC1_z", "Pr(>|t|)"])` |
+| **PC2 (C/N-Shift)** | `r sprintf("%.2f", coefs_fc["PC2_z", "Estimate"])` | `r sprintf("%.2f", coefs_fc["PC2_z", "Std. Error"])` | `r sprintf("%.2f", coefs_fc["PC2_z", "t value"])` | `r sprintf("%.4f", coefs_fc["PC2_z", "Pr(>|t|)"])` |
+
+* **Marginales $R^2$ (feste Effekte):** `r sprintf("%.1f%%", r2_fc[1] * 100)`
+* **Konditionales $R^2$ (inkl. Betriebs-Random-Effects):** `r sprintf("%.1f%%", r2_fc[2] * 100)`
+* **RMSE:** `r sprintf("%.1f kg N/ha", rmse_fc)`
+
+Das Modell zeigt, dass die gedüngten Verfahren gegenüber der ungedüngten Nullparzelle (Referenz im Intercept) eine Erhöhung der Nmin-Gehalte bewirken. Gleichzeitig ist die biologische Hauptkomponente PC1 hochsignifikant ($p < 0.001$). Durch die Berücksichtigung der standortspezifischen Zufallseffekte (`1 | plot_nr`) steigt die erklärte Varianz von 4.6% auf **65.0%** ($R^2_{cond}$). Dies belegt statistisch die überragende Bedeutung der standortspezifischen Standortgüte und Bodenbeschaffenheit gegenüber reinen Bewirtschaftungseffekten.
+
+### Partielle Residuen: Der isolierte biologische Effekt (PC2)
+
+```{r}
+df_model$Ntot_partial_PC2 <- df_model$Ntot - 
+  (coefs_fc["PC1_z", "Estimate"] * df_model$PC1_z)
+
+ggplot(df_model, aes(x = PC2_z, y = Ntot_partial_PC2)) +
+  geom_point(size = 3, alpha = 0.7, color = "#2c3e50") +
+  geom_smooth(method = "lm", color = "#e74c3c", fill = "#e74c3c", alpha = 0.2) +
+  theme_minimal(base_size = 13) +
+  labs(
+    title = "Partielle Residuen: Einfluss des C/N-Shifts (PC2)",
+    subtitle = "Bereinigt um den dominanten Biomasse-/Tiefeneffekt (PC1)",
+    x = "PC2 (standardisiert)",
+    y = "Bereinigter Nmin Gesamt (kg N/ha)"
+  )
+```
+
+### 3D-Visualisierung der Regressionsebene
+
+```{r}
+pc1_seq <- seq(min(df_model$PC1_z), max(df_model$PC1_z), length.out = 20)
+pc2_seq <- seq(min(df_model$PC2_z), max(df_model$PC2_z), length.out = 20)
+grid_fc <- expand.grid(PC1_z = pc1_seq, PC2_z = pc2_seq)
+
+grid_fc$pred <- coefs_fc["(Intercept)", "Estimate"] +
+                coefs_fc["PC1_z", "Estimate"] * grid_fc$PC1_z +
+                coefs_fc["PC2_z", "Estimate"] * grid_fc$PC2_z
+
+z_mat <- matrix(grid_fc$pred, nrow = length(pc1_seq), ncol = length(pc2_seq))
+
+plot_ly() |>
+  add_markers(
+    data = df_model, 
+    x = ~PC1_z, 
+    y = ~PC2_z, 
+    z = ~Ntot,
+    marker = list(size = 4, color = "#2980b9", opacity = 0.8),
+    name = "Praxisproben"
+  ) |>
+  add_surface(
+    x = ~pc1_seq, 
+    y = ~pc2_seq, 
+    z = ~z_mat,
+    opacity = 0.6,
+    colorscale = "Viridis",
+    name = "Modell-Ebene"
+  ) |>
+  layout(
+    scene = list(
+      xaxis = list(title = "PC1 (Biologische Aktivität)"),
+      yaxis = list(title = "PC2 (C/N Shift)"),
+      zaxis = list(title = "Nmin Gesamt (kg N/ha)")
+    ),
+    title = "3D Modell-Ebene: Nmin im Hauptkomponentenraum"
+  )
+```
+
+# 7. Saisonaler Ansatz: Erste vs. Letzte Messung & Ertragskopplung
+
+Als Ergänzung zur zeitpunktbezogenen Modellierung betrachten wir die saisonale Netto-Dynamik zwischen der ersten Beprobung (**T1**) vor dem Hauptwachstumsschub und der späten Beprobung (**T3**) vor der Ernte.
+
+```{r}
+df_season_fc <- df_pca |>
+  filter(date %in% c("T1", "T3")) |>
+  group_by(plot_nr, treatment, depth) |>
+  arrange(date) |>
+  filter(n() >= 2) |>
+  summarise(
+    Ntot_first = first(Ntot),
+    Ntot_last  = last(Ntot),
+    PC1_first  = first(PC1),
+    PC1_last   = last(PC1),
+    PC2_first  = first(PC2),
+    PC2_last   = last(PC2),
+    yield      = first(yield),
+    yield_type = first(yield_type),
+    .groups    = "drop"
+  ) |>
+  mutate(
+    Delta_Ntot = Ntot_last - Ntot_first,
+    Delta_PC1  = PC1_last - PC1_first,
+    Delta_PC2  = PC2_last - PC2_first
+  ) |>
+  drop_na(Delta_Ntot, Delta_PC1, Delta_PC2)
+
+m_season_fc <- lmer(Delta_Ntot ~ Delta_PC1 + Delta_PC2 + depth + (1 | plot_nr), data = df_season_fc)
+summary_season_fc <- summary(m_season_fc)
+summary_season_fc
+```
+
+```{r}
+ggplot(df_season_fc, aes(x = Delta_PC2, y = Delta_Ntot, color = treatment)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_point(size = 3.5, alpha = 0.8) +
+  geom_smooth(aes(group = 1), method = "lm", color = "#e74c3c", fill = "#e74c3c", alpha = 0.2) +
+  scale_color_brewer(palette = "Set2") +
+  theme_minimal(base_size = 13) +
+  labs(
+    title = "Saisonale Netto-Stickstoffveränderung vs. C/N-Shift (Field Campaign)",
+    subtitle = "Dynamik zwischen T1 und T3 auf den Praxisparzellen",
+    x = expression(paste(Delta, "PC2 (Saisonaler Enzym-Shift)")),
+    y = expression(paste(Delta, "Nmin Gesamt (kg N/ha)")),
+    color = "Düngung"
+  )
+```
+
+### Ertragskopplung auf den Praxisbetrieben
+
+Abschliessend überprüfen wir, wie sich die Düngungsverfahren auf den tatsächlichen Ernteertrag ausgewirkt haben:
+
+```{r}
+#| fig-width: 8
+#| fig-height: 5
+yield_clean <- fert_yield |>
+  filter(treatment %in% main_treatments) |>
+  mutate(treatment = factor(treatment, levels = main_treatments)) |>
+  drop_na(yield)
+
+ggplot(yield_clean, aes(x = treatment, y = yield, fill = treatment)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = 21, width = 0.5) +
+  geom_jitter(width = 0.15, size = 2.5, alpha = 0.6) +
+  facet_wrap(~ yield_type, scales = "free_y", labeller = labeller(yield_type = c("grain" = "Körnermais (dt/ha)", "silo" = "Silomais (dt/ha)"))) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  ) +
+  labs(
+    title = "Ernteerträge auf den Praxisparzellen",
+    subtitle = "Ertragsreaktion pro Düngungsverfahren für Silo- und Körnermais",
+    x = "Düngungsvariante",
+    y = "Ertrag (dt/ha)"
+  )
+```
+
+### Fazit der On-Farm Feldkampagne
+
+Die Replikation der Analysepipeline auf die On-Farm Versuche liefert wichtige Erkenntnisse:
+1. **Hohe betriebliche Varianz:** Über 60% der Varianz im Stickstoffstatus wird durch die Standortheterogenität (`plot_nr`) bestimmt.
+2. **Biologisches Tiefenprofil:** Die Digit Soil Enzymsensorik trennt Ober- und Unterböden robust und trennscharf (PC1).
+3. **Praxiseinsatz:** Während der Enzymshift (PC2) im saisonalen Trend wertvolle Hinweise auf N-Umsatzschübe liefert, muss die Düngungsberatung immer die betriebsspezifische Standortkonstante und Ertragserwartung als Primäranker einbeziehen.

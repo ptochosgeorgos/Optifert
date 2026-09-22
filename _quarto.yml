@@ -14,7 +14,7 @@ book:
     - index.qmd
     - reports/DEMO.qmd
     - reports/Lysimeter.qmd
-    - reports/Fields25.qmd
+    - reports/Field_Campaign.qmd
 format:
   html:
     theme: cosmo
