@@ -12,9 +12,10 @@ execute:
 # Bibliotheken und zentrales Daten-Setup laden
 library(tidyverse)
 library(rrcov)
+library(this.path)
 
 # Das Setup-Skript hat den Master-Datensatz generiert
-df_final <- read_csv("../digitsoil_master.csv", show_col_types = FALSE) |> filter(LTE == "DEMO")
+df_final <- read_csv(here("../data/DEMO/prep_data/DEMO_2025_cleansed.csv"), show_col_types = FALSE)
 ```
 
 # 1. Hintergrund und Methodik
