@@ -75,11 +75,11 @@ Während Nmin das Produkt der Mineralisierung darstellt, messen diese Enzyme die
 ```{r}
 df_final |> 
   # Nur Zeilen behalten, die alle Enzymwerte haben
-  drop_na(LAP, NAG, GLS, MUP, MUX, Verfahren) |> 
+  drop_na(NAG, GLS, MUP, MUX, Verfahren) |> 
   
   # Ins Long-Format umformen (alle 5 Enzyme untereinander)
   pivot_longer(
-    cols = c(LAP, NAG, GLS, MUP, MUX), 
+    cols = c(NAG, GLS, MUP, MUX), 
     names_to = "Enzym", 
     values_to = "Aktivitaet"
   ) |> 
@@ -119,7 +119,7 @@ In der folgenden Heatmap werden zwei Muster analysiert:
 ```{r}
 # 1. Daten auswählen und Korrelationsmatrix berechnen
 cor_matrix <- df_final |> 
-  select(LAP, NAG, GLS, MUP, MUX, NH4, NO3) |> 
+  select(NAG, GLS, MUP, MUX, NH4, NO3) |> 
   drop_na() |> 
   cor(method = "spearman") # Spearman ist robuster bei biologischen Daten
 
@@ -168,10 +168,10 @@ library(rrcov)
 
 # 1. Datenvorbereitung (Nur vollständige Datensätze behalten)
 df_pca <- df_final |> 
-  drop_na(LAP, NAG, GLS, MUP, MUX, Verfahren)
+  drop_na(NAG, GLS, MUP, MUX, Verfahren)
 
 # 2. Robuste PCA berechnen (scale = TRUE ist essenziell bei Enzymen!)
-pca_rob <- PcaHubert(df_pca |> select(LAP, NAG, GLS, MUP, MUX), scale = TRUE)
+pca_rob <- PcaHubert(df_pca |> select(NAG, GLS, MUP, MUX), scale = TRUE)
 
 # 3. Scores (Koordinaten auf PC1/PC2) und erklärte Varianz extrahieren
 df_pca <- df_pca |> 
