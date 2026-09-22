@@ -190,3 +190,35 @@ add_maize_n_uptake <- function(df,
       Interval_N_Entzug_kg_ha = ifelse(!is.na(N_up_t2) & !is.na(N_up_t1), N_up_t2 - N_up_t1, NA_real_)
     )
 }
+
+#' Geokodiert eine Postleitzahl (PLZ) über die Nominatim API
+#'
+#' @param plz Die Postleitzahl als String oder Numeric
+#' @param country Das Land (Default: "Switzerland")
+#' @return Eine Liste mit lat und lon, oder NULL bei Fehler
+#' @export
+fetch_coords <- function(plz, country = "Switzerland") {
+  url <- sprintf("https://nominatim.openstreetmap.org/search?postalcode=%s&country=%s&format=json", 
+                 utils::URLencode(as.character(plz)), utils::URLencode(country))
+  
+  message("  Sammle Koordinaten für PLZ: ", plz, " via Nominatim...")
+  # Nominatim verlangt eigentlich einen User-Agent, aber fromJSON reicht oft für wenige Requests.
+  # Pause einfügen, um Nominatim Rate Limits (1 req/sec) zu respektieren:
+  Sys.sleep(1.1)
+  
+  tryCatch({
+    res <- jsonlite::fromJSON(url)
+    if (is.data.frame(res) && nrow(res) > 0) {
+      return(list(
+        lat = as.numeric(res$lat[1]),
+        lon = as.numeric(res$lon[1])
+      ))
+    } else {
+      warning("Keine Koordinaten gefunden für PLZ: ", plz)
+    }
+  }, error = function(e) {
+    message("Fehler beim Geokodieren der PLZ ", plz, ": ", e$message)
+  })
+  
+  return(NULL)
+}

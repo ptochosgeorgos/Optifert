@@ -399,3 +399,88 @@ ggplot(df_season, aes(x = Delta_PC2, y = Delta_Ntot, color = treatment, shape = 
 ### Fazit für die Lysimeter-Anlage
 
 Die synoptische Analyse der Lysimeterdaten bestätigt den Befund aus dem DEMO-Versuch: Während die Sensoren signifikante Unterschiede zwischen grundlegenden Bodentypen (C-arm vs. C-reich) abbilden, wird die kurzfristige Dynamik der Stickstoffbilanz im Bodenprofil primär durch Witterungs- und physikalische Wasserflüsse dominiert.
+
+# 5. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
+
+Soil enzymes are stabilized by organo-mineral complexes, functioning as a "reservoir" that integrates pedoclimatic drivers (soil moisture, temperature) over time. Therefore, effective enzymatic abundance and activity are often better predicted by cumulative environmental windows (e.g., 7-day, 14-day, 30-day proxies) rather than instantaneous measurements. 
+
+Da unsere Enzym-Messungen zeitlich diskret (T1, T2 etc.) und nicht kontinuierlich sind, können klassische Distributed Lag Models (DLM) nicht ohne weiteres angewendet werden. Stattdessen nutzen wir Linear Mixed Models (LMM) in Kombination mit dem Akaike Information Criterion (AIC), um empirisch zu bestimmen, welches Akkumulations-Fenster die Varianz der Sensordaten (z.B. Ntot, NAG, GLS) am besten erklärt.
+
+```{r lmm-pedoclimatic-setup, warning=FALSE, message=FALSE}
+library(lme4)
+
+# Wir filtern NAs und unvollständige Proxy-Daten
+# Nutzen df_pca um PC1 und PC2 zur Verfügung zu haben
+lmm_data <- df_pca |>
+  filter(!is.na(Precip_7d), !is.na(GDD_7d))
+
+# Zentrierung und Skalierung der Prädiktoren für stabile Konvergenz
+lmm_data <- lmm_data |>
+  mutate(across(c(Precip_7d, Precip_14d, Precip_30d, GDD_7d, GDD_14d, GDD_30d, Aridity_14d), scale))
+```
+
+## Vergleich der Akkumulations-Fenster für alle Signale
+
+Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für das Lysimeter (`plot_nr`) und die Behandlung (`treatment`).
+
+```{r lmm-all-aic, warning=FALSE, message=FALSE}
+library(purrr)
+
+responses <- c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Ntot")
+
+fit_models <- function(resp_var) {
+  # Dynamische Formel-Erstellung
+  f_7d  <- as.formula(paste(resp_var, "~ Precip_7d + GDD_7d + (1|plot_nr) + (1|treatment)"))
+  f_14d <- as.formula(paste(resp_var, "~ Precip_14d + GDD_14d + (1|plot_nr) + (1|treatment)"))
+  f_30d <- as.formula(paste(resp_var, "~ Precip_30d + GDD_30d + (1|plot_nr) + (1|treatment)"))
+  f_ari <- as.formula(paste(resp_var, "~ Aridity_14d + (1|plot_nr) + (1|treatment)"))
+  
+  # Datensatz für diese Response filtern um NAs zu vermeiden
+  d <- lmm_data |> filter(!is.na(!!sym(resp_var)))
+  
+  # lmerControl wird verwendet, um Konvergenzwarnungen zu minimieren
+  ctrl <- lmerControl(optimizer ="Nelder_Mead")
+  m_7d  <- lmer(f_7d, data = d, REML = FALSE, control = ctrl)
+  m_14d <- lmer(f_14d, data = d, REML = FALSE, control = ctrl)
+  m_30d <- lmer(f_30d, data = d, REML = FALSE, control = ctrl)
+  m_ari <- lmer(f_ari, data = d, REML = FALSE, control = ctrl)
+  
+  aic_vals <- AIC(m_7d, m_14d, m_30d, m_ari)
+  
+  tibble(
+    Signal = resp_var,
+    `7-Tage` = aic_vals$AIC[1],
+    `14-Tage` = aic_vals$AIC[2],
+    `30-Tage` = aic_vals$AIC[3],
+    `Aridity (14d)` = aic_vals$AIC[4]
+  )
+}
+
+aic_results <- map_dfr(responses, fit_models)
+
+# Ermittle den besten (niedrigsten) AIC pro Zeile und markiere ihn
+aic_results_display <- aic_results |>
+  rowwise() |>
+  mutate(Best_Lag = c("7-Tage", "14-Tage", "30-Tage", "Aridity (14d)")[which.min(c(`7-Tage`, `14-Tage`, `30-Tage`, `Aridity (14d)`))])
+
+knitr::kable(aic_results_display, caption = "AIC Modellvergleich für enzymatische Signale und PCs (Lysimeter)", digits = 1)
+```
+
+Das Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster ("Lag"), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität im Lysimeter ebenfalls stark von kurz- bis mittelfristigen Wetterereignissen abhängt.
+
+## Visualisierung des besten Prädiktors (PC1 vs. 30-Tage Niederschlag)
+
+```{r plot-pedoclimatic-pc1, fig.width=10, fig.height=6, warning=FALSE, message=FALSE}
+# Nehmen wir an, das 30-Tage-Fenster ist für PC1 aussagekräftig im Lysimeter
+ggplot(lmm_data |> drop_na(PC1), aes(x = Precip_30d, y = PC1, color = treatment)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  labs(
+    title = "Einfluss des kumulativen Niederschlags (30d) auf die Gesamte mikrobielle Biomasse (PC1)",
+    subtitle = "Zentrierte/Skalierte Prädiktoren; Trendlinie über alle Verfahren",
+    x = "Niederschlag 30-Tage (skaliert)",
+    y = "PC1 (Generelle Enzymaktivität)"
+  ) +
+  theme_minimal()
+```
+

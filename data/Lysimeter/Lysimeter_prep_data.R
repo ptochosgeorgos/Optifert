@@ -220,3 +220,43 @@ if (file.exists(weather_file)) {
 
 cat("Lysimeter Vorbereitung erfolgreich abgeschlossen!\n")
 
+
+# ==============================================================================
+# 5. PEDOKLIMATISCHE PROXIES FÜR LYSIMETER BERECHNEN
+# ==============================================================================
+cat("  Berechne Pedoklimatische Proxies für Lysimeter...\n")
+
+if (exists("env_daily")) {
+  # Sortieren nach Datum zur Sicherheit
+  env_daily <- env_daily |> arrange(date)
+  
+  library(zoo)
+  
+  # Rolling Summen berechnen
+  env_proxies <- env_daily |>
+    mutate(
+      Precip_7d = rollapply(precip_sum, width = 7, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_14d = rollapply(precip_sum, width = 14, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_30d = rollapply(precip_sum, width = 30, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      
+      GDD_7d = rollapply(GDD, width = 7, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_14d = rollapply(GDD, width = 14, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_30d = rollapply(GDD, width = 30, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      
+      Aridity_14d = Precip_14d / (GDD_14d + 1)
+    ) |>
+    select(date, starts_with("Precip_"), starts_with("GDD_"), starts_with("Aridity_"))
+  
+  # Join mit Lysimeter_cleansed
+  if (exists("df_eea")) {
+    df_eea <- df_eea |>
+      left_join(env_proxies, by = "date")
+    
+    # Wieder speichern (mit Proxies)
+    write_csv(df_eea, file.path(prep_dir, "Lysimeter_cleansed.csv"))
+    saveRDS(df_eea, file.path(prep_dir, "Lysimeter_cleansed.rds"))
+    cat("  Pedoklimatische Proxies zu Lysimeter_cleansed hinzugefügt.\n")
+  }
+}
+
+cat("Lysimeter Vorbereitung erfolgreich abgeschlossen!\n")

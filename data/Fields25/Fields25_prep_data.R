@@ -159,6 +159,7 @@ Nmin_4 <- Nmin_3 |>
     
     # Standardisiertes Schema
     date = Date,
+    calendar_date = dmy(Probenahme),
     year = as.numeric(as.character(Year)),
     plot_nr = as.numeric(as.character(Site)),
     crop = Crop,
@@ -409,7 +410,7 @@ saveRDS(
 # ==============================================================================
 
 nmin_sub <- Nmin_4 |>
-  select(date, plot_nr, treatment, depth, any_of(c("NH4", "NO3", "Ntot"))) |>
+  select(date, calendar_date, plot_nr, treatment, depth, any_of(c("NH4", "NO3", "Ntot"))) |>
   distinct()
 
 yield_sub <- fert_harv |>
@@ -423,6 +424,55 @@ fields_cleansed <- EEA3 |>
     LTE = site_config$lte,
     across(c(LAP, NAG, GLS, MUP, MUX), as.numeric)
   )
+
+# Lade Farm-Koordinaten & Meteo
+utils_path <- file.path(script_dir, "../../scripts/meteo_nmin_utils.R")
+if (!file.exists(utils_path)) utils_path <- "scripts/meteo_nmin_utils.R"
+if (file.exists(utils_path)) source(utils_path)
+
+if (exists("fetch_meteo") && exists("fetch_coords")) {
+  cat("  Verarbeite Pedoklimatische Proxies für Fields25...\n")
+  farms <- Nmin_4 |> distinct(plot_nr, PLZ)
+  
+  # Fetch coords für jede Farm anhand PLZ
+  farms_coords <- farms |> 
+    mutate(coords = purrr::map(PLZ, fetch_coords)) |>
+    tidyr::unnest_wider(coords)
+  
+  meteo_all <- tibble()
+  for (i in seq_len(nrow(farms_coords))) {
+    f_lat <- farms_coords$lat[i]
+    f_lon <- farms_coords$lon[i]
+    f_site <- farms_coords$plot_nr[i]
+    if (!is.na(f_lat) && !is.na(f_lon)) {
+      m <- fetch_meteo(f_lat, f_lon, "2025-01-01", "2025-12-31", site_config$base_temp)
+      m <- m |> mutate(plot_nr = as.numeric(f_site))
+      meteo_all <- bind_rows(meteo_all, m)
+    }
+  }
+  
+  if (nrow(meteo_all) > 0) {
+    # Berechne rollierende Aggregationen
+    meteo_roll <- meteo_all |>
+      arrange(plot_nr, Datum) |>
+      group_by(plot_nr) |>
+      mutate(
+        Precip_7d = zoo::rollsumr(Precip_mm, k = 7, fill = NA),
+        Precip_14d = zoo::rollsumr(Precip_mm, k = 14, fill = NA),
+        Precip_30d = zoo::rollsumr(Precip_mm, k = 30, fill = NA),
+        GDD_7d = zoo::rollsumr(GDD, k = 7, fill = NA),
+        GDD_14d = zoo::rollsumr(GDD, k = 14, fill = NA),
+        GDD_30d = zoo::rollsumr(GDD, k = 30, fill = NA)
+      ) |>
+      ungroup() |>
+      mutate(
+        Aridity_Index_14d = Precip_14d / (GDD_14d + 1)
+      )
+    
+    fields_cleansed <- fields_cleansed |>
+      left_join(meteo_roll, by = c("plot_nr" = "plot_nr", "calendar_date" = "Datum"))
+  }
+}
 
 write_csv(fields_cleansed, here("prep_data/Fields25_cleansed.csv"))
 saveRDS(fields_cleansed, here("prep_data/Fields25_cleansed.rds"))
