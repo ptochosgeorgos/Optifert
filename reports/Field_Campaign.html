@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; On-Farm Feldkampagne (Field Campaign) – OptiFert: Evaluation der Digit Soil Technologie</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../reports/Lysimeter.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-f661361b8ed1b53066cdac8aab1de14e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="../site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="../site_libs/plotly-binding-4.12.0/plotly.js"></script>
+<script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="../site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="../site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reports/Field_Campaign.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">On-Farm Feldkampagne (Field Campaign)</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">OptiFert: Evaluation der Digit Soil Technologie</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/ptochosgeorgos/Optifert" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Vorwort</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reports/DEMO.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Langzeitversuch DEMO</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reports/Lysimeter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter-Versuchsanlage</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reports/Field_Campaign.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">On-Farm Feldkampagne (Field Campaign)</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Inhaltsverzeichnis</h2>
+   
+  <ul>
+  <li><a href="#hintergrund-und-methodik" id="toc-hintergrund-und-methodik" class="nav-link active" data-scroll-target="#hintergrund-und-methodik"><span class="header-section-number">4</span> 1. Hintergrund und Methodik</a></li>
+  <li><a href="#explorative-datenanalyse-nmin-pro-verfahren" id="toc-explorative-datenanalyse-nmin-pro-verfahren" class="nav-link" data-scroll-target="#explorative-datenanalyse-nmin-pro-verfahren"><span class="header-section-number">5</span> 2. Explorative Datenanalyse: Nmin pro Verfahren</a></li>
+  <li><a href="#sensor-signale-enzymatische-aktivität-eea" id="toc-sensor-signale-enzymatische-aktivität-eea" class="nav-link" data-scroll-target="#sensor-signale-enzymatische-aktivität-eea"><span class="header-section-number">6</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</a></li>
+  <li><a href="#systemische-kopplung-korrelationsanalyse" id="toc-systemische-kopplung-korrelationsanalyse" class="nav-link" data-scroll-target="#systemische-kopplung-korrelationsanalyse"><span class="header-section-number">7</span> 4. Systemische Kopplung: Korrelationsanalyse</a></li>
+  <li><a href="#biologisches-profil-und-dimensionsreduktion" id="toc-biologisches-profil-und-dimensionsreduktion" class="nav-link" data-scroll-target="#biologisches-profil-und-dimensionsreduktion"><span class="header-section-number">8</span> 5. Biologisches Profil und Dimensionsreduktion</a></li>
+  <li><a href="#mechanistisches-lmm-modell-hierarchische-modellierung" id="toc-mechanistisches-lmm-modell-hierarchische-modellierung" class="nav-link" data-scroll-target="#mechanistisches-lmm-modell-hierarchische-modellierung"><span class="header-section-number">9</span> 6. Mechanistisches LMM-Modell (Hierarchische Modellierung)</a>
+  <ul class="collapse">
+  <li><a href="#modellparameter-performance-metriken" id="toc-modellparameter-performance-metriken" class="nav-link" data-scroll-target="#modellparameter-performance-metriken"><span class="header-section-number">9.0.1</span> Modellparameter &amp; Performance-Metriken</a></li>
+  <li><a href="#partielle-residuen-der-isolierte-biologische-effekt-pc2" id="toc-partielle-residuen-der-isolierte-biologische-effekt-pc2" class="nav-link" data-scroll-target="#partielle-residuen-der-isolierte-biologische-effekt-pc2"><span class="header-section-number">9.0.2</span> Partielle Residuen: Der isolierte biologische Effekt (PC2)</a></li>
+  <li><a href="#d-visualisierung-der-regressionsebene" id="toc-d-visualisierung-der-regressionsebene" class="nav-link" data-scroll-target="#d-visualisierung-der-regressionsebene"><span class="header-section-number">9.0.3</span> 3D-Visualisierung der Regressionsebene</a></li>
+  </ul></li>
+  <li><a href="#saisonaler-ansatz-erste-vs.-letzte-messung-ertragskopplung" id="toc-saisonaler-ansatz-erste-vs.-letzte-messung-ertragskopplung" class="nav-link" data-scroll-target="#saisonaler-ansatz-erste-vs.-letzte-messung-ertragskopplung"><span class="header-section-number">10</span> 7. Saisonaler Ansatz: Erste vs.&nbsp;Letzte Messung &amp; Ertragskopplung</a>
+  <ul class="collapse">
+  <li><a href="#ertragskopplung-auf-den-praxisbetrieben" id="toc-ertragskopplung-auf-den-praxisbetrieben" class="nav-link" data-scroll-target="#ertragskopplung-auf-den-praxisbetrieben"><span class="header-section-number">10.0.1</span> Ertragskopplung auf den Praxisbetrieben</a></li>
+  <li><a href="#fazit-der-on-farm-feldkampagne" id="toc-fazit-der-on-farm-feldkampagne" class="nav-link" data-scroll-target="#fazit-der-on-farm-feldkampagne"><span class="header-section-number">10.0.2</span> Fazit der On-Farm Feldkampagne</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/ptochosgeorgos/Optifert/edit/main/reports/Field_Campaign.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ptochosgeorgos/Optifert/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">On-Farm Feldkampagne (Field Campaign)</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="hintergrund-und-methodik" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> 1. Hintergrund und Methodik</h1>
+<p>Die On-Farm Feldkampagne (<strong>Field Campaign / Fields25</strong>) evaluiert die Digit Soil Sensortechnologie im realen Praxisbetrieb auf <strong>18 landwirtschaftlichen Betrieben</strong> in der Schweiz im Versuchsjahr 2025.</p>
+<p>Im Zentrum stehen die Hauptfutter- und Körnerkulturen <strong>Silomais (SM)</strong> und <strong>Körnermais (KM)</strong>. Auf jedem Betrieb wurden definierte Versuchsstreifen mit drei kontrastierenden Düngungsstrategien angelegt: * <strong><code>null</code></strong>: Nullparzelle (keinerlei mineralische oder organische Stickstoffzufuhr zur Maiskultur). * <strong><code>ueblich</code></strong>: Betriebsübliche Standardpraxis des Landwirts (historische Hofdünger- und Mineraldüngergaben). * <strong><code>empfohlen</code></strong>: Bedarfsgerechte, nach agronomischer Beratung und Nmin-Vorausberechnung optimierte N-Düngung.</p>
+<p>Die Beprobungen erfolgten über vier phänologische Leitstadien (<strong>T1</strong>, <strong>T2</strong>, <strong>T2.5</strong>, <strong>T3</strong>) in zwei Beprobungstiefen (<strong>0–30 cm</strong> Oberboden und <strong>30–60 cm</strong> Unterboden). Ziel der Analyse ist es zu prüfen, ob die enzymatischen Sensordaten (EEA) unter der hohen räumlichen und betrieblichen Heterogenität ein konsistentes Signal für die N-Versorgung und Ertragsbildung liefern.</p>
+</section>
+<section id="explorative-datenanalyse-nmin-pro-verfahren" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> 2. Explorative Datenanalyse: Nmin pro Verfahren</h1>
+<p>Zunächst untersuchen wir die Verteilung der mineralischen Stickstofffraktionen (Ammonium <span class="math inline">\(NH_4^+\)</span> und Nitrat <span class="math inline">\(NO_3^-\)</span>) aus den Laboranalysen nach Düngungsverfahren und Bodentiefe.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die Nullparzelle weist erwartungsgemäss in beiden Schichten die geringsten Nitratkonzentrationen auf. Im Oberboden (0–30 cm) sind die Unterschiede zwischen den Verfahren am stärksten ausgeprägt, während im Unterboden (30–60 cm) diffuse Reststickstoffmengen dominieren.</p>
+</section>
+<section id="sensor-signale-enzymatische-aktivität-eea" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</h1>
+<p>Analog zu den Nmin-Werten analysieren wir die Aktivität der Bodenenzyme. Das Enzym <strong>LAP</strong> (Leucin-Aminopeptidase) zeigte in der On-Farm Kampagne massive Sensorausfälle und einen sehr hohen Anteil fehlender Werte. Um den Ausschluss wertvoller Praxisstandorte zu vermeiden, stützt sich die Auswertung auf die vier stabil gemessenen Enzyme: <strong>NAG</strong>, <strong>GLS</strong>, <strong>MUP</strong> und <strong>MUX</strong>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Der ausgeprägte Tiefengradient ist bei allen vier Enzymen deutlich erkennbar: Die mikrobielle Aktivität im durchwurzelten Oberboden übertrifft den Unterboden um ein Mehrfaches. Gleichzeitig ist die betriebsindividuelle Streuung innerhalb eines Verfahrens beträchtlich, was die ausgeprägte Heterogenität realer Praxisböden widerspiegelt.</p>
+</section>
+<section id="systemische-kopplung-korrelationsanalyse" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> 4. Systemische Kopplung: Korrelationsanalyse</h1>
+<p>Zur Überprüfung der internen Zusammenhänge berechnen wir die Spearman-Rangkorrelationsmatrix zwischen den Enzymsignalen und den mineralischen Stickstoffwerten.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die enzymatischen Signale korrelieren untereinander stark positiv (<span class="math inline">\(r = 0.50\)</span> bis <span class="math inline">\(0.78\)</span>), was die Kopplung von C-, N- und P-Stoffwechselprozessen bestätigt. Mit den aktuellen Nmin-Fraktionen besteht dagegen eine geringe bis leicht negative Korrelation, da hohe Enzymaktivität oft mit aktiver N-Immobilisierung oder starker mikrobieller Zehrung einhergeht.</p>
+</section>
+<section id="biologisches-profil-und-dimensionsreduktion" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> 5. Biologisches Profil und Dimensionsreduktion</h1>
+<p>Zur Verdichtung der enzymatischen Signaturen wenden wir eine robuste Hauptkomponentenanalyse (ROBPCA nach Hubert et al.) an.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>PC1 separiert eindrücklich die beiden Bodenschichten: Die Oberböden (0–30 cm) weisen durchwegs hohe Werte auf PC1 auf, während Unterböden im negativen Bereich liegen.</p>
+<p>Zur Prüfung des Nährstoffstatus projizieren wir die Nitrat- und Ammoniumgehalte als kontinuierliche Farbskalen auf den Hauptkomponentenraum:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="mechanistisches-lmm-modell-hierarchische-modellierung" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> 6. Mechanistisches LMM-Modell (Hierarchische Modellierung)</h1>
+<p>Aufgrund des Multi-Site On-Farm Designs erfordert die Analyse ein lineares gemischtes Modell (Linear Mixed-Effects Model), welches die Standortheterogenität als Random Effect auf Betriebsebene (<code>1 | plot_nr</code>) explizit berücksichtigt.</p>
+<p>Wir modellieren den gesamten mineralischen Stickstoff (<span class="math inline">\(N_{tot} = NH_4^+ + NO_3^-\)</span> in kg N/ha) in Abhängigkeit von Düngungsverfahren, Bodenschicht und den beiden biologischen Hauptkomponenten:</p>
+<section id="modellparameter-performance-metriken" class="level3" data-number="9.0.1">
+<h3 data-number="9.0.1" class="anchored" data-anchor-id="modellparameter-performance-metriken"><span class="header-section-number">9.0.1</span> Modellparameter &amp; Performance-Metriken</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Prädiktor</th>
+<th style="text-align: left;">Estimate</th>
+<th style="text-align: left;">Std. Error</th>
+<th style="text-align: left;">t-Wert</th>
+<th style="text-align: left;">p-Wert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>(Intercept: null, 0–30 cm)</strong></td>
+<td style="text-align: left;">99.37</td>
+<td style="text-align: left;">33.17</td>
+<td style="text-align: left;">3.00</td>
+<td style="text-align: left;">0.0085</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Verfahren: ueblich</strong></td>
+<td style="text-align: left;">35.59</td>
+<td style="text-align: left;">15.09</td>
+<td style="text-align: left;">2.36</td>
+<td style="text-align: left;">0.0193</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Verfahren: empfohlen</strong></td>
+<td style="text-align: left;">37.98</td>
+<td style="text-align: left;">15.39</td>
+<td style="text-align: left;">2.47</td>
+<td style="text-align: left;">0.0144</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Bodentiefe: 30–60 cm</strong></td>
+<td style="text-align: left;">35.35</td>
+<td style="text-align: left;">16.23</td>
+<td style="text-align: left;">2.18</td>
+<td style="text-align: left;">0.0304</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>PC1 (Biologische Aktivität)</strong></td>
+<td style="text-align: left;">-34.23</td>
+<td style="text-align: left;">9.82</td>
+<td style="text-align: left;">-3.49</td>
+<td style="text-align: left;">0.0006</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>PC2 (C/N-Shift)</strong></td>
+<td style="text-align: left;">5.43</td>
+<td style="text-align: left;">6.70</td>
+<td style="text-align: left;">0.81</td>
+<td style="text-align: left;">0.4187</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Marginales <span class="math inline">\(R^2\)</span> (feste Effekte):</strong> 4.7%</li>
+<li><strong>Konditionales <span class="math inline">\(R^2\)</span> (inkl. Betriebs-Random-Effects):</strong> 64.9%</li>
+<li><strong>RMSE:</strong> 91.1 kg N/ha</li>
+</ul>
+<p>Das Modell zeigt, dass die gedüngten Verfahren gegenüber der ungedüngten Nullparzelle (Referenz im Intercept) eine Erhöhung der Nmin-Gehalte bewirken. Gleichzeitig ist die biologische Hauptkomponente PC1 hochsignifikant (<span class="math inline">\(p &lt; 0.001\)</span>). Durch die Berücksichtigung der standortspezifischen Zufallseffekte (<code>1 | plot_nr</code>) steigt die erklärte Varianz von 4.6% auf <strong>65.0%</strong> (<span class="math inline">\(R^2_{cond}\)</span>). Dies belegt statistisch die überragende Bedeutung der standortspezifischen Standortgüte und Bodenbeschaffenheit gegenüber reinen Bewirtschaftungseffekten.</p>
+</section>
+<section id="partielle-residuen-der-isolierte-biologische-effekt-pc2" class="level3" data-number="9.0.2">
+<h3 data-number="9.0.2" class="anchored" data-anchor-id="partielle-residuen-der-isolierte-biologische-effekt-pc2"><span class="header-section-number">9.0.2</span> Partielle Residuen: Der isolierte biologische Effekt (PC2)</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="d-visualisierung-der-regressionsebene" class="level3" data-number="9.0.3">
+<h3 data-number="9.0.3" class="anchored" data-anchor-id="d-visualisierung-der-regressionsebene"><span class="header-section-number">9.0.3</span> 3D-Visualisierung der Regressionsebene</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-903f8d39c52b4bc4c51b" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-903f8d39c52b4bc4c51b">{"x":{"visdat":{"4e48d648a20":["function () ","plotlyVisDat"],"4e4835be8703":["function () ","data"]},"cur_data":"4e4835be8703","attrs":{"4e4835be8703":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"markers","marker":{"size":4,"color":"#2980b9","opacity":0.80000000000000004},"name":"Praxisproben","inherit":true},"4e4835be8703.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":{},"type":"surface","x":{},"y":{},"opacity":0.59999999999999998,"colorscale":"Viridis","name":"Modell-Ebene","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"PC1 (Biologische Aktivität)"},"yaxis":{"title":"PC2 (C/N Shift)"},"zaxis":{"title":"Nmin Gesamt (kg N/ha)"}},"title":"3D Modell-Ebene: Nmin im Hauptkomponentenraum","hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[1.2271612528647633,-1.6789073301238189,0.41100527046990326,1.4055114392450097,-0.57399567203607738,-1.2967491207121196,-0.12081381847504155,-1.5778216280060493,-0.48450927899938639,-0.48615037653495102,0.77746883524533528,-0.2389960240301118,0.62127769861754911,0.29001255615801091,0.96250417028482205,-0.54517369354722933,1.0619564535968675,-0.2619098287356913,-0.04344077195478608,0.81019904107274054,-0.17008183130341534,0.5963039718087596,0.6052979984703879,-0.6490775534007639,0.39647027944168051,1.0845838847191001,0.93036414861844985,0.33906829026796731,-0.20796916485104691,0.98925409744299742,-0.075095633871292394,0.731788280605561,-0.058835814587008886,0.43898887250014668,1.2695475353723169,-0.65263253856387426,1.6450158706625346,0.8087492255231914,0.27300912364410701,-0.24434469275048618,0.059832678761756651,-0.13409768696554303,0.3981389188574353,-0.86100665007288557,0.58513226183919242,-2.071004633769177,0.49759529440046602,-0.58784577447027508,-0.098918870669193554,-1.1623966138564072,0.25243639603743923,0.22137836054251225,-1.6307380373659572,-1.9377422660429664,0.24116468452360904,0.079677030011719566,0.37725914125113963,0.81456936099514776,0.90691923832180332,0.58117984568916825,-0.92672032114428859,0.024022021474712038,-2.451799302320667,-0.18460612311521818,-3.0572153796130017,-0.043709465604789811,-0.52518861215467405,-2.9088724857105652,-1.7095105317668837,0.91315911443914677,0.42739186554028358,-0.3745621097103195,-0.9661642243338141,-0.76424798118999182,-1.8606884345870758,-0.7231321621222031,-0.58589200345649273,-0.075353987665368771,-3.0607580992997958,-0.56539595229082118,1.2611128785240164,-0.39478052530889651,1.5942805676528777,1.3111209591635242,0.21274690701569834,-1.0695977484745196,-0.18763279970389804,-0.17289420437137429,0.35768819099103738,0.64992044518163294,0.86788082102738862,0.019144429198760908,-0.69294854983061027,0.3406249265526054,0.028560110997328182,-0.34135688998466263,0.99848205243743904,-0.97238100430900143,0.58062262494005823,0.78690492570547788,-0.40026056130268461,0.035502391363493875,1.3710213497281485,-0.88894343776300133,1.1174911613497149,0.73454484626624261,-0.61170594770222886,-0.49206034090660811,0.73374742205242738,-0.4524203251525436,0.79991923975778345,0.78577440399003173,0.51363309118419076,-1.8041666079048988,-0.48632074978294548,-0.78560764234130298,-0.27198272067225476,-2.1592624950744903,-1.5770214979625234,-0.88640547351108512,0.039843118115903568,-2.7706215430733856,0.15010642521938744,-2.3904496163419502,-0.57141947146182748,-1.1471752221211462,-0.12419781690547525,-1.0472467742700844,-0.36459815671615842,-1.178141024026756,-1.281472089129996,0.32029337376883638,1.7309992252899959,1.2293123873689222,1.2914043915735058,0.24437860548777909,0.92765741215337572,0.95990879516110983,0.026747024165372005,1.7321758350729803,-0.076019646319980275,1.1645948022302828,0.01085572978837073,-0.27272380114518646,1.3583254530123832,-0.68982371533156861,-0.05940602557290027,1.3724875266752181,0.42736081901610545,0.41050288358374099,1.0592453666951311,1.5947879637568303,0.19930821769546458,0.33079646732062068,-1.4021803314426158,-0.52265695990092165,-0.59112791097018602,-0.4967464255237975,-1.0909628538073661,0.026067547876491553,0.93564424655066136,-1.0224620719226487,1.6135397850961035,0.060169401750876046,1.2989754810347263,-0.40997781883171219,0.78018485705708285,-1.4697172157260285,-1.1613334927509709,-0.27036672603591816,-1.6843276992973533,-0.80802551144865309,0.37150159975328778,0.69090300791326542,-1.1231667226686746,-1.13843165577926,0.29954820094859014,0.37150159975328778,0.69090300791326542,-1.1231667226686746,-1.13843165577926,0.29954820094859014,-0.037904556616707316,1.4192878629208521,0.59198377167660132,0.68067385025640748,-0.2871809059120059,0.67676564970115916,0.36429008151389303,1.3419361293023426,1.3403394348195505,1.6529200739472554,-0.66643565115595882,0.81784779774556182,-1.2760839397231438,-1.3145821608593855,-1.7699378932634788,-0.20055848766194342,-0.68554429120591454,-1.5495897562991396,0.16220760168983042,-0.062311058898829423,-2.2235518899504356,0.59561821937871862,0.060083645610980618,0.37168428790188046,0.65377099343625322,0.41401414767273553,-0.044227602705519418,0.12476995194379456,0.52035552738868052,-0.71243732218070144,0.5088988694950991,-0.81647345001923344,1.0420514926518487,-0.76860843822350766,1.7294197979810788,-0.30177561333761521,0.71673503750263201,-1.7297745385705954,-0.71622892997150167,-0.56812615993897941,0.4089739968461224,0.52145576300931418,0.23586253994507411,0.4197600676670406,1.3335690365310082,1.5612291628702089,0.35019396073148995,1.0579485398433968,-0.088212996390814133,1.3148759197251161,0.96591587804970447,0.37200580092834462,1.1683321849612196,0.6788259877765942,1.1226771512508795,1.6087748710600811,0.57032969297075897,1.3547114774581717,1.3656765983264045,1.1552744550636842],"y":[-0.84461744220212431,-0.0670939092301783,-1.8872908153067181,-1.0720798407733947,1.752944487512303,-0.4302175150876289,0.87805551384719682,0.34135861956887098,0.25586667112527606,-0.52040683720044389,-0.64521311555473482,0.93283092494221365,1.0369785411627448,0.30644876140275973,0.81060262148523898,0.18234141634593476,-1.4351148601441295,0.4269141532269729,-0.36001255625879369,0.0007897941380839822,0.29529068081904569,0.23692600079182799,-0.45423434160300846,-0.79187082251762198,-0.096227928154325876,0.030178518355775549,0.59676965927790526,-0.0084402274991972216,0.69154599587145782,0.77482565710516949,0.0072957427511274129,0.64595370780274097,1.5605396654574828,1.399742034264341,0.46348803860325066,0.62768093209547582,-0.54138864866460057,0.81249387577020116,0.2077241066787571,-0.18434223976758807,1.0700329164875026,-1.4996579157764849,0.38647167105929847,-0.9267225016953845,0.85369829692134647,-1.4515685037087713,0.017662914533031437,-1.8772844341015731,0.91945387171189064,0.42970272144786725,1.063335424569416,1.6328763793808068,0.35195713150668523,0.57812341827120739,-1.9589510516298159,1.1443083219516956,1.4256441996821911,-1.1460683710636426,0.85679958966786751,0.54989786587135747,-0.78559654131713685,0.025506049915651866,-0.72524185653828321,0.41184516722782227,-2.3095762570153351,-0.40476592757720725,-0.63662308601090878,-5.7639693133316037,-0.4306332051573451,0.11802191195647352,0.19183381768452978,-0.70616714800957747,0.68229499312011266,-1.7477360816317127,-2.6074493087929378,0.88920493302014803,-0.075809408478993645,-0.91344904743398869,-1.9999241754795869,-0.077046565844466577,0.17202345832350188,-0.41363220866201311,-0.46393889467962118,-1.1488985218539678,0.086970256019466785,-0.78995232202667354,0.17935517780239335,-2.5081012416866071,0.8328223950854754,1.435751532167111,1.1316945222872863,0.68642867799651708,-0.3840683853288962,0.63213891299315894,0.77061709133731748,0.53725380620815999,0.52044731495839169,1.2560262340455151,0.71881012613506567,1.1524800187167183,0.61894772701472378,0.29969705556986331,-0.64719965211909125,-0.075227116725764584,1.5211523171715498,-0.096138223120479149,-0.7687126822303022,1.2034902619827121,1.4152937382850959,0.54312571227341233,1.0948849183004987,1.3582848680529169,1.0812640702022243,-0.24337055358151174,-0.16159155822014964,0.53450989493225798,0.87204195221719838,-0.071563763181032206,1.5999125147616138,-3.2734670809881909,-2.1586799885774473,-0.83292235307060358,1.0058219053400672,-1.190515945235076,0.17842808646668731,1.2007023998528041,1.1742707263681509,0.38580208003670169,1.4534065484036836,-0.33245212164774363,0.66000778228032719,0.58517781776690514,-0.098939759942402575,0.4835885204234151,0.39715147651566457,-0.033444629382562388,-1.343726322033991,0.20659450284613798,0.14239453390100335,-0.55995765892652039,0.024017747024048779,-0.053116931161038071,0.86167537452624099,0.40975146041363025,0.56415592119183877,0.0022891688576315828,0.579391021723625,0.48302900532227266,0.80463365564677269,0.16393757910714141,-0.64028844640907234,-0.38773769435974087,0.37839320750281225,0.17973280173943754,-0.21636792390557941,1.5549865764226105,0.49889643551432866,-2.893767246240539,0.67770302351822587,0.13881598293385133,-1.9506717044523947,0.016624622983992001,0.81379749848706007,0.3355135091651229,-1.1811265586910793,-2.7346020640755273,0.64751481258512156,-0.56720292199493305,1.3278611456786249,-0.093300158618961543,-0.78849710941627005,-0.21951790982677222,-1.2008766317750867,1.0126421306971161,0.062362899244047851,-8.9837794867960542e-05,-0.10630889980907988,-1.2008766317750867,1.0126421306971161,0.062362899244047851,-8.9837794867960542e-05,-0.10630889980907988,0.51519758147747829,-0.74900172006172661,0.77803298021084089,0.8051877835362371,0.64569744978184573,-0.00012955211339427466,0.21633191661979256,-0.78039437535455136,0.99211313967365611,-0.60877787912265124,0.056470898152790432,1.3977934605563913,-0.85591209704049587,0.62743835649155777,-0.098921778716262579,0.97378547459862386,-0.15233362147372456,-0.53788150695298398,0.44236574559658676,1.1318155362172286,-0.61911586466536084,-0.21954916078176986,0.2289780360774101,0.27929242826808071,1.1524926566301419,-0.28759819088759025,-0.52918684886796052,0.81373576614002308,0.75109797699527359,0.41922155670453165,1.3288097254275393,-1.4064923028191407,0.07651245853186936,-1.4535799738655857,0.022994049852234438,-0.84271168677106123,0.09742493754140473,-2.0977188361123686,-0.65865774331153393,0.49157510176735042,-1.301322574473734,0.95651395770326986,-1.0868633600724891,-0.58225806038454864,0.33538970768283616,-0.9324830097035387,-0.062342365321102489,0.62349793274786303,-0.17666783486543949,0.3367786655936636,0.49205217843596627,-0.33681021987387716,-1.4922296025494561,0.6009858357840685,-0.36602365636108941,-0.4893337086028432,0.12248745496652415,-0.19621758946227866,0.31633506550018325,-1.4036097646423003],"z":[72,119.09999999999999,72,110.2,155.19999999999999,94.599999999999994,94.599999999999994,251.5,155.19999999999999,251.5,97.200000000000003,85.099999999999994,97.200000000000003,141.30000000000001,110.3,120.09999999999999,120.09999999999999,110.3,158.80000000000001,162.69999999999999,181.09999999999999,158.80000000000001,181.09999999999999,162.69999999999999,49,112.3,153.69999999999999,153.69999999999999,145,212,118.09999999999999,118.09999999999999,212,195.90000000000001,263.30000000000001,176.80000000000001,195.90000000000001,176.80000000000001,263.30000000000001,71.700000000000003,70.200000000000003,70.200000000000003,82.799999999999997,54.600000000000001,68.5,90.5,54.600000000000001,90.5,148.19999999999999,130,56.700000000000003,130,148.19999999999999,22.600000000000001,33.299999999999997,32.799999999999997,33.299999999999997,32.799999999999997,22.600000000000001,137.59999999999999,73.200000000000003,117.7,92.700000000000003,113.5,121.90000000000001,92.700000000000003,121.90000000000001,113.5,48.399999999999999,59.899999999999999,48.399999999999999,35.799999999999997,59.899999999999999,97.700000000000003,105.8,108.40000000000001,105.8,97.700000000000003,108.40000000000001,109.40000000000001,104.59999999999999,90.299999999999997,90.299999999999997,104.59999999999999,143.5,159.59999999999999,265.19999999999999,159.59999999999999,143.5,62.200000000000003,113.3,62.200000000000003,113.3,61,61,82.299999999999997,82.200000000000003,79.599999999999994,82.299999999999997,79.599999999999994,82.200000000000003,102.59999999999999,165,192.90000000000001,102.59999999999999,192.90000000000001,165,24.300000000000001,37.399999999999999,37.399999999999999,24.300000000000001,21.899999999999999,21.899999999999999,67.200000000000003,59.299999999999997,60.200000000000003,67.200000000000003,60.200000000000003,59.299999999999997,136.40000000000001,136.40000000000001,350.30000000000001,350.30000000000001,220.69999999999999,220.69999999999999,105,105,74.200000000000003,66.200000000000003,74.200000000000003,66.200000000000003,64.799999999999997,64.799999999999997,84.299999999999997,76.200000000000003,84.299999999999997,76.200000000000003,76.200000000000003,120.8,120.8,141.59999999999999,91.099999999999994,91.099999999999994,38.700000000000003,38.700000000000003,64.5,37.700000000000003,64.5,56.299999999999997,48.100000000000001,60.100000000000001,56.299999999999997,64.400000000000006,86.599999999999994,64.400000000000006,75.599999999999994,75.599999999999994,91.099999999999994,120.5,74.299999999999997,66.099999999999994,36,36,26.600000000000001,26.600000000000001,37.299999999999997,37.299999999999997,994.5,994.5,131.19999999999999,131.19999999999999,474.60000000000002,80.700000000000003,169.5,57.899999999999999,169.5,57.899999999999999,80.700000000000003,169.5,57.899999999999999,169.5,57.899999999999999,183,125.09999999999999,183,182.59999999999999,125.09999999999999,182.59999999999999,81,128,127.09999999999999,81,127.09999999999999,128,64.700000000000003,74.700000000000003,74.700000000000003,64.700000000000003,158.59999999999999,164,89.700000000000003,100.90000000000001,57.5,89.700000000000003,436.89999999999998,723.60000000000002,723.60000000000002,126.7,92.799999999999997,92.799999999999997,126.7,59.700000000000003,59.700000000000003,95.700000000000003,97.700000000000003,159,159,97.700000000000003,50.899999999999999,50.899999999999999,46.5,58.399999999999999,58.399999999999999,108.5,152.5,162.69999999999999,152.5,162.69999999999999,215,213.80000000000001,230.59999999999999,215,230.59999999999999,213.80000000000001,167.19999999999999,167.19999999999999,114.90000000000001,132.59999999999999,114.90000000000001,132.59999999999999,167.19999999999999,114.90000000000001],"type":"scatter3d","mode":"markers","marker":{"color":"#2980b9","size":4,"opacity":0.80000000000000004,"line":{"color":"rgba(31,119,180,1)"}},"name":"Praxisproben","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"Ntot<br />z_mat","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":"Viridis","showscale":true,"z":[[172.84719765832281,174.99448665001216,177.14177564170151,179.28906463339086,181.43635362508024,183.58364261676959,185.73093160845895,187.87822060014832,190.02550959183768,192.17279858352703,194.32008757521638,196.46737656690576,198.61466555859511,200.76195455028446,202.90924354197381,205.05653253366319,207.20382152535254,209.35111051704189,211.49839950873127,213.64568850042062],[164.21275561012951,166.36004460181886,168.50733359350821,170.65462258519756,172.80191157688694,174.94920056857629,177.09648956026564,179.24377855195502,181.39106754364437,183.53835653533372,185.68564552702307,187.83293451871245,189.9802235104018,192.12751250209115,194.2748014937805,196.42209048546988,198.56937947715923,200.71666846884858,202.86395746053796,205.01124645222731],[155.57831356193617,157.72560255362552,159.87289154531487,162.02018053700422,164.1674695286936,166.31475852038295,168.4620475120723,170.60933650376165,172.75662549545103,174.90391448714038,177.05120347882973,179.19849247051911,181.34578146220846,183.49307045389781,185.64035944558717,187.78764843727654,189.9349374289659,192.08222642065525,194.22951541234463,196.37680440403398],[146.94387151374283,149.09116050543219,151.23844949712154,153.38573848881089,155.53302748050027,157.68031647218962,159.82760546387897,161.97489445556835,164.1221834472577,166.26947243894705,168.4167614306364,170.56405042232578,172.71133941401513,174.85862840570448,177.00591739739383,179.15320638908321,181.30049538077256,183.44778437246191,185.59507336415129,187.74236235584064],[138.30942946554953,140.45671845723888,142.60400744892823,144.75129644061758,146.89858543230696,149.04587442399631,151.19316341568566,153.34045240737504,155.48774139906439,157.63503039075374,159.78231938244309,161.92960837413247,164.07689736582182,166.22418635751117,168.37147534920052,170.5187643408899,172.66605333257925,174.8133423242686,176.96063131595798,179.10792030764733],[129.67498741735619,131.82227640904554,133.96956540073489,136.11685439242424,138.26414338411362,140.41143237580297,142.55872136749232,144.70601035918168,146.85329935087105,149.00058834256041,151.14787733424976,153.29516632593914,155.44245531762849,157.58974430931784,159.73703330100719,161.88432229269657,164.03161128438592,166.17890027607527,168.32618926776465,170.473478259454],[121.04054536916287,123.18783436085224,125.33512335254159,127.48241234423095,129.62970133592032,131.77699032760967,133.92427931929902,136.07156831098837,138.21885730267775,140.3661462943671,142.51343528605645,144.66072427774583,146.80801326943518,148.95530226112453,151.10259125281388,153.24988024450326,155.39716923619261,157.54445822788196,159.69174721957134,161.83903621126069],[112.40610332096954,114.5533923126589,116.70068130434825,118.84797029603762,120.99525928772697,123.14254827941633,125.2898372711057,127.43712626279505,129.58441525448441,131.73170424617376,133.87899323786311,136.02628222955249,138.17357122124184,140.32086021293119,142.46814920462054,144.61543819630992,146.76272718799927,148.91001617968863,151.057305171378,153.20459416306736],[103.77166127277623,105.91895026446559,108.06623925615494,110.21352824784431,112.36081723953366,114.50810623122302,116.65539522291239,118.80268421460174,120.94997320629111,123.09726219798046,125.24455118966982,127.39184018135917,129.53912917304854,131.68641816473789,133.83370715642724,135.98099614811662,138.12828513980597,140.27557413149532,142.4228631231847,144.57015211487405],[95.137219224582893,97.284508216272258,99.431797207961608,101.57908619965097,103.72637519134032,105.87366418302969,108.02095317471905,110.1682421664084,112.31553115809777,114.46282014978712,116.61010914147649,118.75739813316584,120.9046871248552,123.05197611654457,125.19926510823392,127.34655409992328,129.49384309161263,131.64113208330198,133.78842107499136,135.93571006668071],[86.502777176389557,88.650066168078922,90.797355159768273,92.944644151457638,95.091933143146989,97.239222134836353,99.386511126525718,101.53380011821507,103.68108910990443,105.82837810159378,107.97566709328315,110.1229560849725,112.27024507666187,114.41753406835123,116.56482306004058,118.71211205172995,120.8594010434193,123.00669003510866,125.15397902679803,127.30126801848738],[77.868335128196236,80.015624119885601,82.162913111574966,84.310202103264317,86.457491094953667,88.604780086643032,90.752069078332397,92.899358070021748,95.046647061711113,97.193936053400463,99.341225045089828,101.48851403677918,103.63580302846854,105.78309202015791,107.93038101184726,110.07767000353662,112.22495899522598,114.37224798691534,116.51953697860469,118.66682597029406],[69.233893080002915,71.38118207169228,73.52847106338163,75.675760055070995,77.823049046760346,79.970338038449711,82.117627030139076,84.264916021828427,86.412205013517791,88.559494005207142,90.706782996896507,92.854071988585858,95.001360980275223,97.148649971964588,99.295938963653938,101.4432279553433,103.59051694703265,105.73780593872202,107.88509493041138,110.03238392210073],[60.599451031809593,62.746740023498958,64.894029015188323,67.041318006877674,69.188606998567025,71.33589599025639,73.483184981945755,75.630473973635105,77.77776296532447,79.925051957013821,82.072340948703186,84.219629940392537,86.366918932081902,88.514207923771266,90.661496915460617,92.808785907149982,94.956074898839333,97.103363890528698,99.250652882218048,101.39794187390741],[51.965008983616258,54.112297975305623,56.259586966994981,58.406875958684338,60.554164950373689,62.701453942063054,64.848742933752419,66.99603192544177,69.143320917131135,71.290609908820485,73.43789890050985,75.585187892199201,77.732476883888566,79.879765875577931,82.027054867267282,84.174343858956647,86.321632850645997,88.468921842335362,90.616210834024713,92.763499825714078],[43.330566935422937,45.477855927112302,47.625144918801659,49.772433910491017,51.919722902180368,54.067011893869733,56.214300885559098,58.361589877248448,60.508878868937813,62.656167860627171,64.803456852316529,66.95074584400588,69.098034835695245,71.24532382738461,73.39261281907396,75.539901810763325,77.687190802452676,79.834479794142041,81.981768785831406,84.129057777520757],[34.696124887229615,36.84341387891898,38.990702870608338,41.137991862297696,43.285280853987047,45.432569845676412,47.579858837365776,49.727147829055127,51.874436820744492,54.02172581243385,56.169014804123208,58.316303795812566,60.463592787501923,62.610881779191281,64.758170770880639,66.905459762570004,69.052748754259355,71.20003774594872,73.34732673763807,75.494615729327435],[26.061682839036305,28.208971830725662,30.356260822415024,32.503549814104375,34.65083880579374,36.798127797483097,38.945416789172455,41.092705780861813,43.239994772551171,45.387283764240536,47.534572755929887,49.681861747619251,51.829150739308609,53.976439730997967,56.123728722687325,58.271017714376683,60.418306706066048,62.565595697755406,64.712884689444763,66.860173681134114],[17.427240790842969,19.574529782532327,21.721818774221688,23.869107765911043,26.0163967576004,28.163685749289762,30.310974740979123,32.458263732668478,34.605552724357835,36.7528417160472,38.900130707736551,41.047419699425916,43.194708691115274,45.341997682804632,47.489286674493989,49.636575666183347,51.783864657872712,53.93115364956207,56.078442641251428,58.225731632940786],[8.7927987426496266,10.940087734338984,13.087376726028346,15.2346657177177,17.381954709407058,19.529243701096419,21.676532692785781,23.823821684475135,25.971110676164496,28.118399667853858,30.265688659543212,32.412977651232573,34.560266642921931,36.707555634611289,38.854844626300647,41.002133617990005,43.149422609679362,45.296711601368727,47.444000593058085,49.591289584747443]],"type":"surface","x":[-3.0607580992997958,-2.8084984185433339,-2.5562387377868721,-2.3039790570304102,-2.0517193762739483,-1.7994596955174864,-1.5472000147610245,-1.2949403340045627,-1.0426806532481008,-0.7904209724916389,-0.53816129173517702,-0.28590161097871514,-0.033641930222253258,0.21861775053420862,0.4708774312906705,0.72313711204713238,0.97539679280359426,1.2276564735600557,1.479916154316518,1.7321758350729803],"y":[-5.7639693133316037,-5.3683422711819242,-4.9727152290322447,-4.5770881868825661,-4.1814611447328867,-3.7858341025832072,-3.3902070604335277,-2.9945800182838487,-2.5989529761341692,-2.2033259339844897,-1.8076988918348107,-1.4120718496851312,-1.0164448075354517,-0.62081776538577227,-0.22519072323609368,0.17043631891358579,0.56606336106326527,0.96169040321294474,1.3573174453626242,1.752944487512303],"opacity":0.59999999999999998,"name":"Modell-Ebene","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+</section>
+<section id="saisonaler-ansatz-erste-vs.-letzte-messung-ertragskopplung" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> 7. Saisonaler Ansatz: Erste vs.&nbsp;Letzte Messung &amp; Ertragskopplung</h1>
+<p>Als Ergänzung zur zeitpunktbezogenen Modellierung betrachten wir die saisonale Netto-Dynamik zwischen der ersten Beprobung (<strong>T1</strong>) vor dem Hauptwachstumsschub und der späten Beprobung (<strong>T3</strong>) vor der Ernte.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Delta_Ntot ~ Delta_PC1 + Delta_PC2 + depth + (1 | plot_nr)
+   Data: df_season_fc
+
+REML criterion at convergence: 547
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.50807 -0.53897 -0.04056  0.46508  2.13496 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ plot_nr  (Intercept) 1235     35.14   
+ Residual             1086     32.95   
+Number of obs: 56, groups:  plot_nr, 14
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)  
+(Intercept) -22.0659    11.5262  18.2529  -1.914   0.0714 .
+Delta_PC1     0.2423     3.4718  43.4954   0.070   0.9447  
+Delta_PC2    10.4442     5.6007  48.2455   1.865   0.0683 .
+depth60       7.0500     9.7491  44.3674   0.723   0.4734  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+          (Intr) Dl_PC1 Dl_PC2
+Delta_PC1 -0.135              
+Delta_PC2 -0.080  0.094       
+depth60   -0.393  0.141  0.081</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="ertragskopplung-auf-den-praxisbetrieben" class="level3" data-number="10.0.1">
+<h3 data-number="10.0.1" class="anchored" data-anchor-id="ertragskopplung-auf-den-praxisbetrieben"><span class="header-section-number">10.0.1</span> Ertragskopplung auf den Praxisbetrieben</h3>
+<p>Abschliessend überprüfen wir, wie sich die Düngungsverfahren auf den tatsächlichen Ernteertrag ausgewirkt haben:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Field_Campaign_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="fazit-der-on-farm-feldkampagne" class="level3" data-number="10.0.2">
+<h3 data-number="10.0.2" class="anchored" data-anchor-id="fazit-der-on-farm-feldkampagne"><span class="header-section-number">10.0.2</span> Fazit der On-Farm Feldkampagne</h3>
+<p>Die Replikation der Analysepipeline auf die On-Farm Versuche liefert wichtige Erkenntnisse: 1. <strong>Hohe betriebliche Varianz:</strong> Über 60% der Varianz im Stickstoffstatus wird durch die Standortheterogenität (<code>plot_nr</code>) bestimmt. 2. <strong>Biologisches Tiefenprofil:</strong> Die Digit Soil Enzymsensorik trennt Ober- und Unterböden robust und trennscharf (PC1). 3. <strong>Praxiseinsatz:</strong> Während der Enzymshift (PC2) im saisonalen Trend wertvolle Hinweise auf N-Umsatzschübe liefert, muss die Düngungsberatung immer die betriebsspezifische Standortkonstante und Ertragserwartung als Primäranker einbeziehen.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../reports/Lysimeter.html" class="pagination-link" aria-label="Lysimeter-Versuchsanlage">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter-Versuchsanlage</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/ptochosgeorgos/Optifert/edit/main/reports/Field_Campaign.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ptochosgeorgos/Optifert/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

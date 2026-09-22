@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>2&nbsp; Lysimeter – OptiFert: Evaluation der Digit Soil Technologie</title>
+<title>2&nbsp; Lysimeter-Versuchsanlage – OptiFert: Evaluation der Digit Soil Technologie</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -36,6 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../reports/Field_Campaign.html" rel="next">
 <link href="../reports/DEMO.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -74,7 +75,45 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<link href="../site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="../site_libs/plotly-binding-4.12.0/plotly.js"></script>
+<script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="../site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="../site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -87,7 +126,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reports/Lysimeter.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reports/Lysimeter.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter-Versuchsanlage</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -130,7 +169,13 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reports/Lysimeter.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter-Versuchsanlage</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reports/Field_Campaign.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">On-Farm Feldkampagne (Field Campaign)</span></span></a>
   </div>
 </li>
     </ul>
@@ -143,9 +188,19 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Inhaltsverzeichnis</h2>
    
   <ul>
-  <li><a href="#modellierung-der-stickstoff-auswaschung-n-leaching" id="toc-modellierung-der-stickstoff-auswaschung-n-leaching" class="nav-link active" data-scroll-target="#modellierung-der-stickstoff-auswaschung-n-leaching"><span class="header-section-number">2.1</span> 6.6 Modellierung der Stickstoff-Auswaschung (N-Leaching)</a>
+  <li><a href="#hintergrund-und-methodik" id="toc-hintergrund-und-methodik" class="nav-link active" data-scroll-target="#hintergrund-und-methodik"><span class="header-section-number">3</span> 1. Hintergrund und Methodik</a></li>
+  <li><a href="#explorative-datenanalyse-nmin-pro-verfahren" id="toc-explorative-datenanalyse-nmin-pro-verfahren" class="nav-link" data-scroll-target="#explorative-datenanalyse-nmin-pro-verfahren"><span class="header-section-number">4</span> 2. Explorative Datenanalyse: Nmin pro Verfahren</a></li>
+  <li><a href="#sensor-signale-enzymatische-aktivität-eea" id="toc-sensor-signale-enzymatische-aktivität-eea" class="nav-link" data-scroll-target="#sensor-signale-enzymatische-aktivität-eea"><span class="header-section-number">5</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</a></li>
+  <li><a href="#systemische-kopplung-korrelationsanalyse" id="toc-systemische-kopplung-korrelationsanalyse" class="nav-link" data-scroll-target="#systemische-kopplung-korrelationsanalyse"><span class="header-section-number">6</span> 4. Systemische Kopplung: Korrelationsanalyse</a></li>
+  <li><a href="#biologisches-profil-und-dimensionsreduktion" id="toc-biologisches-profil-und-dimensionsreduktion" class="nav-link" data-scroll-target="#biologisches-profil-und-dimensionsreduktion"><span class="header-section-number">7</span> 5. Biologisches Profil und Dimensionsreduktion</a></li>
+  <li><a href="#mechanistisches-n-balance-modell-intervall-basiert" id="toc-mechanistisches-n-balance-modell-intervall-basiert" class="nav-link" data-scroll-target="#mechanistisches-n-balance-modell-intervall-basiert"><span class="header-section-number">8</span> 6. Mechanistisches N-Balance Modell (Intervall-basiert)</a>
   <ul class="collapse">
-  <li><a href="#interpretation-der-auswaschungs-treiber" id="toc-interpretation-der-auswaschungs-treiber" class="nav-link" data-scroll-target="#interpretation-der-auswaschungs-treiber"><span class="header-section-number">2.1.1</span> Interpretation der Auswaschungs-Treiber</a></li>
+  <li><a href="#partielle-residuen-der-isolierte-biologische-effekt-pc2" id="toc-partielle-residuen-der-isolierte-biologische-effekt-pc2" class="nav-link" data-scroll-target="#partielle-residuen-der-isolierte-biologische-effekt-pc2"><span class="header-section-number">8.0.1</span> Partielle Residuen: Der isolierte biologische Effekt (PC2)</a></li>
+  <li><a href="#d-visualisierung-der-regressionsebene" id="toc-d-visualisierung-der-regressionsebene" class="nav-link" data-scroll-target="#d-visualisierung-der-regressionsebene"><span class="header-section-number">8.0.2</span> 3D-Visualisierung der Regressionsebene</a></li>
+  </ul></li>
+  <li><a href="#saisonaler-ansatz-erste-vs.-letzte-messung-auswaschungsbilanz" id="toc-saisonaler-ansatz-erste-vs.-letzte-messung-auswaschungsbilanz" class="nav-link" data-scroll-target="#saisonaler-ansatz-erste-vs.-letzte-messung-auswaschungsbilanz"><span class="header-section-number">9</span> 7. Saisonaler Ansatz: Erste vs.&nbsp;Letzte Messung &amp; Auswaschungsbilanz</a>
+  <ul class="collapse">
+  <li><a href="#fazit-für-die-lysimeter-anlage" id="toc-fazit-für-die-lysimeter-anlage" class="nav-link" data-scroll-target="#fazit-für-die-lysimeter-anlage"><span class="header-section-number">9.0.1</span> Fazit für die Lysimeter-Anlage</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/ptochosgeorgos/Optifert/edit/main/reports/Lysimeter.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ptochosgeorgos/Optifert/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -155,7 +210,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter</span></h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Lysimeter-Versuchsanlage</span></h1>
 </div>
 
 
@@ -172,39 +227,201 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="modellierung-der-stickstoff-auswaschung-n-leaching" class="level2" data-number="2.1">
-<h2 data-number="2.1" class="anchored" data-anchor-id="modellierung-der-stickstoff-auswaschung-n-leaching"><span class="header-section-number">2.1</span> 6.6 Modellierung der Stickstoff-Auswaschung (N-Leaching)</h2>
-<p>Um zu verstehen, welche Faktoren die Stickstoff-Auswaschung (<code>Nleach</code>) steuern, führen wir nun die verschiedenen hochauflösenden Datenquellen zusammen. Wir aggregieren die stündlichen Wetter- und Bodenfeuchtedaten exakt auf die Intervalle zwischen den diskreten Enzymmessungen (NMin_EEA). Gleichzeitig berechnen wir für diese Intervalle den zeitgewichteten Durchschnitt (Time-Weighted Average, TWA) der enzymatischen Signaturen (PC1 und PC2). Zusätzlich integrieren wir die täglichen Wachstumsgradtage (GDD) als Proxy für die Pflanzenentwicklung.</p>
-<p>Mit dem vollständig zusammengeführten Datensatz fitten wir nun ein lineares gemischtes Modell (Linear Mixed-Effects Model). Um numerische Konvergenzprobleme durch die stark unterschiedlichen Skalen (GDD vs.&nbsp;SWC) zu vermeiden, skalieren wir alle Prädiktoren (z-Transformation).</p>
+<section id="hintergrund-und-methodik" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> 1. Hintergrund und Methodik</h1>
+<p>Die Lysimeteranlage am Standort Reckenholz / Tänikon ermöglicht die hochpräzise Erfassung von Stoff- und Wasserflüssen im ungestörten Bodenprofil unter standardisierten Freilandbedingungen. Im Versuchsjahr 2025 wurde die Hauptkultur <strong>Winterweizen (WW)</strong> untersucht.</p>
+<p>Das experimentelle Design umfasst <strong>32 Lysimeter</strong> in einer hierarchischen Struktur: * <strong>2 Bodenarten (C-Gehalt):</strong> <code>low</code> (C-armer Mineralboden) vs.&nbsp;<code>high</code> (humus- und C-reicher Oberboden). * <strong>4 Düngungsverfahren:</strong> * <strong><code>null</code></strong>: Ungedüngte Kontrollvariante. * <strong><code>conventional</code></strong>: Betriebsübliche mineralische Stickstoffdüngung. * <strong><code>optimized</code></strong>: Bedarfsgerechte, teilflächenspezifisch optimierte Düngung. * <strong><code>inhibitor</code></strong>: Stabilisierte Düngung unter Zusatz eines Nitrifikationshemmstoffs.</p>
+<p>Neben den klassischen Parametern (Labor-Nmin, Sickerwassermengen und chemischer N-Auswaschung via FIA) evaluieren wir hier die Sensorik von <strong>Digit Soil</strong>. Die Sensoren messen die enzymatische Potenzialaktivität (EEA) direkt im Boden, um mikrobielle Stoffumsetzungen in Echtzeit abzubilden.</p>
+</section>
+<section id="explorative-datenanalyse-nmin-pro-verfahren" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> 2. Explorative Datenanalyse: Nmin pro Verfahren</h1>
+<p>Zur Definition der agronomischen Baseline analysieren wir die Verteilung der mineralischen Stickstofffraktionen Ammonium (<span class="math inline">\(NH_4^+\)</span>) und Nitrat (<span class="math inline">\(NO_3^-\)</span>) getrennt nach Düngungsverfahren und Bodentyp.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die Nitratkonzentration dominiert den mineralischen Stickstoffpool über alle Verfahren. Im C-reichen Boden (<code>high</code>) ist das Baseniveau der Mineralisierung tendenziell erhöht. Die stabilisierte Variante (<code>inhibitor</code>) zeigt die erwartete zeitliche Verzögerung der Nitrifikation.</p>
+</section>
+<section id="sensor-signale-enzymatische-aktivität-eea" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</h1>
+<p>Analog zu den Nmin-Werten untersuchen wir die Signale der Digit Soil Sensoren. In den Lysimetermessreihen zeigte sich wie im DEMO-Versuch, dass das Enzym <strong>LAP</strong> (Leucin-Aminopeptidase) erhebliche Messausfälle aufweist. Um einen stochastischen Informationsverlust zu verhindern, stützt sich die Auswertung auf die vier robust quantifizierten Enzyme: <strong>NAG</strong>, <strong>GLS</strong>, <strong>MUP</strong> und <strong>MUX</strong>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die C-reichen Böden weisen über alle vier Enzymsysteme ein signifikant höheres Aktivitätsniveau auf, was die biologische Puffer- und Umsetzungskapazität humusreicher Böden unterstreicht.</p>
+</section>
+<section id="systemische-kopplung-korrelationsanalyse" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> 4. Systemische Kopplung: Korrelationsanalyse</h1>
+<p>Zur Analyse der internen Kopplung berechnen wir die Spearman-Rangkorrelationsmatrix zwischen den vier Bodenenzymen und den Nmin-Laborwerten.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Die Enzyme zeigen untereinander eine ausgeprägte Multikollinearität (<span class="math inline">\(r &gt; 0.6\)</span>), was auf ein eng gekoppeltes mikrobiologisches Gesamtregime hindeutet. Die Korrelation mit den aktuellen Nmin-Laborwerten ist dagegen moderat, was den konzeptionellen Unterschied zwischen stationärem N-Pool und dynamischem Umsetzungspotenzial reflektiert.</p>
+</section>
+<section id="biologisches-profil-und-dimensionsreduktion" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> 5. Biologisches Profil und Dimensionsreduktion</h1>
+<p>Zur Bewältigung der Multikollinearität und zur Extraktion der dominanten biologischen Hauptachsen wenden wir eine robuste Hauptkomponentenanalyse (ROBPCA nach Hubert et al.) an.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>PC1 trennt sehr prägnant die beiden Bodenarten: C-reiche Böden liegen im positiven Aktivitätsbereich, während C-arme Böden im negativen Bereich clustern.</p>
+<p>Zur kontinuierlichen Überprüfung der Nährstoffkopplung projizieren wir nun die gemessenen Nitrat- und Ammoniumkonzentrationen als kontinuierliche Farbskalen auf den Hauptkomponentenraum:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="mechanistisches-n-balance-modell-intervall-basiert" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> 6. Mechanistisches N-Balance Modell (Intervall-basiert)</h1>
+<p>Analog zum DEMO-Versuch führen wir nun die Messintervalle zwischen den Beprobungsterminen zusammen. Die Zielvariable ist die Netto-Stickstoffveränderung im Bodenprofil (<span class="math inline">\(\Delta N_{min} = N_{min}(t_2) - N_{min}(t_1)\)</span>). Wir testen, inwiefern die enzymatische Signatur (PC1 und PC2 als Time-Weighted Average) neben der Witterung (Niederschlagssumme des Intervalls) die N-Dynamik steuert.</p>
+<p>Die Anpassung des linearen gemischten Modells liefert folgende Schätzer:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Estimate</th>
+<th style="text-align: left;">Std. Error</th>
+<th style="text-align: left;">t-Wert</th>
+<th style="text-align: left;">p-Wert</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Intercept</strong></td>
+<td style="text-align: left;">-0.733</td>
+<td style="text-align: left;">1.683</td>
+<td style="text-align: left;">-0.44</td>
+<td style="text-align: left;">0.6639</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>PC1 (Aktivität)</strong></td>
+<td style="text-align: left;">-0.331</td>
+<td style="text-align: left;">1.129</td>
+<td style="text-align: left;">-0.29</td>
+<td style="text-align: left;">0.7698</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>PC2 (C/N-Shift)</strong></td>
+<td style="text-align: left;">-1.552</td>
+<td style="text-align: left;">0.958</td>
+<td style="text-align: left;">-1.62</td>
+<td style="text-align: left;">0.1079</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Precip (linear)</strong></td>
+<td style="text-align: left;">-1.022</td>
+<td style="text-align: left;">0.865</td>
+<td style="text-align: left;">-1.18</td>
+<td style="text-align: left;">0.2398</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Precip² (quadratisch)</strong></td>
+<td style="text-align: left;">0.068</td>
+<td style="text-align: left;">0.731</td>
+<td style="text-align: left;">0.09</td>
+<td style="text-align: left;">0.9261</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Marginales <span class="math inline">\(R^2\)</span>:</strong> 7.7%</li>
+<li><strong>Konditionales <span class="math inline">\(R^2\)</span>:</strong> 7.7%</li>
+<li><strong>RMSE:</strong> 7.32 mg/kg</li>
+</ul>
+<section id="partielle-residuen-der-isolierte-biologische-effekt-pc2" class="level3" data-number="8.0.1">
+<h3 data-number="8.0.1" class="anchored" data-anchor-id="partielle-residuen-der-isolierte-biologische-effekt-pc2"><span class="header-section-number">8.0.1</span> Partielle Residuen: Der isolierte biologische Effekt (PC2)</h3>
+<p>Bereinigt um den Niederschlagseinfluss visualisieren wir das partielle Residuum der Stickstoffänderung in Abhängigkeit des C/N-Verschiebungsvektors (PC2):</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="d-visualisierung-der-regressionsebene" class="level3" data-number="8.0.2">
+<h3 data-number="8.0.2" class="anchored" data-anchor-id="d-visualisierung-der-regressionsebene"><span class="header-section-number">8.0.2</span> 3D-Visualisierung der Regressionsebene</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-910d2c45a43bca710cea" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-910d2c45a43bca710cea">{"x":{"visdat":{"4def12f6b533":["function () ","plotlyVisDat"],"4def60489e69":["function () ","data"]},"cur_data":"4def60489e69","attrs":{"4def60489e69":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"markers","marker":{"size":4,"color":"#2980b9","opacity":0.80000000000000004},"name":"Beobachtungen","inherit":true},"4def60489e69.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":{},"type":"surface","x":{},"y":{},"opacity":0.59999999999999998,"colorscale":"Viridis","name":"Modell-Ebene","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"PC2 (C/N Shift)"},"yaxis":{"title":"Niederschlag (z)"},"zaxis":{"title":"Delta Nmin"}},"title":"3D Modell-Ebene: Lysimeter N-Dynamik","hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[-0.55122194510038003,-0.49740475738409295,0.30350557987742377,-0.50009940846311807,-1.4930797487263974,0.18616518633131071,0.0046190774485855212,-0.58779495196252141,-1.5467148441013407,-0.69636360687413024,-1.7074895616177674,-0.46797053612541278,-0.52481978821458786,-0.12765690192501702,-1.1794034578669019,-0.58372004891796792,-1.9986218823407,0.084359860651708252,-1.4025955855670613,0.26238647978597401,-1.5122376613784281,-0.35916496409076532,-1.2099461666397677,0.11018434155344101,-0.45754915442831567,-1.3691342891470804,-0.47771856802443008,-1.4576782401822534,-2.047468158558575,-0.34060549940271917,-0.691067750896598,0.028657123774649598,1.0240604639825075,-0.35256844169600493,-1.3093329896225308,0.21320859911346829,-0.24121406065656334,-0.32466052946372842,-1.7579377919004031,0.19848348900769117,-1.9290086107861604,0.17634142822233456,0.091415459976349298,-0.66694529724763352,-1.4325382966950679,-0.3662184083804676,-3.096323740891759,0.38241676280090092,-0.75633912142771575,0.6436655207642642,-0.12924513941731822,0.73609168568960326,-0.62452201175216815,0.52661940951290886,-0.042229782800529879,-0.0091904763567357568,0.024830416926077039,1.1822100086920486,-1.1438537928553354,-0.40447035146207866,-1.5417328858564383,-0.060139627551142709,0.12488264053628868,0.48782191916271833,1.385621758832331,0.7180914251366608,-0.49468781073420665,0.12551686879173571,-0.36526117452564222,0.85422728087831512,-0.39533039697040623,1.7828607613237089,0.055461351935455885,1.6398268233020477,1.5684514250109178,0.58229493236627283,-0.044387821691118684,0.39489552503084457,-0.33394128741482537,1.6200206085268412,1.1693724831838419,1.2873475130405012,1.1539896110618924,1.1256686233989133,0.5268248804480814,1.6051194708980479,0.018732999756368354,1.7948963302898926,1.6471418605747041,2.2100617480576501,0.54601101950327235,0.46264281777121247,1.1305652467696143,0.54973127969692848,-1.488675523406952,0.71378232083240833,-0.12977278758008179,0.42008690387760977,-0.95212436840270387,0.31490118046261811,-1.3372221374940125,1.8645248429849035,-0.95055607802775965,0.6459168533450057,-0.85725906694265941,1.6964817981434626,0.52368809346664902,0.12237450702056196,0.87776220466865884,-0.0086991898384927279,0.60588085909571809,1.2401275262448925,0.26246647979503607,0.61507813355978069,-0.10606483289834542,0.72819256497550255,0.18103287602827664,1.7417991906360051,-1.6381323415310116,0.7876858132622172,0.11457446405123713,0.66342189927011697,0.64551068716910465,0.66463772842287494,0.90088662550538523],"y":[-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-1.4751607538576912,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,-0.25092592493504234,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,1.332136353844245,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944,0.25565400427432944],"z":[0.17000000000000015,3.5300000000000002,2.1800000000000002,2.7000000000000002,0.71999999999999997,1.4400000000000004,9.7499999999999982,0.83000000000000007,0.43999999999999995,5.8900000000000006,3.9300000000000002,5.9800000000000004,4.9900000000000002,2.5099999999999998,3.2399999999999998,5.4199999999999999,0.7400000000000001,3.6399999999999997,1.5799999999999996,1.0499999999999998,2.0899999999999999,2.7000000000000002,1.4999999999999998,3.9499999999999997,1.6400000000000001,1.0699999999999994,8.5500000000000007,7.9600000000000009,3.2899999999999996,-2.4299999999999997,-0.9800000000000002,-4.0600000000000005,-1.8400000000000003,-3.6500000000000004,-1.1099999999999999,-0.96000000000000041,-10.809999999999999,-2,-0.79999999999999993,-6.9000000000000004,16.5,-6.21,-4.9800000000000004,-3.2199999999999998,-3.25,-6.2200000000000006,-0.70000000000000018,-3.5199999999999996,-1.5399999999999996,-2.5999999999999996,-1.98,-3.5700000000000003,-2.4099999999999997,-4.3899999999999997,-1.9300000000000002,-3.7299999999999995,12.35,-9.3000000000000007,-8.120000000000001,13.48,46.690000000000005,0.9099999999999997,0.27000000000000002,1.24,0.93000000000000016,1.6900000000000004,0.39000000000000001,-0.83999999999999986,0.25,0.85000000000000009,0.51999999999999991,0.83999999999999986,-20.5,0.23999999999999977,0.54000000000000004,1.23,0.29000000000000004,1.71,0.18000000000000005,1.1699999999999999,3.8700000000000001,0.6100000000000001,0.010000000000000009,1.75,0.49999999999999989,0.93000000000000016,0.30999999999999994,0.8899999999999999,-19.810000000000002,0.90000000000000036,0.51000000000000001,-15.550000000000001,-47.140000000000001,-0.1599999999999997,0.73999999999999999,5.9499999999999993,0.14999999999999991,3.4499999999999993,0.97999999999999998,1.5499999999999998,1.6399999999999997,0.42999999999999972,0.96999999999999997,4.2999999999999998,1.1999999999999997,1.3500000000000001,1.4200000000000002,-0.58999999999999986,2.4300000000000002,1.6899999999999999,0.95000000000000007,2.4199999999999999,-3.1299999999999999,0.42999999999999972,0.57000000000000006,0.58000000000000007,1.0400000000000003,0.35999999999999988,2,0.14000000000000012,1.2999999999999998,1.5899999999999999,4.2900000000000009,0.35999999999999988,-1.8],"type":"scatter3d","mode":"markers","marker":{"color":"#2980b9","size":4,"opacity":0.80000000000000004,"line":{"color":"rgba(31,119,180,1)"}},"name":"Beobachtungen","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"Delta_Nmin<br />z_matrix","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":"Viridis","showscale":true,"z":[[5.7275490840743917,5.54838131551967,5.3721790928197564,5.1989424159746518,5.0286712849843562,4.8613656998488697,4.6970256605681922,4.5356511671423227,4.3772422195712624,4.2217988178550101,4.0693209619935686,3.919808651986934,3.7732618878351087,3.6296806695380921,3.4890649970958854,3.3514148705084863,3.2167302897758963,3.0850112548981148,2.9562577658751419,2.8304698227069789],[5.294172187254329,5.1150044186996055,4.9388021959996928,4.7655655191545883,4.5952943881642927,4.427988803028807,4.2636487637481286,4.1022742703222592,3.9438653227511988,3.7884219210349475,3.6359440651735042,3.4864317551668704,3.3398849910150452,3.1963037727180286,3.0556881002758218,2.9180379736884228,2.7833533929558327,2.6516343580780513,2.5228808690550784,2.3970929258869154],[4.8607952904342664,4.6816275218795429,4.5054252991796302,4.3321886223345256,4.1619174913442301,3.9946119062087435,3.830271866928066,3.6688973735021966,3.5104884259311362,3.3550450242148848,3.2025671683534416,3.0530548583468078,2.9065080941949826,2.7629268758979659,2.6223112034557592,2.4846610768683601,2.3499764961357701,2.2182574612579886,2.0895039722350157,1.9637160290668529],[4.4274183936142038,4.2482506250594803,4.0720484023595676,3.8988117255144634,3.7285405945241674,3.5612350093886809,3.3968949701080033,3.2355204766821339,3.0771115291110736,2.9216681273948222,2.7691902715333789,2.6196779615267451,2.4731311973749199,2.3295499790779033,2.1889343066356965,2.0512841800482975,1.9165995993157072,1.7848805644379258,1.6561270754149533,1.5303391322467903],[3.9940414967941393,3.8148737282394172,3.6386715055395045,3.4654348286943999,3.2951636977041039,3.1278581125686173,2.9635180732879398,2.8021435798620704,2.64373463229101,2.4882912305747587,2.3358133747133154,2.1863010647066816,2.0397543005548564,1.8961730822578398,1.7555574098156326,1.617907283228234,1.4832227024956437,1.3515036676178622,1.2227501785948898,1.0969622354267268],[3.5606645999740776,3.381496831419355,3.2052946087194418,3.0320579318743377,2.8617868008840417,2.6944812157485551,2.5301411764678772,2.3687666830420082,2.2103577354709478,2.054914333754696,1.902436477893253,1.7529241678866194,1.606377403734794,1.4627961854377776,1.3221805129955702,1.1845303864081713,1.0498458056755813,0.91812677079779992,0.78937328177482735,0.66358533860666435],[3.1272877031540141,2.9481199345992914,2.7719177118993787,2.5986810350542746,2.4284099040639786,2.2611043189284916,2.0967642796478141,1.9353897862219449,1.7769808386508845,1.6215374369346327,1.4690595810731899,1.3195472710665563,1.1730005069147309,1.0294192886177145,0.88880361617550718,0.75115348958810824,0.61646890885551819,0.48474987397773683,0.35599638495476427,0.23020844178660127],[2.6939108063339514,2.5147430377792288,2.3385408150793157,2.165304138234212,1.995033007243916,1.8277274221084292,1.6633873828277512,1.502012889401882,1.3436039418308217,1.1881605401145698,1.035682684253127,0.88617037424649336,0.73962361009466804,0.59604239179765151,0.45542671935544426,0.31777659276804537,0.18309201203545533,0.051372977157673957,-0.07738051186529861,-0.20316845503346159],[2.2605339095138888,2.0813661409591662,1.905163918259253,1.7319272414141489,1.5616561104238531,1.3943505252883663,1.2300104860076884,1.0686359925818192,0.9102270450107588,0.75478364329450709,0.6023057874330644,0.45279347742643056,0.30624671327460518,0.16266549497758867,0.022049822535381416,-0.11560030405201746,-0.25028488478460753,-0.38200391966238889,-0.51075740868536146,-0.63654535185352445],[1.8271570126938255,1.6479892441391033,1.4717870214391899,1.2985503445940858,1.12827921360379,0.96097362846830336,0.79663358918762539,0.63525909576175632,0.47685014819069582,0.32140674647444406,0.16892889061300143,0.019416580606367532,-0.12713018354545777,-0.27071140184247428,-0.41132707428468157,-0.54897720087208046,-0.6836617816046705,-0.81538081648245186,-0.94413430550542432,-1.0699222486735873],[1.3937801158737624,1.2146123473190402,1.0384101246191271,0.86517344777402294,0.69490231678372716,0.52759673164824039,0.36325669236756247,0.20188219894169337,0.043473251370632883,-0.11197015034561883,-0.26444800620706149,-0.41396031621369539,-0.56050708036552066,-0.70408829866253719,-0.84470397110474449,-0.98235409769214332,-1.1170386784247335,-1.2487577133025149,-1.3775112023254874,-1.5032991454936504],[0.96040321905369952,0.78123545049897736,0.60503322779906421,0.43179655095396008,0.2615254199636643,0.094219834828177501,-0.070120204452500459,-0.23149469787836954,-0.38990364544943001,-0.54534704716568172,-0.69782490302712441,-0.84733721303375831,-0.99388397718558363,-1.1374651954826001,-1.2780808679248075,-1.4157309945122063,-1.5504155752447963,-1.6821346101225778,-1.8108880991455503,-1.9366760423137135],[0.52702632223363666,0.34785855367891449,0.17165633097900132,-0.0015803458661027975,-0.17185147685639859,-0.33915706199188533,-0.50349710127256331,-0.66487159469843249,-0.82328054226949288,-0.97872394398574458,-1.1312017998471875,-1.2807141098538211,-1.4272608740056465,-1.5708420923026631,-1.7114577647448703,-1.8491078913322689,-1.9837924720648592,-2.1155115069426405,-2.2442649959656134,-2.3700529391337763],[0.093649425413573573,-0.085518343141148617,-0.26172056584106174,-0.43495724268616587,-0.60522837367646165,-0.77253395881194842,-0.93687399809262639,-1.0982484915184956,-1.256657439089556,-1.4121008408058078,-1.5645786966672506,-1.7140910066738841,-1.8606377708257096,-2.0042189891227262,-2.1448346615649334,-2.282484788152332,-2.4171693688849221,-2.5488884037627035,-2.6776418927856764,-2.8034298359538394],[-0.33972747140648929,-0.51889523996121145,-0.6950974626611246,-0.86833413950622873,-1.0386052704965245,-1.2059108556320113,-1.3702508949126893,-1.5316253883385584,-1.6900343359096188,-1.8454777376258706,-1.9979555934873134,-2.1474679034939474,-2.2940146676457722,-2.4375958859427889,-2.578211558384996,-2.7158616849723951,-2.8505462657049851,-2.9822653005827666,-3.1110187896057395,-3.2368067327739025],[-0.77310436822655126,-0.95227213678127343,-1.1284743594811866,-1.3017110363262907,-1.4719821673165865,-1.6392877524520733,-1.8036277917327512,-1.9650022851586204,-2.1234112327296808,-2.2788546344459322,-2.4313324903073754,-2.5808448003140092,-2.7273915644658344,-2.8709727827628511,-3.0115884552050578,-3.1492385817924569,-3.2839231625250469,-3.4156421974028284,-3.5443956864258013,-3.6701836295939643],[-1.2064812650466148,-1.385649033601337,-1.5618512563012501,-1.7350879331463542,-1.90535906413665,-2.072664649272137,-2.2370046885528145,-2.3983791819786839,-2.5567881295497443,-2.7122315312659957,-2.8647093871274389,-3.0142216971340727,-3.1607684612858979,-3.3043496795829146,-3.4449653520251213,-3.5826154786125204,-3.7173000593451104,-3.8490190942228919,-3.9777725832458648,-4.1035605264140278],[-1.6398581618666783,-1.8190259304214005,-1.9952281531213134,-2.168464829966418,-2.338735960956714,-2.5060415460922005,-2.6703815853728781,-2.8317560787987475,-2.9901650263698079,-3.1456084280860592,-3.2980862839475025,-3.4475985939541363,-3.5941453581059615,-3.7377265764029781,-3.8783422488451849,-4.0159923754325844,-4.1506769561651744,-4.2823959910429554,-4.4111494800659283,-4.5369374232340913],[-2.0732350586867412,-2.2524028272414633,-2.428605049941376,-2.6018417267864806,-2.7721128577767766,-2.9394184429122632,-3.1037584821929407,-3.2651329756188101,-3.4235419231898705,-3.5789853249061219,-3.7314631807675651,-3.8809754907741989,-4.0275222549260246,-4.1711034732230408,-4.3117191456652479,-4.449369272252647,-4.584053852985237,-4.7157728878630181,-4.844526376885991,-4.970314320054154],[-2.5066119555068029,-2.6857797240615251,-2.8619819467614378,-3.0352186236065424,-3.2054897545968384,-3.3727953397323249,-3.5371353790130025,-3.6985098724388719,-3.8569188200099322,-4.0123622217261845,-4.164840077587626,-4.3143523875942602,-4.4608991517460863,-4.6044803700431025,-4.7450960424853097,-4.8827461690727088,-5.0174307498052988,-5.1491497846830798,-5.2779032737060527,-5.4036912168742157]],"type":"surface","x":[-3.096323740891759,-2.8170402941049479,-2.5377568473181369,-2.2584734005313258,-1.9791899537445148,-1.6999065069577037,-1.4206230601708927,-1.1413396133840816,-0.86205616659727058,-0.58277271981045953,-0.30348927302364848,-0.024205826236837424,0.25507762054997363,0.53436106733678468,0.81364451412359573,1.0929279609104063,1.3722114076972178,1.6514948544840293,1.9307783012708399,2.2100617480576501],"y":[-1.4751607538576912,-1.3274082745049576,-1.1796557951522242,-1.0319033157994908,-0.88415083644675718,-0.73639835709402368,-0.58864587774129018,-0.44089339838855679,-0.29314091903582318,-0.14538843968308957,0.0023640396696438248,0.15011651902237722,0.29786899837511083,0.44562147772784444,0.59337395708057761,0.74112643643331122,0.88887891578604483,1.0366313951387784,1.1843838744915121,1.332136353844245],"opacity":0.59999999999999998,"name":"Modell-Ebene","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+</section>
+<section id="saisonaler-ansatz-erste-vs.-letzte-messung-auswaschungsbilanz" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> 7. Saisonaler Ansatz: Erste vs.&nbsp;Letzte Messung &amp; Auswaschungsbilanz</h1>
+<p>Abschliessend betrachten wir die Nettoveränderung über die gesamte Vegetationsperiode (März bis Juli 2025). Wir prüfen, ob die saisonale Verschiebung im mikrobiellen Enzymprofil (<span class="math inline">\(\Delta\)</span>PC1 und <span class="math inline">\(\Delta\)</span>PC2) mit der Netto-N-Bilanz und der im Herbst gemessenen Sickerwasserauswaschung korreliert.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-lm(formula = Interval_Nleach ~ scale(PC1_TWA) + scale(PC2_TWA) + 
-    scale(Interval_Precip) + scale(Interval_SWC) + scale(Delta_GDD), 
-    data = df_model_clean)
+lm(formula = Delta_Ntot ~ Delta_PC1 + Delta_PC2 + soil_type + 
+    treatment, data = df_season)
 
 Residuals:
-   Min     1Q Median     3Q    Max 
-     0      0      0      0      0 
+    Min      1Q  Median      3Q     Max 
+-5.4534 -0.7480 -0.2503  1.0203  3.6516 
 
 Coefficients:
-                       Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)                   0          0     NaN      NaN
-scale(PC1_TWA)                0          0     NaN      NaN
-scale(PC2_TWA)                0          0     NaN      NaN
-scale(Interval_Precip)        0          0     NaN      NaN
-scale(Interval_SWC)           0          0     NaN      NaN
-scale(Delta_GDD)              0          0     NaN      NaN
+                        Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)              -0.9758     1.0540  -0.926  0.36341   
+Delta_PC1                -0.2928     0.2302  -1.272  0.21512   
+Delta_PC2                -0.1141     0.5268  -0.216  0.83036   
+soil_typeC-reich (high)   0.8449     0.8986   0.940  0.35606   
+treatmentconventional     3.0568     1.0291   2.970  0.00648 **
+treatmentoptimized        1.4940     1.0178   1.468  0.15459   
+treatmentinhibitor        0.2843     1.0159   0.280  0.78185   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 0 on 119 degrees of freedom
-Multiple R-squared:    NaN, Adjusted R-squared:    NaN 
-F-statistic:   NaN on 5 and 119 DF,  p-value: NA</code></pre>
+Residual standard error: 2.029 on 25 degrees of freedom
+Multiple R-squared:  0.3493,    Adjusted R-squared:  0.1931 
+F-statistic: 2.236 on 6 and 25 DF,  p-value: 0.07281</code></pre>
 </div>
 </div>
-<section id="interpretation-der-auswaschungs-treiber" class="level3" data-number="2.1.1">
-<h3 data-number="2.1.1" class="anchored" data-anchor-id="interpretation-der-auswaschungs-treiber"><span class="header-section-number">2.1.1</span> Interpretation der Auswaschungs-Treiber</h3>
-<p>Die obige Zusammenfassung zeigt uns nun für die Lysimeteranlage, welche Faktoren die tatsächliche Nitratauswaschung (Leaching) signifikant steuern, wenn wir das volle Zusammenspiel aus mikrobiologischer Aktivität, Pflanzenwachstum und physikalischen Wasserflüssen betrachten.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Lysimeter_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="fazit-für-die-lysimeter-anlage" class="level3" data-number="9.0.1">
+<h3 data-number="9.0.1" class="anchored" data-anchor-id="fazit-für-die-lysimeter-anlage"><span class="header-section-number">9.0.1</span> Fazit für die Lysimeter-Anlage</h3>
+<p>Die synoptische Analyse der Lysimeterdaten bestätigt den Befund aus dem DEMO-Versuch: Während die Sensoren signifikante Unterschiede zwischen grundlegenden Bodentypen (C-arm vs.&nbsp;C-reich) abbilden, wird die kurzfristige Dynamik der Stickstoffbilanz im Bodenprofil primär durch Witterungs- und physikalische Wasserflüsse dominiert.</p>
 
 
 </section>
@@ -618,6 +835,9 @@ F-statistic:   NaN on 5 and 119 DF,  p-value: NA</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../reports/Field_Campaign.html" class="pagination-link" aria-label="On-Farm Feldkampagne (Field Campaign)">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">On-Farm Feldkampagne (Field Campaign)</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
