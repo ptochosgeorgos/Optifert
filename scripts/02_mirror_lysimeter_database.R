@@ -2,6 +2,7 @@
 # SCRIPT: 02_mirror_lysimeter_database.R
 # ZWECK:  mirroring database contents to github repo
 # ==============================================================================
+sink(nullfile())
 
 library("purrr")
 
