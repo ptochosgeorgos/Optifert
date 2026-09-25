@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="ZHAW / Agroscope">
-<meta name="dcterms.date" content="2026-09-22">
+<meta name="dcterms.date" content="2026-09-25">
 
 <title>OptiFert: Evaluation der Digit Soil Technologie</title>
 <style>
@@ -28,7 +28,26 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
@@ -48,7 +67,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-ed7344add5f1663e434276306a2aa159.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-f661361b8ed1b53066cdac8aab1de14e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -186,8 +205,13 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#funktionsprinzip" id="toc-funktionsprinzip" class="nav-link" data-scroll-target="#funktionsprinzip">Funktionsprinzip</a></li>
   <li><a href="#gemessene-leitenzyme" id="toc-gemessene-leitenzyme" class="nav-link" data-scroll-target="#gemessene-leitenzyme">Gemessene Leitenzyme</a></li>
+  <li><a href="#was-misst-das-signal-wirklich-physikochemische-akkumulation-und-halbwertszeiten" id="toc-was-misst-das-signal-wirklich-physikochemische-akkumulation-und-halbwertszeiten" class="nav-link" data-scroll-target="#was-misst-das-signal-wirklich-physikochemische-akkumulation-und-halbwertszeiten">Was misst das Signal wirklich? (Physikochemische Akkumulation und Halbwertszeiten)</a></li>
   </ul></li>
   <li><a href="#standardisiertes-datenbankschema-data-dictionary" id="toc-standardisiertes-datenbankschema-data-dictionary" class="nav-link" data-scroll-target="#standardisiertes-datenbankschema-data-dictionary">Standardisiertes Datenbankschema (Data Dictionary)</a></li>
+  <li><a href="#pedoklimatische-umweltdaten-open-meteo-api" id="toc-pedoklimatische-umweltdaten-open-meteo-api" class="nav-link" data-scroll-target="#pedoklimatische-umweltdaten-open-meteo-api">Pedoklimatische Umweltdaten (Open-Meteo API)</a>
+  <ul class="collapse">
+  <li><a href="#vertrauenswürdigkeit-und-reanalysis-modelle-era5" id="toc-vertrauenswürdigkeit-und-reanalysis-modelle-era5" class="nav-link" data-scroll-target="#vertrauenswürdigkeit-und-reanalysis-modelle-era5">Vertrauenswürdigkeit und Reanalysis-Modelle (ERA5)</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/ptochosgeorgos/Optifert/edit/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ptochosgeorgos/Optifert/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -214,7 +238,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 22, 2026</p>
+      <p class="date">September 25, 2026</p>
     </div>
   </div>
   
@@ -232,7 +256,7 @@ window.Quarto = {
 <p>Dieses interaktive Dokument dient der methodischen und statistischen Überprüfung der enzymatischen Vor-Ort-Sensoren von Digit Soil im Vergleich zu klassischen Laboranalysen (GRUD).</p>
 <section id="methodik-digit-soil-sear-bob-technologie" class="level2">
 <h2 class="anchored" data-anchor-id="methodik-digit-soil-sear-bob-technologie">Methodik: Digit Soil SEAR (BOB) Technologie</h2>
-<p>Für die enzymatischen Messungen in diesem Projekt wurde das <strong>SEAR (Soil Enzymatic Activity Reader)</strong> System von Digit Soil (intern oft als “BOB” bezeichnet) verwendet. Im Gegensatz zu klassischen, laborintensiven photometrischen Assays ermöglicht das SEAR-System eine miniaturisierte, feldnahe Quantifizierung der extrazellulären Enzymaktivität.</p>
+<p>Für die enzymatischen Messungen in diesem Projekt wurde das <strong>SEAR (Soil Enzymatic Activity Reader)</strong> System von Digit Soil (intern oft als “BOB” bezeichnet) verwendet <span class="citation" data-cites="Fetzer2025">(<a href="#ref-Fetzer2025" role="doc-biblioref">Fetzer et al. 2025</a>)</span>. Im Gegensatz zu klassischen, laborintensiven photometrischen Assays ermöglicht das SEAR-System eine miniaturisierte, feldnahe Quantifizierung der extrazellulären Enzymaktivität in nur wenigen Minuten direkt vor Ort.</p>
 <section id="funktionsprinzip" class="level3">
 <h3 class="anchored" data-anchor-id="funktionsprinzip">Funktionsprinzip</h3>
 <p>Das System basiert auf einer <strong>fluorogenen Reaktion</strong>. Es verwendet spezielle Reaktionsplatten (Reaction Plates), die mit fluoreszierenden Substraten beschichtet sind. Diese Substrate sind in eine Agarose-Gel-Matrix eingebettet und werden in direkten Kontakt mit der Bodenprobe gebracht.</p>
@@ -242,6 +266,14 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="gemessene-leitenzyme">Gemessene Leitenzyme</h3>
 <p>Das System erfasst spezifische “molekulare Scheren”, die Indikatoren für den Abbau von organischer Substanz und die Nährstoffmineralisierung sind. Die in diesem Bericht verwendeten Hauptkomponenten (PC1 und PC2) basieren primär auf den folgenden Enzymen: - <strong>LAP (Leucin-Aminopeptidase):</strong> Indikator für den Proteinabbau (Stickstoffzyklus). - <strong>NAG (N-Acetyl-β-D-glucosaminidase):</strong> Indikator für den Chitinabbau (Kohlenstoff- und Stickstoffzyklus). - <strong>GLS (β-Glucosidase):</strong> Indikator für den Celluloseabbau (Kohlenstoffzyklus). - <strong>MUP (Phosphatase):</strong> Indikator für die Phosphormineralisierung. - <strong>MUX (Xylosidase):</strong> Indikator für die Hemicellulosemineralisierung.</p>
 <p>Der entscheidende methodische Vorteil des Systems ist die Standardisierung und die Möglichkeit, Messungen zeitnah an frischen Proben durchzuführen, was Transportartefakte minimiert. Da die Messung jedoch unter optimalen Puffer- und Substratsättigungsbedingungen stattfindet, repräsentiert das Signal die <em>Potenzialaktivität</em> der mikrobiellen Gemeinschaft, nicht zwingend die durch Trockenheit oder Substratmangel limitierte <em>reale</em> In-situ-Aktivität.</p>
+</section>
+<section id="was-misst-das-signal-wirklich-physikochemische-akkumulation-und-halbwertszeiten" class="level3">
+<h3 class="anchored" data-anchor-id="was-misst-das-signal-wirklich-physikochemische-akkumulation-und-halbwertszeiten">Was misst das Signal wirklich? (Physikochemische Akkumulation und Halbwertszeiten)</h3>
+<p>Eine der zentralsten Fragestellungen bei der Interpretation enzymatischer Sensordaten ist die Unterscheidung zwischen der aktuell lebenden Bakterienpopulation und dem historischen “Gedächtnis” des Bodens <span class="citation" data-cites="Nannipieri2018">(<a href="#ref-Nannipieri2018" role="doc-biblioref">Nannipieri et al. 2018</a>)</span>.</p>
+<p>Die Forschung unterscheidet bei extrazellulären Enzymen im Boden oftmals zwischen zwei Zuständen: 1. <strong>Freie Enzyme:</strong> Werden sie von Mikroben (Bakterien, Pilzen) ausgeschieden, unterliegen sie meist einer raschen Denaturierung oder dem enzymatischen Abbau (Proteolyse) durch andere Mikroorganismen. Ihre Halbwertszeit in freier Form ist verhältnismäßig kurz und beträgt oft nur Stunden bis wenige Tage <span class="citation" data-cites="Wallenstein2008">(<a href="#ref-Wallenstein2008" role="doc-biblioref">Wallenstein and Weintraub 2008</a>)</span>. 2. <strong>Stabilisierte (abiontische) Enzyme:</strong> Ein erheblicher Teil der Enzyme lagert sich jedoch an Tonminerale an oder wird in Huminstoffkomplexe (Organo-Mineral-Komplexe) eingebaut. Durch diese sterische Hinderung werden sie vor dem Abbau geschützt, behalten aber häufig ihr katalytisches Zentrum bei. Diese stabilisierten Enzyme weisen deutlich längere Halbwertszeiten auf, die von Wochen bis zu mehreren Monaten oder gar Jahren reichen können <span class="citation" data-cites="Burns2013">(<a href="#ref-Burns2013" role="doc-biblioref">Burns et al. 2013</a>)</span>.</p>
+<p>Das fluorogene SEAR-System misst unter optimierten Pufferbedingungen die <em>Potenzialaktivität</em> des gesamten Pools an extrazellulären Enzymen. Da der stabilisierte Pool in vielen Böden weitaus größer ist als der kurzlebige Anteil freier Enzyme, misst das Signal nicht ausschließlich die aktuelle mikrobielle Populationsdichte. Vielmehr repräsentiert es zu einem großen Teil das <strong>kumulative pedoklimatische Fußabdruck-Reservoir</strong> der vergangenen Wochen bis Monate <span class="citation" data-cites="Burns2013 Nannipieri2018">(<a href="#ref-Burns2013" role="doc-biblioref">Burns et al. 2013</a>; <a href="#ref-Nannipieri2018" role="doc-biblioref">Nannipieri et al. 2018</a>)</span>.</p>
+<p>Dies liefert eine mechanistische Erklärung für das unterschiedliche Verhalten der spezifischen Leitenzyme in unseren Modellen: * <strong>GLS (β-Glucosidase) &amp; MUX (Xylosidase):</strong> Diese Enzyme können sehr stabile Komplexe mit Huminstoffen bilden. Sie spiegeln oft langfristige organische Substanzumsetzungen und anhaltende Bodenfeuchte (z.B. im 30-Tage-Fenster) wider. * <strong>MUP (Phosphatase):</strong> Phosphatasen können extrem stark an Tonmineralen adsorbieren. Ihr Signal ist daher oftmals von witterungsbedingten Akkumulationsphasen über Monate geprägt. * <strong>NAG (N-Acetyl-β-D-glucosaminidase):</strong> Als Enzym des Chitinabbaus reagiert es tendenziell sensitiver auf Feuchtigkeits- und Temperaturänderungen (z.B. im 14-Tage-Fenster), da Pilzbiomasse dynamisch auf Wasserstress reagiert. * <strong>LAP (Leucin-Aminopeptidase):</strong> Als Metalloprotease reagiert sie teils weitaus empfindlicher auf elektrochemische Milieuschwankungen. Dies könnte erklären, warum das Signal in einigen Analysen dieses Berichts fluktuierender und teils unzuverlässiger erscheint.</p>
+<p>Aus diesem Grund nutzt die statistische Auswertung in diesem Bericht explizite “Time-Lag-Modelle” (7-Tage, 14-Tage, 30-Tage Wetterfenster). Die Betrachtung dieses <strong>kumulativen Umwelt-Gedächtnisses</strong> bietet einen plausiblen Erklärungsansatz, um die Varianz des enzymatischen Signals in Freilandbedingungen (wie <code>Fields25</code> und <code>Lysimeter</code>) mechanistisch zu deuten.</p>
 </section>
 </section>
 <section id="standardisiertes-datenbankschema-data-dictionary" class="level2">
@@ -371,10 +403,86 @@ window.Quarto = {
 <td style="text-align: left;"><code>dt/ha</code>, <code>kg/ha</code>, <code>kg/a</code></td>
 <td style="text-align: left;">Physikalische Einheit des Ertrags</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Temp_mean</code>, <code>Temp_min</code>, <code>Temp_max</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">°C</td>
+<td style="text-align: left;">Tagesmittel sowie tägliche Temperaturextreme (2m Höhe)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Precip_mm</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">mm</td>
+<td style="text-align: left;">Täglicher kumulierter Niederschlag</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>GDD</code> / <code>Cum_GDD</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">°C</td>
+<td style="text-align: left;">Growing Degree Days (Wachstumsgradtage über Basistemperatur)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Soil_Moist_X_Y</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">m³/m³</td>
+<td style="text-align: left;">Volumetrische Bodenfeuchte in verschiedenen Tiefenprofilen (0-7, 7-28, 28-100 cm)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>Soil_Temp_X_Y</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">°C</td>
+<td style="text-align: left;">Bodentemperatur in verschiedenen Tiefenprofilen (0-7, 7-28 cm)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ET0</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">mm</td>
+<td style="text-align: left;">Referenz-Evapotranspiration nach FAO</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>VPD_max</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">kPa</td>
+<td style="text-align: left;">Maximales Sättigungsdefizit (Vapor Pressure Deficit)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>Solar_Rad</code></td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">MJ/m²</td>
+<td style="text-align: left;">Kurzwellige Sonneneinstrahlung (Solar Radiation)</td>
+</tr>
 </tbody>
 </table>
+</section>
+<section id="pedoklimatische-umweltdaten-open-meteo-api" class="level2">
+<h2 class="anchored" data-anchor-id="pedoklimatische-umweltdaten-open-meteo-api">Pedoklimatische Umweltdaten (Open-Meteo API)</h2>
+<p>Um die Enzymaktivität besser in den Kontext der Umweltbedingungen (Bodenfeuchte, Temperatur) zu setzen, integriert die Datenpipeline automatisch pedoklimatische Zeitreihen.</p>
+<ol type="1">
+<li><strong>Geokodierung:</strong> Da in den Rohdaten meist nur die Postleitzahl (PLZ) der Betriebe vorliegt, nutzen wir die OpenStreetMap Nominatim-API (<code>fetch_coords</code>), um die exakten GPS-Koordinaten (Latitude und Longitude) jedes Standorts zu ermitteln.</li>
+<li><strong>Wetterabruf:</strong> Anhand dieser Koordinaten fragt der Algorithmus die <strong>Open-Meteo Historical Archive API</strong> (<code>fetch_meteo</code>) nach standortspezifischen, täglichen Wetter- und Bodendaten ab.</li>
+</ol>
+<section id="vertrauenswürdigkeit-und-reanalysis-modelle-era5" class="level3">
+<h3 class="anchored" data-anchor-id="vertrauenswürdigkeit-und-reanalysis-modelle-era5">Vertrauenswürdigkeit und Reanalysis-Modelle (ERA5)</h3>
+<p>Die von Open-Meteo bereitgestellten historischen Daten basieren auf dem <strong>ERA5-Land</strong> Reanalysis-Modell, welches vom Europäischen Zentrum für mittelfristige Wettervorhersage (ECMWF) betrieben wird.</p>
+<p>ERA5 ist der absolute wissenschaftliche Goldstandard in der Klimatologie und Agrarmeteorologie. Es handelt sich dabei nicht um grobe Interpolationen zwischen weit entfernten Wetterstationen, sondern um ein globales, physikalisch-thermodynamisches Klimamodell, das kontinuierlich durch Satellitendaten, Radar und Wetterstationen kalibriert wird. Dadurch kann ERA5 hochpräzise mikroklimatische Schätzungen für jeden beliebigen GPS-Punkt der Welt (in einem 9x9 km Raster) abgeben.</p>
+<p>Für unsere Zwecke (z.B. <em>Soil Moisture</em> oder <em>GDD</em>) sind diese ERA5-basierten Variablen oft sogar zuverlässiger und lückenloser als physische Wetterstationen, da Messausfälle oder Mikroklima-Artefakte einzelner Stationen entfallen. Die Enzym-Modelle in diesem Bericht (siehe z.B. <em>Pedoclimatic Proxy &amp; Lag Analysis</em>) nutzen kumulative Fenster dieser Daten (z.B. 7-Tage, 14-Tage Summen), um das “Umwelt-Gedächtnis” des Bodens abzubilden.</p>
 
 
+<div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Burns2013" class="csl-entry" role="listitem">
+Burns, Richard G., Jared L. DeForest, Jürgen Marxsen, et al. 2013. <span>“Soil Enzymes in a Changing Environment: Current Knowledge and Future Directions.”</span> <em>Soil Biology and Biochemistry</em> 58: 216–34.
+</div>
+<div id="ref-Fetzer2025" class="csl-entry" role="listitem">
+Fetzer, Jasmin, Sonia Meller, Hélène Iven, et al. 2025. <span>“Novel, Laboratory-Independent Device to Measure Extracellular Enzymatic Activity in Soils.”</span> <em>Frontiers in Environmental Science</em>, ahead of print. <a href="https://doi.org/10.3389/fenvs.2025.1663635">https://doi.org/10.3389/fenvs.2025.1663635</a>.
+</div>
+<div id="ref-Nannipieri2018" class="csl-entry" role="listitem">
+Nannipieri, Paolo, Carmen Trasar-Cepeda, and Richard P. Dick. 2018. <span>“Soil Enzyme Activity: A Brief History and Biochemistry as a Basis for Appropriate Interpretations and Meta-Analysis.”</span> <em>Biology and Fertility of Soils</em> 54 (1): 11–19.
+</div>
+<div id="ref-Wallenstein2008" class="csl-entry" role="listitem">
+Wallenstein, Matthew D., and Michael N. Weintraub. 2008. <span>“Emerging Tools for Measuring and Modeling the in Situ Activity of Soil Extracellular Enzymes.”</span> <em>Soil Biology and Biochemistry</em> 40 (9): 2098–106.
+</div>
+</div>
+</section>
 </section>
 </section>
 
