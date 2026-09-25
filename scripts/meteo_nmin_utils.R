@@ -17,15 +17,32 @@ library(lubridate)
 #' @param start_date Startdatum als String ("YYYY-MM-DD") oder Date
 #' @param end_date Enddatum als String ("YYYY-MM-DD") oder Date
 #' @param base_temp Basistemperatur für GDD (z.B. 6 oder 10 für Mais, 0 für Weizen)
-#' @return Tibble mit Spalten: Datum, Temp_mean, Precip_mm, GDD
+#' @return Tibble mit Spalten: Datum, Temp_mean, Precip_mm, GDD und weitere Umweltvariablen
 #' @export
 fetch_meteo <- function(lat, lon, start_date, end_date, base_temp = 6) {
   start_str <- as.character(start_date)
   end_str <- as.character(end_date)
   
+  # Erweiterte Liste von Variablen anfordern
+  vars <- paste(
+    "temperature_2m_mean",
+    "temperature_2m_max",
+    "temperature_2m_min",
+    "precipitation_sum",
+    "soil_moisture_0_to_7cm_mean",
+    "soil_moisture_7_to_28cm_mean",
+    "soil_moisture_28_to_100cm_mean",
+    "soil_temperature_0_to_7cm_mean",
+    "soil_temperature_7_to_28cm_mean",
+    "et0_fao_evapotranspiration",
+    "vapor_pressure_deficit_max",
+    "shortwave_radiation_sum",
+    sep = ","
+  )
+  
   url <- sprintf(
-    "https://archive-api.open-meteo.com/v1/archive?latitude=%.4f&longitude=%.4f&start_date=%s&end_date=%s&daily=temperature_2m_mean,precipitation_sum&timezone=Europe%%2FBerlin",
-    lat, lon, start_str, end_str
+    "https://archive-api.open-meteo.com/v1/archive?latitude=%.4f&longitude=%.4f&start_date=%s&end_date=%s&daily=%s&timezone=Europe%%2FBerlin",
+    lat, lon, start_str, end_str, vars
   )
   
   message("  Lade Meteo-Daten via Open-Meteo API (", start_str, " bis ", end_str, ")...")
@@ -34,7 +51,17 @@ fetch_meteo <- function(lat, lon, start_date, end_date, base_temp = 6) {
   meteo_df <- tibble::tibble(
     Datum = as.Date(res$daily$time),
     Temp_mean = as.numeric(res$daily$temperature_2m_mean),
-    Precip_mm = as.numeric(res$daily$precipitation_sum)
+    Temp_max = as.numeric(res$daily$temperature_2m_max),
+    Temp_min = as.numeric(res$daily$temperature_2m_min),
+    Precip_mm = as.numeric(res$daily$precipitation_sum),
+    Soil_Moist_0_7 = as.numeric(res$daily$soil_moisture_0_to_7cm_mean),
+    Soil_Moist_7_28 = as.numeric(res$daily$soil_moisture_7_to_28cm_mean),
+    Soil_Moist_28_100 = as.numeric(res$daily$soil_moisture_28_to_100cm_mean),
+    Soil_Temp_0_7 = as.numeric(res$daily$soil_temperature_0_to_7cm_mean),
+    Soil_Temp_7_28 = as.numeric(res$daily$soil_temperature_7_to_28cm_mean),
+    ET0 = as.numeric(res$daily$et0_fao_evapotranspiration),
+    VPD_max = as.numeric(res$daily$vapor_pressure_deficit_max),
+    Solar_Rad = as.numeric(res$daily$shortwave_radiation_sum)
   ) |>
     dplyr::mutate(
       GDD = ifelse(!is.na(Temp_mean) & Temp_mean > base_temp, Temp_mean - base_temp, 0)

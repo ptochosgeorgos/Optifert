@@ -6,7 +6,7 @@ Dieses interaktive Dokument dient der methodischen und statistischen Überprüfu
 
 ## Methodik: Digit Soil SEAR (BOB) Technologie
 
-Für die enzymatischen Messungen in diesem Projekt wurde das **SEAR (Soil Enzymatic Activity Reader)** System von Digit Soil (intern oft als "BOB" bezeichnet) verwendet. Im Gegensatz zu klassischen, laborintensiven photometrischen Assays ermöglicht das SEAR-System eine miniaturisierte, feldnahe Quantifizierung der extrazellulären Enzymaktivität.
+Für die enzymatischen Messungen in diesem Projekt wurde das **SEAR (Soil Enzymatic Activity Reader)** System von Digit Soil (intern oft als "BOB" bezeichnet) verwendet [@Fetzer2025]. Im Gegensatz zu klassischen, laborintensiven photometrischen Assays ermöglicht das SEAR-System eine miniaturisierte, feldnahe Quantifizierung der extrazellulären Enzymaktivität in nur wenigen Minuten direkt vor Ort.
 
 ### Funktionsprinzip
 Das System basiert auf einer **fluorogenen Reaktion**. Es verwendet spezielle Reaktionsplatten (Reaction Plates), die mit fluoreszierenden Substraten beschichtet sind. Diese Substrate sind in eine Agarose-Gel-Matrix eingebettet und werden in direkten Kontakt mit der Bodenprobe gebracht. 
@@ -22,6 +22,24 @@ Das System erfasst spezifische "molekulare Scheren", die Indikatoren für den Ab
 - **MUX (Xylosidase):** Indikator für die Hemicellulosemineralisierung.
 
 Der entscheidende methodische Vorteil des Systems ist die Standardisierung und die Möglichkeit, Messungen zeitnah an frischen Proben durchzuführen, was Transportartefakte minimiert. Da die Messung jedoch unter optimalen Puffer- und Substratsättigungsbedingungen stattfindet, repräsentiert das Signal die *Potenzialaktivität* der mikrobiellen Gemeinschaft, nicht zwingend die durch Trockenheit oder Substratmangel limitierte *reale* In-situ-Aktivität.
+
+### Was misst das Signal wirklich? (Physikochemische Akkumulation und Halbwertszeiten)
+
+Eine der zentralsten Fragestellungen bei der Interpretation enzymatischer Sensordaten ist die Unterscheidung zwischen der aktuell lebenden Bakterienpopulation und dem historischen "Gedächtnis" des Bodens [@Nannipieri2018].
+
+Die Forschung unterscheidet bei extrazellulären Enzymen im Boden oftmals zwischen zwei Zuständen:
+1. **Freie Enzyme:** Werden sie von Mikroben (Bakterien, Pilzen) ausgeschieden, unterliegen sie meist einer raschen Denaturierung oder dem enzymatischen Abbau (Proteolyse) durch andere Mikroorganismen. Ihre Halbwertszeit in freier Form ist verhältnismäßig kurz und beträgt oft nur Stunden bis wenige Tage [@Wallenstein2008].
+2. **Stabilisierte (abiontische) Enzyme:** Ein erheblicher Teil der Enzyme lagert sich jedoch an Tonminerale an oder wird in Huminstoffkomplexe (Organo-Mineral-Komplexe) eingebaut. Durch diese sterische Hinderung werden sie vor dem Abbau geschützt, behalten aber häufig ihr katalytisches Zentrum bei. Diese stabilisierten Enzyme weisen deutlich längere Halbwertszeiten auf, die von Wochen bis zu mehreren Monaten oder gar Jahren reichen können [@Burns2013].
+
+Das fluorogene SEAR-System misst unter optimierten Pufferbedingungen die *Potenzialaktivität* des gesamten Pools an extrazellulären Enzymen. Da der stabilisierte Pool in vielen Böden weitaus größer ist als der kurzlebige Anteil freier Enzyme, misst das Signal nicht ausschließlich die aktuelle mikrobielle Populationsdichte. Vielmehr repräsentiert es zu einem großen Teil das **kumulative pedoklimatische Fußabdruck-Reservoir** der vergangenen Wochen bis Monate [@Burns2013; @Nannipieri2018].
+
+Dies liefert eine mechanistische Erklärung für das unterschiedliche Verhalten der spezifischen Leitenzyme in unseren Modellen:
+* **GLS (β-Glucosidase) & MUX (Xylosidase):** Diese Enzyme können sehr stabile Komplexe mit Huminstoffen bilden. Sie spiegeln oft langfristige organische Substanzumsetzungen und anhaltende Bodenfeuchte (z.B. im 30-Tage-Fenster) wider.
+* **MUP (Phosphatase):** Phosphatasen können extrem stark an Tonmineralen adsorbieren. Ihr Signal ist daher oftmals von witterungsbedingten Akkumulationsphasen über Monate geprägt.
+* **NAG (N-Acetyl-β-D-glucosaminidase):** Als Enzym des Chitinabbaus reagiert es tendenziell sensitiver auf Feuchtigkeits- und Temperaturänderungen (z.B. im 14-Tage-Fenster), da Pilzbiomasse dynamisch auf Wasserstress reagiert.
+* **LAP (Leucin-Aminopeptidase):** Als Metalloprotease reagiert sie teils weitaus empfindlicher auf elektrochemische Milieuschwankungen. Dies könnte erklären, warum das Signal in einigen Analysen dieses Berichts fluktuierender und teils unzuverlässiger erscheint.
+
+Aus diesem Grund nutzt die statistische Auswertung in diesem Bericht explizite "Time-Lag-Modelle" (7-Tage, 14-Tage, 30-Tage Wetterfenster). Die Betrachtung dieses **kumulativen Umwelt-Gedächtnisses** bietet einen plausiblen Erklärungsansatz, um die Varianz des enzymatischen Signals in Freilandbedingungen (wie `Fields25` und `Lysimeter`) mechanistisch zu deuten.
 
 ## Standardisiertes Datenbankschema (Data Dictionary)
 
@@ -47,3 +65,25 @@ Um die Daten aus verschiedenen Teilprojekten (DEMO, Fields25, Lysimeter) harmoni
 | `yield` | numeric | variabel | Ertragsmenge der Ernte bzw. Biomasse |
 | `yield_type` | character | - | Ertragsfraktion (`korn_TS`, `stroh_TS`, `silo_TS`, `total_hp_ts`) |
 | `yield_unit` | character | `dt/ha`, `kg/ha`, `kg/a` | Physikalische Einheit des Ertrags |
+| `Temp_mean`, `Temp_min`, `Temp_max` | numeric | °C | Tagesmittel sowie tägliche Temperaturextreme (2m Höhe) |
+| `Precip_mm` | numeric | mm | Täglicher kumulierter Niederschlag |
+| `GDD` / `Cum_GDD` | numeric | °C | Growing Degree Days (Wachstumsgradtage über Basistemperatur) |
+| `Soil_Moist_X_Y` | numeric | m³/m³ | Volumetrische Bodenfeuchte in verschiedenen Tiefenprofilen (0-7, 7-28, 28-100 cm) |
+| `Soil_Temp_X_Y` | numeric | °C | Bodentemperatur in verschiedenen Tiefenprofilen (0-7, 7-28 cm) |
+| `ET0` | numeric | mm | Referenz-Evapotranspiration nach FAO |
+| `VPD_max` | numeric | kPa | Maximales Sättigungsdefizit (Vapor Pressure Deficit) |
+| `Solar_Rad` | numeric | MJ/m² | Kurzwellige Sonneneinstrahlung (Solar Radiation) |
+
+## Pedoklimatische Umweltdaten (Open-Meteo API)
+
+Um die Enzymaktivität besser in den Kontext der Umweltbedingungen (Bodenfeuchte, Temperatur) zu setzen, integriert die Datenpipeline automatisch pedoklimatische Zeitreihen. 
+
+1. **Geokodierung:** Da in den Rohdaten meist nur die Postleitzahl (PLZ) der Betriebe vorliegt, nutzen wir die OpenStreetMap Nominatim-API (`fetch_coords`), um die exakten GPS-Koordinaten (Latitude und Longitude) jedes Standorts zu ermitteln.
+2. **Wetterabruf:** Anhand dieser Koordinaten fragt der Algorithmus die **Open-Meteo Historical Archive API** (`fetch_meteo`) nach standortspezifischen, täglichen Wetter- und Bodendaten ab.
+
+### Vertrauenswürdigkeit und Reanalysis-Modelle (ERA5)
+Die von Open-Meteo bereitgestellten historischen Daten basieren auf dem **ERA5-Land** Reanalysis-Modell, welches vom Europäischen Zentrum für mittelfristige Wettervorhersage (ECMWF) betrieben wird. 
+
+ERA5 ist der absolute wissenschaftliche Goldstandard in der Klimatologie und Agrarmeteorologie. Es handelt sich dabei nicht um grobe Interpolationen zwischen weit entfernten Wetterstationen, sondern um ein globales, physikalisch-thermodynamisches Klimamodell, das kontinuierlich durch Satellitendaten, Radar und Wetterstationen kalibriert wird. Dadurch kann ERA5 hochpräzise mikroklimatische Schätzungen für jeden beliebigen GPS-Punkt der Welt (in einem 9x9 km Raster) abgeben. 
+
+Für unsere Zwecke (z.B. *Soil Moisture* oder *GDD*) sind diese ERA5-basierten Variablen oft sogar zuverlässiger und lückenloser als physische Wetterstationen, da Messausfälle oder Mikroklima-Artefakte einzelner Stationen entfallen. Die Enzym-Modelle in diesem Bericht (siehe z.B. *Pedoclimatic Proxy & Lag Analysis*) nutzen kumulative Fenster dieser Daten (z.B. 7-Tage, 14-Tage Summen), um das "Umwelt-Gedächtnis" des Bodens abzubilden.
