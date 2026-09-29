@@ -1,0 +1,8 @@
+"0","#| echo: false"
+"0","# Bibliotheken und zentrales Daten-Setup laden"
+"0","library(tidyverse)"
+"0","library(rrcov)"
+"0","library(this.path)"
+"0",""
+"0","# Das Setup-Skript hat den Master-Datensatz generiert"
+"0","df_final <- read_csv(here(""../data/DEMO/prep_data/DEMO_2025_cleansed.csv""), show_col_types = FALSE)"
