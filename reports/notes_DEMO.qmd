@@ -56,4 +56,4 @@
 
 Lag Analyse machen wie bei anderen.
 
-
+DigitSoil Ansatz mit mechanistischem Model vergleichen
