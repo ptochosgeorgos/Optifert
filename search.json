@@ -40,133 +40,256 @@
     ]
   },
   {
-    "objectID": "reports/DEMO.html",
-    "href": "reports/DEMO.html",
+    "objectID": "reports/DEMO_25.html",
+    "href": "reports/DEMO_25.html",
     "title": "1  Langzeitversuch DEMO",
     "section": "",
     "text": "2 1. Hintergrund und Methodik\nDer Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und das Ertragspotenzial.\nDie agronomische Fragestellung berücksichtigt, dass die Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor eine statische Messung darstellt. In der aktuellen Kampagne (2025) evaluieren wir den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und quantifizieren das Mineralisierungspotenzial der Bodenbiologie.\nDie Datenaufbereitung für diese Analyse integriert die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die mikrobielle Heterogenität des Bodens abzubilden.",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
-    "objectID": "reports/DEMO.html#die-idee-massenbilanz-als-rahmen",
-    "href": "reports/DEMO.html#die-idee-massenbilanz-als-rahmen",
+    "objectID": "reports/DEMO_25.html#die-idee-massenbilanz-als-rahmen",
+    "href": "reports/DEMO_25.html#die-idee-massenbilanz-als-rahmen",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.1 6.1 Die Idee: Massenbilanz als Rahmen",
     "text": "7.1 6.1 Die Idee: Massenbilanz als Rahmen\nDas statistische Modell basiert auf der physikalischen Massenbilanz. Für die Intervalle (\\(t_1 \\rightarrow t_2\\)) wird die Änderung im mineralisierten Stickstoff in kg/ha berechnet (\\(dN\\)). Hierzu wird die Konzentration (\\(mg/kg\\)) mit einem Standardfaktor (z.B. 4.5 für 0-30 cm Bodentiefe bei Lagerungsdichte 1.5) in \\(kg/ha\\) konvertiert.\nDer pflanzliche Entzug (Interval_N_Entzug_kg_ha) wird direkt von der \\(\\Delta N_{min}\\) subtrahiert, anstatt als eigener Fixed Effect im Modell geschätzt zu werden. Die resultierende abhängige Variable \\(dN\\) wird dann durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschung) erklärt:\n\\[dN \\sim PC1 + PC2 + Precip + Precip^2\\]",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
-    "objectID": "reports/DEMO.html#variablen-und-designmatrix",
-    "href": "reports/DEMO.html#variablen-und-designmatrix",
+    "objectID": "reports/DEMO_25.html#variablen-und-designmatrix",
+    "href": "reports/DEMO_25.html#variablen-und-designmatrix",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.2 6.2 Variablen und Designmatrix",
     "text": "7.2 6.2 Variablen und Designmatrix\nDas Modell (lmer) verwendet folgende Struktur:\n\nAbhängige Variable (\\(Y\\)): dN (\\(kg/ha\\)) - Die bereinigte Nettoveränderung des mineralischen Stickstoffs im Boden (\\(\\Delta N_{min} \\times 4.5 - N_{Entzug}\\)).\nFixed Effects:\n\nPC1: Index der biologischen Gesamtaktivität.\nPC2: Enzymatischer Shift (zweite Hauptkomponente).\nCum_Precip_mm: Kumulierte Niederschlagssumme zwischen \\(t_1\\) und \\(t_2\\) (Open-Meteo API) als Proxy für Auswaschungsverluste.\n\nRandom Effects:\n\n(1 | ParzNrFeld): Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie.",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
-    "objectID": "reports/DEMO.html#voraussetzungen-und-annahmen",
-    "href": "reports/DEMO.html#voraussetzungen-und-annahmen",
+    "objectID": "reports/DEMO_25.html#voraussetzungen-und-annahmen",
+    "href": "reports/DEMO_25.html#voraussetzungen-und-annahmen",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.3 6.3 Voraussetzungen und Annahmen",
     "text": "7.3 6.3 Voraussetzungen und Annahmen\nFür die Modellierung gelten folgende Annahmen: 1. Konvertierungsfaktor: Die Umrechnung von \\(mg/kg\\) in \\(kg/ha\\) erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, \\(1.5 \\ g/cm^3\\)). 2. Ertrags-Baseline (Mais): Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (Total_N_Entzug_kg_ha) der jeweiligen Parzelle exklusiv für die Kultur Mais (Kultur == \"MA\") berechnet. 3. Logistischer Pflanzenentzug (S-Kurve): Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis \\(10^\\circ C\\)) modelliert (Archontoulis and Miguez 2015; Overman and Scholtz III 2002): \\[ N_{up}(GDD) = \\frac{N_{max}}{1 + \\exp(-0.012 \\cdot (GDD - 750))} \\] Die Parameter sind: * \\(N_{max} =\\) Historischer Mais-Entzug der Parzelle * Wachstumsrate (\\(r\\)) \\(= 0.012\\) * Wendepunkt (\\(GDD_{inf}\\)) \\(= 750 \\ GDD\\) (entspricht ca. BBCH 51, dem Zeitpunkt der maximalen täglichen N-Aufnahme bei Mais (Bender et al. 2013)). Der berechnete Netto-Entzug im Intervall \\(t_1 \\rightarrow t_2\\) wird dann direkt von \\(\\Delta N_{min}\\) abgezogen. 4. Zeitliche Integration: Die Enzymmessung zum Zeitpunkt \\(t_2\\) repräsentiert das Intervall \\(t_1 \\rightarrow t_2\\).",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
-    "objectID": "reports/DEMO.html#modell-implementierung-in-r",
-    "href": "reports/DEMO.html#modell-implementierung-in-r",
+    "objectID": "reports/DEMO_25.html#modell-implementierung-in-r",
+    "href": "reports/DEMO_25.html#modell-implementierung-in-r",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.4 6.4 Modell-Implementierung in R",
     "text": "7.4 6.4 Modell-Implementierung in R\n\n\nLinear mixed model fit by REML. t-tests use Satterthwaite's method [\nlmerModLmerTest]\nFormula: dN ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1 | ParzNrFeld)\n   Data: df_model\n\nREML criterion at convergence: 855.4\n\nScaled residuals: \n    Min      1Q  Median      3Q     Max \n-3.1010 -0.2602  0.2514  0.5629  1.4611 \n\nRandom effects:\n Groups     Name        Variance Std.Dev.\n ParzNrFeld (Intercept)  540.1   23.24   \n Residual               3121.2   55.87   \nNumber of obs: 79, groups:  ParzNrFeld, 10\n\nFixed effects:\n                     Estimate Std. Error         df t value Pr(&gt;|t|)    \n(Intercept)        -3.660e+02  8.489e+01  7.198e+01  -4.312 5.06e-05 ***\nPC1                -1.809e+01  7.492e+00  7.344e+01  -2.414 0.018265 *  \nPC2                 8.534e+00  1.141e+01  7.270e+01   0.748 0.456949    \nCum_Precip_mm       6.191e+00  1.687e+00  7.119e+01   3.670 0.000465 ***\nI(Cum_Precip_mm^2) -2.715e-02  7.442e-03  7.143e+01  -3.648 0.000500 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nCorrelation of Fixed Effects:\n            (Intr) PC1    PC2    Cm_Pr_\nPC1          0.611                     \nPC2          0.335  0.559              \nCum_Prcp_mm -0.981 -0.644 -0.310       \nI(Cm_Pr_^2)  0.960  0.670  0.286 -0.994\nfit warnings:\nSome predictor variables are on very different scales: consider rescaling. \nYou may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.\n\n\nDie PCA-Ladungen definieren die Hauptkomponenten wie folgt: PC1 weist gleichgerichtete, negative Ladungen für NAG, GLS, MUP und MUX auf und quantifiziert die allgemeine enzymatische Aktivität. PC2 weist eine positive Ladung für GLS (Kohlenstoffzyklus) und negative Ladungen für NAG und MUP (Stickstoff- und Phosphorzyklus) auf. PC2 quantifiziert die Verschiebung des enzymatischen Profils zwischen Kohlenstoff- und Nährstoffumsatz.\nDaraus wird folgende Hypothese für das N-Balance Modell abgeleitet: Eine erhöhte relative Aktivität kohlenstoffabbauender Enzyme (hoher PC2-Wert) führt durch mikrobielle Immobilisierung zu einer Reduktion des verfügbaren Stickstoffs.\nDie Modellergebnisse für die Variable \\(dN\\) zeigen: PC1 (allgemeine Aktivität) weist keinen signifikanten Effekt auf die Nettoveränderung auf (-18.09 kg N/ha pro Index-Einheit, p = 0.018). PC2 weist einen nicht-signifikanten Koeffizienten auf (8.53 kg N/ha, p = 0.457). Im bereinigten Sommer-Datensatz ist der isolierte enzymatische Effekt linear nicht dominant. Der Niederschlag zeigt einen starken nicht-linearen (quadratischen) Effekt. Die linearen und quadratischen Terme (6.19 bzw. -0.0271) quantifizieren den überproportionalen Auswaschungsverlust bei extremen Niederschlägen.\nDie Modellperformance ist hoch: Das Modell erklärt marginal (nur durch Fixed Effects) 19.6% der Varianz (\\(R^2_m = 0.196\\)) und konditional (inklusive Parzellen-Baselines) 31.4% der Varianz (\\(R^2_c = 0.314\\)). Der durchschnittliche Vorhersagefehler (RMSE) beträgt 52.19 kg N/ha.",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
-    "objectID": "reports/DEMO.html#modell-evaluation-und-visualisierung",
-    "href": "reports/DEMO.html#modell-evaluation-und-visualisierung",
+    "objectID": "reports/DEMO_25.html#modell-evaluation-und-visualisierung",
+    "href": "reports/DEMO_25.html#modell-evaluation-und-visualisierung",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.5 6.5 Modell-Evaluation und Visualisierung",
     "text": "7.5 6.5 Modell-Evaluation und Visualisierung\nUm den biologischen Effekt zu isolieren und visuell greifbar zu machen, betrachten wir das Modell in zwei Dimensionen (Partielle Residuen) und in drei Dimensionen (Regressionsebene).\n\n7.5.1 Partielle Residuen: Der isolierte biologische Effekt (PC2)\nDa der Niederschlag die Varianz von \\(dN\\) stark dominiert, berechnen wir die partiellen Residuen. Dabei wird der mathematische Effekt von Niederschlag und allgemeiner Aktivität (PC1) herausgerechnet, um isoliert die Beziehung zwischen dem C/N-Enzymshift (PC2) und der verbleibenden Stickstoffdynamik darzustellen.\n\n\n\n\n\n\n\n\n\n\n\n7.5.2 3D-Visualisierung der Regressionsebene\nDas Modell definiert eine Ebene im dreidimensionalen Raum, aufgespannt durch den biologischen Shift (PC2) und den physikalischen Verlust (Niederschlag). Die interaktive Grafik erlaubt es, die Modellfläche und die Beobachtungen räumlich zu explorieren.",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
-    "objectID": "reports/DEMO.html#synthese-und-interpretation-der-felddaten",
-    "href": "reports/DEMO.html#synthese-und-interpretation-der-felddaten",
+    "objectID": "reports/DEMO_25.html#synthese-und-interpretation-der-felddaten",
+    "href": "reports/DEMO_25.html#synthese-und-interpretation-der-felddaten",
     "title": "1  Langzeitversuch DEMO",
     "section": "7.6 6.6 Synthese und Interpretation der Felddaten",
     "text": "7.6 6.6 Synthese und Interpretation der Felddaten\nDie Modellierung der Netto-Stickstoffveränderung (\\(dN\\)) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert (\\(p &lt; 0.001\\)).\nDie beobachteten Netto-Mineralisierungsraten verhalten sich im Wesentlichen wie ein physikalisches System, in dem moderate Niederschläge vom Boden gepuffert werden, während Extremereignisse zu einem quadratisch ansteigenden Auswaschungsverlust führen. Ein robustes biologisches Signal, welches auf eine enzymatische Steuerung der Netto-Mineralisierung im Makromaßstab hindeutet, lässt sich aus den vorliegenden Daten nicht sicher extrahieren.\nDas Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten und den in-situ Stickstoffflüssen lässt verschiedene Interpretationen zu:\n\nHypothese 1: Dominanz makroskopischer Flüsse Es ist davon auszugehen, dass die schiere Masse des durch starken Sommerniederschlag verlagerten Stickstoffs (Auswaschung, Denitrifikation) so groß ist, dass sie jeglichen mikrobiologischen Netto-Beitrag überlagert. Das biologische Signal fungiert unter diesen Witterungsbedingungen lediglich als Rauschen innerhalb der dominanten physikalischen Massenbilanz.\nHypothese 2: Diskrepanz zwischen potenzieller und realer Aktivität Die Reaktionsplatten messen die enzymatische Potenzialaktivität unter laboroptimierten Bedingungen (Substratsättigung, optimale Pufferung). Im Feld sind diese Enzyme jedoch Limitationen durch Diffusion, Trockenheit und fehlende Substratverfügbarkeit unterworfen. Das Laborpotenzial lässt sich folglich nicht zwingend als reale Umsetzungsrate in die Feldskala übersetzen.\nHypothese 3: Technische Varianz und Sensorrauschen Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.",
     "crumbs": [
+      "DEMO",
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html",
+    "href": "reports/DEMO_26.html",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "",
+    "text": "3 1. Hintergrund und Methodik\nDer Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und das Ertragspotenzial.\nDie agronomische Fragestellung berücksichtigt, dass die Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor eine statische Messung darstellt. In der aktuellen Kampagne (2025) evaluieren wir den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und quantifizieren das Mineralisierungspotenzial der Bodenbiologie.\nDie Datenaufbereitung für diese Analyse integriert die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die mikrobielle Heterogenität des Bodens abzubilden.",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html#die-idee-massenbilanz-als-rahmen",
+    "href": "reports/DEMO_26.html#die-idee-massenbilanz-als-rahmen",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "8.1 6.1 Die Idee: Massenbilanz als Rahmen",
+    "text": "8.1 6.1 Die Idee: Massenbilanz als Rahmen\nDas statistische Modell basiert auf der physikalischen Massenbilanz. Für die Intervalle (\\(t_1 \\rightarrow t_2\\)) wird die Änderung im mineralisierten Stickstoff in kg/ha berechnet (\\(dN\\)). Hierzu wird die Konzentration (\\(mg/kg\\)) mit einem Standardfaktor (z.B. 4.5 für 0-30 cm Bodentiefe bei Lagerungsdichte 1.5) in \\(kg/ha\\) konvertiert.\nDer pflanzliche Entzug (Interval_N_Entzug_kg_ha) wird direkt von der \\(\\Delta N_{min}\\) subtrahiert, anstatt als eigener Fixed Effect im Modell geschätzt zu werden. Die resultierende abhängige Variable \\(dN\\) wird dann durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschung) erklärt:\n\\[dN \\sim PC1 + PC2 + Precip + Precip^2\\]",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html#variablen-und-designmatrix",
+    "href": "reports/DEMO_26.html#variablen-und-designmatrix",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "8.2 6.2 Variablen und Designmatrix",
+    "text": "8.2 6.2 Variablen und Designmatrix\nDas Modell (lmer) verwendet folgende Struktur:\n\nAbhängige Variable (\\(Y\\)): dN (\\(kg/ha\\)) - Die bereinigte Nettoveränderung des mineralischen Stickstoffs im Boden (\\(\\Delta N_{min} \\times 4.5 - N_{Entzug}\\)).\nFixed Effects:\n\nPC1: Index der biologischen Gesamtaktivität.\nPC2: Enzymatischer Shift (zweite Hauptkomponente).\nCum_Precip_mm: Kumulierte Niederschlagssumme zwischen \\(t_1\\) und \\(t_2\\) (Open-Meteo API) als Proxy für Auswaschungsverluste.\n\nRandom Effects:\n\n(1 | ParzNrFeld): Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie.",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html#voraussetzungen-und-annahmen",
+    "href": "reports/DEMO_26.html#voraussetzungen-und-annahmen",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "8.3 6.3 Voraussetzungen und Annahmen",
+    "text": "8.3 6.3 Voraussetzungen und Annahmen\nFür die Modellierung gelten folgende Annahmen: 1. Konvertierungsfaktor: Die Umrechnung von \\(mg/kg\\) in \\(kg/ha\\) erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, \\(1.5 \\ g/cm^3\\)). 2. Ertrags-Baseline (Mais): Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (Total_N_Entzug_kg_ha) der jeweiligen Parzelle exklusiv für die Kultur Mais (Kultur == \"MA\") berechnet. 3. Logistischer Pflanzenentzug (S-Kurve): Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis \\(10^\\circ C\\)) modelliert (Archontoulis and Miguez 2015; Overman and Scholtz III 2002): \\[ N_{up}(GDD) = \\frac{N_{max}}{1 + \\exp(-0.012 \\cdot (GDD - 750))} \\] Die Parameter sind: * \\(N_{max} =\\) Historischer Mais-Entzug der Parzelle * Wachstumsrate (\\(r\\)) \\(= 0.012\\) * Wendepunkt (\\(GDD_{inf}\\)) \\(= 750 \\ GDD\\) (entspricht ca. BBCH 51, dem Zeitpunkt der maximalen täglichen N-Aufnahme bei Mais (Bender et al. 2013)). Der berechnete Netto-Entzug im Intervall \\(t_1 \\rightarrow t_2\\) wird dann direkt von \\(\\Delta N_{min}\\) abgezogen. 4. Zeitliche Integration: Die Enzymmessung zum Zeitpunkt \\(t_2\\) repräsentiert das Intervall \\(t_1 \\rightarrow t_2\\).",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html#modell-implementierung-in-r",
+    "href": "reports/DEMO_26.html#modell-implementierung-in-r",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "8.4 6.4 Modell-Implementierung in R",
+    "text": "8.4 6.4 Modell-Implementierung in R\n\n\nLinear mixed model fit by REML. t-tests use Satterthwaite's method [\nlmerModLmerTest]\nFormula: dN ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1 | ParzNrFeld)\n   Data: df_model\n\nREML criterion at convergence: 855.4\n\nScaled residuals: \n    Min      1Q  Median      3Q     Max \n-3.1010 -0.2602  0.2514  0.5629  1.4611 \n\nRandom effects:\n Groups     Name        Variance Std.Dev.\n ParzNrFeld (Intercept)  540.1   23.24   \n Residual               3121.2   55.87   \nNumber of obs: 79, groups:  ParzNrFeld, 10\n\nFixed effects:\n                     Estimate Std. Error         df t value Pr(&gt;|t|)    \n(Intercept)        -3.660e+02  8.489e+01  7.198e+01  -4.312 5.06e-05 ***\nPC1                -1.809e+01  7.492e+00  7.344e+01  -2.414 0.018265 *  \nPC2                 8.534e+00  1.141e+01  7.270e+01   0.748 0.456949    \nCum_Precip_mm       6.191e+00  1.687e+00  7.119e+01   3.670 0.000465 ***\nI(Cum_Precip_mm^2) -2.715e-02  7.442e-03  7.143e+01  -3.648 0.000500 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nCorrelation of Fixed Effects:\n            (Intr) PC1    PC2    Cm_Pr_\nPC1          0.611                     \nPC2          0.335  0.559              \nCum_Prcp_mm -0.981 -0.644 -0.310       \nI(Cm_Pr_^2)  0.960  0.670  0.286 -0.994\nfit warnings:\nSome predictor variables are on very different scales: consider rescaling. \nYou may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.\n\n\nDie PCA-Ladungen definieren die Hauptkomponenten wie folgt: PC1 weist gleichgerichtete, negative Ladungen für NAG, GLS, MUP und MUX auf und quantifiziert die allgemeine enzymatische Aktivität. PC2 weist eine positive Ladung für GLS (Kohlenstoffzyklus) und negative Ladungen für NAG und MUP (Stickstoff- und Phosphorzyklus) auf. PC2 quantifiziert die Verschiebung des enzymatischen Profils zwischen Kohlenstoff- und Nährstoffumsatz.\nDaraus wird folgende Hypothese für das N-Balance Modell abgeleitet: Eine erhöhte relative Aktivität kohlenstoffabbauender Enzyme (hoher PC2-Wert) führt durch mikrobielle Immobilisierung zu einer Reduktion des verfügbaren Stickstoffs.\nDie Modellergebnisse für die Variable \\(dN\\) zeigen: PC1 (allgemeine Aktivität) weist keinen signifikanten Effekt auf die Nettoveränderung auf (-18.09 kg N/ha pro Index-Einheit, p = 0.018). PC2 weist einen nicht-signifikanten Koeffizienten auf (8.53 kg N/ha, p = 0.457). Im bereinigten Sommer-Datensatz ist der isolierte enzymatische Effekt linear nicht dominant. Der Niederschlag zeigt einen starken nicht-linearen (quadratischen) Effekt. Die linearen und quadratischen Terme (6.19 bzw. -0.0271) quantifizieren den überproportionalen Auswaschungsverlust bei extremen Niederschlägen.\nDie Modellperformance ist hoch: Das Modell erklärt marginal (nur durch Fixed Effects) 19.6% der Varianz (\\(R^2_m = 0.196\\)) und konditional (inklusive Parzellen-Baselines) 31.4% der Varianz (\\(R^2_c = 0.314\\)). Der durchschnittliche Vorhersagefehler (RMSE) beträgt 52.19 kg N/ha.",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html#modell-evaluation-und-visualisierung",
+    "href": "reports/DEMO_26.html#modell-evaluation-und-visualisierung",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "8.5 6.5 Modell-Evaluation und Visualisierung",
+    "text": "8.5 6.5 Modell-Evaluation und Visualisierung\nUm den biologischen Effekt zu isolieren und visuell greifbar zu machen, betrachten wir das Modell in zwei Dimensionen (Partielle Residuen) und in drei Dimensionen (Regressionsebene).\n\n8.5.1 Partielle Residuen: Der isolierte biologische Effekt (PC2)\nDa der Niederschlag die Varianz von \\(dN\\) stark dominiert, berechnen wir die partiellen Residuen. Dabei wird der mathematische Effekt von Niederschlag und allgemeiner Aktivität (PC1) herausgerechnet, um isoliert die Beziehung zwischen dem C/N-Enzymshift (PC2) und der verbleibenden Stickstoffdynamik darzustellen.\n\n\n\n\n\n\n\n\n\n\n\n8.5.2 3D-Visualisierung der Regressionsebene\nDas Modell definiert eine Ebene im dreidimensionalen Raum, aufgespannt durch den biologischen Shift (PC2) und den physikalischen Verlust (Niederschlag). Die interaktive Grafik erlaubt es, die Modellfläche und die Beobachtungen räumlich zu explorieren.",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
+    ]
+  },
+  {
+    "objectID": "reports/DEMO_26.html#synthese-und-interpretation-der-felddaten",
+    "href": "reports/DEMO_26.html#synthese-und-interpretation-der-felddaten",
+    "title": "2  Langzeitversuch DEMO",
+    "section": "8.6 6.6 Synthese und Interpretation der Felddaten",
+    "text": "8.6 6.6 Synthese und Interpretation der Felddaten\nDie Modellierung der Netto-Stickstoffveränderung (\\(dN\\)) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert (\\(p &lt; 0.001\\)).\nDie beobachteten Netto-Mineralisierungsraten verhalten sich im Wesentlichen wie ein physikalisches System, in dem moderate Niederschläge vom Boden gepuffert werden, während Extremereignisse zu einem quadratisch ansteigenden Auswaschungsverlust führen. Ein robustes biologisches Signal, welches auf eine enzymatische Steuerung der Netto-Mineralisierung im Makromaßstab hindeutet, lässt sich aus den vorliegenden Daten nicht sicher extrahieren.\nDas Ausbleiben messbarer Korrelationen zwischen den in-vitro Enzymaktivitäten und den in-situ Stickstoffflüssen lässt verschiedene Interpretationen zu:\n\nHypothese 1: Dominanz makroskopischer Flüsse Es ist davon auszugehen, dass die schiere Masse des durch starken Sommerniederschlag verlagerten Stickstoffs (Auswaschung, Denitrifikation) so groß ist, dass sie jeglichen mikrobiologischen Netto-Beitrag überlagert. Das biologische Signal fungiert unter diesen Witterungsbedingungen lediglich als Rauschen innerhalb der dominanten physikalischen Massenbilanz.\nHypothese 2: Diskrepanz zwischen potenzieller und realer Aktivität Die Reaktionsplatten messen die enzymatische Potenzialaktivität unter laboroptimierten Bedingungen (Substratsättigung, optimale Pufferung). Im Feld sind diese Enzyme jedoch Limitationen durch Diffusion, Trockenheit und fehlende Substratverfügbarkeit unterworfen. Das Laborpotenzial lässt sich folglich nicht zwingend als reale Umsetzungsrate in die Feldskala übersetzen.\nHypothese 3: Technische Varianz und Sensorrauschen Letztlich muss in Betracht gezogen werden, dass die in-situ Heterogenität des Bodens und methodische Varianzen des Assays (z.B. Transportbedingungen, Matrixeffekte) eine zu geringe methodische Wiederholbarkeit aufweisen. Ohne hinreichende Konsistenz misst die Methode primär stochastisches Rauschen, welches prinzipbedingt keine Korrelation zu den realen Nährstoffflüssen aufbauen kann.",
+    "crumbs": [
+      "DEMO",
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Langzeitversuch DEMO</span>"
     ]
   },
   {
     "objectID": "reports/Lysimeter.html",
     "href": "reports/Lysimeter.html",
-    "title": "2  Lysimeter-Versuchsanlage",
+    "title": "3  Lysimeter-Versuchsanlage",
     "section": "",
-    "text": "3 1. Hintergrund und Methodik\nDie Lysimeteranlage am Standort Reckenholz / Tänikon ermöglicht die hochpräzise Erfassung von Stoff- und Wasserflüssen im ungestörten Bodenprofil unter standardisierten Freilandbedingungen. Im Versuchsjahr 2025 wurde die Hauptkultur Winterweizen (WW) untersucht.\nDas experimentelle Design umfasst 32 Lysimeter in einer hierarchischen Struktur: * 2 Bodenarten (C-Gehalt): low (C-armer Mineralboden) vs. high (humus- und C-reicher Oberboden). * 4 Düngungsverfahren: * null: Ungedüngte Kontrollvariante. * conventional: Betriebsübliche mineralische Stickstoffdüngung. * optimized: Bedarfsgerechte, teilflächenspezifisch optimierte Düngung. * inhibitor: Stabilisierte Düngung unter Zusatz eines Nitrifikationshemmstoffs.\nNeben den klassischen Parametern (Labor-Nmin, Sickerwassermengen und chemischer N-Auswaschung via FIA) evaluieren wir hier die Sensorik von Digit Soil. Die Sensoren messen die enzymatische Potenzialaktivität (EEA) direkt im Boden, um mikrobielle Stoffumsetzungen in Echtzeit abzubilden.",
+    "text": "4 1. Hintergrund und Methodik\nDie Lysimeteranlage am Standort Reckenholz / Tänikon ermöglicht die hochpräzise Erfassung von Stoff- und Wasserflüssen im ungestörten Bodenprofil unter standardisierten Freilandbedingungen. Im Versuchsjahr 2025 wurde die Hauptkultur Winterweizen (WW) untersucht.\nDas experimentelle Design umfasst 32 Lysimeter in einer hierarchischen Struktur: * 2 Bodenarten (C-Gehalt): low (C-armer Mineralboden) vs. high (humus- und C-reicher Oberboden). * 4 Düngungsverfahren: * null: Ungedüngte Kontrollvariante. * conventional: Betriebsübliche mineralische Stickstoffdüngung. * optimized: Bedarfsgerechte, teilflächenspezifisch optimierte Düngung. * inhibitor: Stabilisierte Düngung unter Zusatz eines Nitrifikationshemmstoffs.\nNeben den klassischen Parametern (Labor-Nmin, Sickerwassermengen und chemischer N-Auswaschung via FIA) evaluieren wir hier die Sensorik von Digit Soil. Die Sensoren messen die enzymatische Potenzialaktivität (EEA) direkt im Boden, um mikrobielle Stoffumsetzungen in Echtzeit abzubilden.",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Lysimeter-Versuchsanlage</span>"
+      "Lysimeter",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Lysimeter-Versuchsanlage</span>"
     ]
   },
   {
     "objectID": "reports/Lysimeter.html#vergleich-der-akkumulations-fenster-für-alle-signale",
     "href": "reports/Lysimeter.html#vergleich-der-akkumulations-fenster-für-alle-signale",
-    "title": "2  Lysimeter-Versuchsanlage",
-    "section": "10.1 Vergleich der Akkumulations-Fenster für alle Signale",
-    "text": "10.1 Vergleich der Akkumulations-Fenster für alle Signale\nWir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für das Lysimeter (plot_nr) und die Behandlung (treatment).\n\n\n\nAIC Modellvergleich für enzymatische Signale und PCs (Lysimeter)\n\n\nSignal\n7-Tage\n14-Tage\n30-Tage\nAridity (14d)\nBest_Lag\n\n\n\n\nNAG\n603.8\n603.6\n609.3\n608.6\n14-Tage\n\n\nGLS\n912.2\n910.9\n898.6\n919.6\n30-Tage\n\n\nMUP\n1297.8\n1323.4\n1271.1\n1367.6\n30-Tage\n\n\nMUX\n490.2\n488.2\n486.1\n516.8\n30-Tage\n\n\nPC1\n555.9\n553.2\n544.3\n558.8\n30-Tage\n\n\nPC2\n319.0\n349.9\n319.4\n407.6\n7-Tage\n\n\nNtot\n950.0\n950.5\n947.5\n948.7\n30-Tage\n\n\n\n\n\nDas Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster (“Lag”), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität im Lysimeter ebenfalls stark von kurz- bis mittelfristigen Wetterereignissen abhängt.",
+    "title": "3  Lysimeter-Versuchsanlage",
+    "section": "11.1 Vergleich der Akkumulations-Fenster für alle Signale",
+    "text": "11.1 Vergleich der Akkumulations-Fenster für alle Signale\nWir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für das Lysimeter (plot_nr) und die Behandlung (treatment).\n\n\n\nAIC Modellvergleich für enzymatische Signale und PCs (Lysimeter)\n\n\nSignal\n7-Tage\n14-Tage\n30-Tage\nAridity (14d)\nBest_Lag\n\n\n\n\nNAG\n603.8\n603.6\n609.3\n608.6\n14-Tage\n\n\nGLS\n912.2\n910.9\n898.6\n919.6\n30-Tage\n\n\nMUP\n1297.8\n1323.4\n1271.1\n1367.6\n30-Tage\n\n\nMUX\n490.2\n488.2\n486.1\n516.8\n30-Tage\n\n\nPC1\n556.9\n554.4\n545.0\n559.3\n30-Tage\n\n\nPC2\n314.4\n346.0\n312.5\n411.3\n30-Tage\n\n\nNtot\n950.0\n950.5\n947.5\n948.7\n30-Tage\n\n\n\n\n\nDas Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster (“Lag”), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität im Lysimeter ebenfalls stark von kurz- bis mittelfristigen Wetterereignissen abhängt.",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Lysimeter-Versuchsanlage</span>"
+      "Lysimeter",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Lysimeter-Versuchsanlage</span>"
     ]
   },
   {
     "objectID": "reports/Lysimeter.html#visualisierung-des-besten-prädiktors-pc1-vs.-30-tage-niederschlag",
     "href": "reports/Lysimeter.html#visualisierung-des-besten-prädiktors-pc1-vs.-30-tage-niederschlag",
-    "title": "2  Lysimeter-Versuchsanlage",
-    "section": "10.2 Visualisierung des besten Prädiktors (PC1 vs. 30-Tage Niederschlag)",
-    "text": "10.2 Visualisierung des besten Prädiktors (PC1 vs. 30-Tage Niederschlag)",
+    "title": "3  Lysimeter-Versuchsanlage",
+    "section": "11.2 Visualisierung des besten Prädiktors (PC1 vs. 30-Tage Niederschlag)",
+    "text": "11.2 Visualisierung des besten Prädiktors (PC1 vs. 30-Tage Niederschlag)",
     "crumbs": [
-      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Lysimeter-Versuchsanlage</span>"
+      "Lysimeter",
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Lysimeter-Versuchsanlage</span>"
     ]
   },
   {
-    "objectID": "reports/Field_Campaign.html",
-    "href": "reports/Field_Campaign.html",
-    "title": "3  On-Farm Feldkampagne (Field Campaign)",
+    "objectID": "reports/Field_Campaign_25.html",
+    "href": "reports/Field_Campaign_25.html",
+    "title": "4  On-Farm Feldkampagne (Field Campaign)",
     "section": "",
-    "text": "4 1. Hintergrund und Methodik\nDie On-Farm Feldkampagne (Field Campaign / Fields25) evaluiert die Digit Soil Sensortechnologie im realen Praxisbetrieb auf 18 landwirtschaftlichen Betrieben in der Schweiz im Versuchsjahr 2025.\nIm Zentrum stehen die Hauptfutter- und Körnerkulturen Silomais (SM) und Körnermais (KM). Auf jedem Betrieb wurden definierte Versuchsstreifen mit drei kontrastierenden Düngungsstrategien angelegt: * null: Nullparzelle (keinerlei mineralische oder organische Stickstoffzufuhr zur Maiskultur). * ueblich: Betriebsübliche Standardpraxis des Landwirts (historische Hofdünger- und Mineraldüngergaben). * empfohlen: Bedarfsgerechte, nach agronomischer Beratung und Nmin-Vorausberechnung optimierte N-Düngung.\nDie Beprobungen erfolgten über vier phänologische Leitstadien (T1, T2, T2.5, T3) in zwei Beprobungstiefen (0–30 cm Oberboden und 30–60 cm Unterboden). Ziel der Analyse ist es zu prüfen, ob die enzymatischen Sensordaten (EEA) unter der hohen räumlichen und betrieblichen Heterogenität ein konsistentes Signal für die N-Versorgung und Ertragsbildung liefern.",
+    "text": "5 1. Hintergrund und Methodik\nDie On-Farm Feldkampagne (Field Campaign / Fields25) evaluiert die Digit Soil Sensortechnologie im realen Praxisbetrieb auf 18 landwirtschaftlichen Betrieben in der Schweiz im Versuchsjahr 2025.\nIm Zentrum stehen die Hauptfutter- und Körnerkulturen Silomais (SM) und Körnermais (KM). Auf jedem Betrieb wurden definierte Versuchsstreifen mit drei kontrastierenden Düngungsstrategien angelegt: * null: Nullparzelle (keinerlei mineralische oder organische Stickstoffzufuhr zur Maiskultur). * ueblich: Betriebsübliche Standardpraxis des Landwirts (historische Hofdünger- und Mineraldüngergaben). * empfohlen: Bedarfsgerechte, nach agronomischer Beratung und Nmin-Vorausberechnung optimierte N-Düngung.\nDie Beprobungen erfolgten über vier phänologische Leitstadien (T1, T2, T2.5, T3) in zwei Beprobungstiefen (0–30 cm Oberboden und 30–60 cm Unterboden). Ziel der Analyse ist es zu prüfen, ob die enzymatischen Sensordaten (EEA) unter der hohen räumlichen und betrieblichen Heterogenität ein konsistentes Signal für die N-Versorgung und Ertragsbildung liefern.",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
+      "Praxisversuche",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
     ]
   },
   {
-    "objectID": "reports/Field_Campaign.html#vergleich-der-akkumulations-fenster-für-alle-signale",
-    "href": "reports/Field_Campaign.html#vergleich-der-akkumulations-fenster-für-alle-signale",
-    "title": "3  On-Farm Feldkampagne (Field Campaign)",
-    "section": "11.1 Vergleich der Akkumulations-Fenster für alle Signale",
-    "text": "11.1 Vergleich der Akkumulations-Fenster für alle Signale\nWir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für Standort (plot_nr) und Behandlung (treatment).\n\n\n\nAIC Modellvergleich für enzymatische Signale und PCs\n\n\nSignal\n7-Tage\n14-Tage\n30-Tage\nAridity (14d)\nBest_Lag\n\n\n\n\nNAG\n2048.9\n2039.4\n2045.7\n2055.8\n14-Tage\n\n\nGLS\n2606.6\n2603.7\n2604.8\n2612.4\n14-Tage\n\n\nMUP\n2821.9\n2821.3\n2817.9\n2819.8\n30-Tage\n\n\nMUX\n1954.1\n1953.7\n1953.5\n1952.2\nAridity (14d)\n\n\nPC1\n713.5\n710.5\n712.6\n716.8\n14-Tage\n\n\nPC2\n533.0\n531.5\n527.6\n532.3\n30-Tage\n\n\nNtot\n2502.5\n2502.9\n2519.8\n2556.3\n7-Tage\n\n\n\n\n\nDas Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster (“Lag”), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität sehr deutlich vom 14-Tage-Fenster gesteuert wird.",
+    "objectID": "reports/Field_Campaign_25.html#vergleich-der-akkumulations-fenster-für-alle-signale",
+    "href": "reports/Field_Campaign_25.html#vergleich-der-akkumulations-fenster-für-alle-signale",
+    "title": "4  On-Farm Feldkampagne (Field Campaign)",
+    "section": "12.1 Vergleich der Akkumulations-Fenster für alle Signale",
+    "text": "12.1 Vergleich der Akkumulations-Fenster für alle Signale\nWir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für Standort (plot_nr) und Behandlung (treatment).\n\n\n\nAIC Modellvergleich für enzymatische Signale und PCs\n\n\nSignal\n7-Tage\n14-Tage\n30-Tage\nAridity (14d)\nBest_Lag\n\n\n\n\nNAG\n2048.9\n2039.4\n2045.7\n2055.8\n14-Tage\n\n\nGLS\n2606.6\n2603.7\n2604.8\n2612.4\n14-Tage\n\n\nMUP\n2821.9\n2821.3\n2817.9\n2819.8\n30-Tage\n\n\nMUX\n1954.1\n1953.7\n1953.5\n1952.2\nAridity (14d)\n\n\nPC1\n713.5\n710.5\n712.6\n716.8\n14-Tage\n\n\nPC2\n533.0\n531.5\n527.6\n532.3\n30-Tage\n\n\nNtot\n2502.5\n2502.9\n2519.8\n2556.3\n7-Tage\n\n\n\n\n\nDas Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster (“Lag”), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität sehr deutlich vom 14-Tage-Fenster gesteuert wird.",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
+      "Praxisversuche",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
     ]
   },
   {
-    "objectID": "reports/Field_Campaign.html#visualisierung-des-besten-prädiktors-pc1-vs.-14-tage-niederschlag",
-    "href": "reports/Field_Campaign.html#visualisierung-des-besten-prädiktors-pc1-vs.-14-tage-niederschlag",
-    "title": "3  On-Farm Feldkampagne (Field Campaign)",
-    "section": "11.2 Visualisierung des besten Prädiktors (PC1 vs. 14-Tage Niederschlag)",
-    "text": "11.2 Visualisierung des besten Prädiktors (PC1 vs. 14-Tage Niederschlag)",
+    "objectID": "reports/Field_Campaign_25.html#visualisierung-des-besten-prädiktors-pc1-vs.-14-tage-niederschlag",
+    "href": "reports/Field_Campaign_25.html#visualisierung-des-besten-prädiktors-pc1-vs.-14-tage-niederschlag",
+    "title": "4  On-Farm Feldkampagne (Field Campaign)",
+    "section": "12.2 Visualisierung des besten Prädiktors (PC1 vs. 14-Tage Niederschlag)",
+    "text": "12.2 Visualisierung des besten Prädiktors (PC1 vs. 14-Tage Niederschlag)",
     "crumbs": [
-      "<span class='chapter-number'>3</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
+      "Praxisversuche",
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
+    ]
+  },
+  {
+    "objectID": "reports/Field_Campaign_26.html",
+    "href": "reports/Field_Campaign_26.html",
+    "title": "5  On-Farm Feldkampagne (Field Campaign)",
+    "section": "",
+    "text": "6 1. Hintergrund und Methodik\nDie On-Farm Feldkampagne (Field Campaign / Fields25) evaluiert die Digit Soil Sensortechnologie im realen Praxisbetrieb auf 18 landwirtschaftlichen Betrieben in der Schweiz im Versuchsjahr 2025.\nIm Zentrum stehen die Hauptfutter- und Körnerkulturen Silomais (SM) und Körnermais (KM). Auf jedem Betrieb wurden definierte Versuchsstreifen mit drei kontrastierenden Düngungsstrategien angelegt: * null: Nullparzelle (keinerlei mineralische oder organische Stickstoffzufuhr zur Maiskultur). * ueblich: Betriebsübliche Standardpraxis des Landwirts (historische Hofdünger- und Mineraldüngergaben). * empfohlen: Bedarfsgerechte, nach agronomischer Beratung und Nmin-Vorausberechnung optimierte N-Düngung.\nDie Beprobungen erfolgten über vier phänologische Leitstadien (T1, T2, T2.5, T3) in zwei Beprobungstiefen (0–30 cm Oberboden und 30–60 cm Unterboden). Ziel der Analyse ist es zu prüfen, ob die enzymatischen Sensordaten (EEA) unter der hohen räumlichen und betrieblichen Heterogenität ein konsistentes Signal für die N-Versorgung und Ertragsbildung liefern.",
+    "crumbs": [
+      "Praxisversuche",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
+    ]
+  },
+  {
+    "objectID": "reports/Field_Campaign_26.html#vergleich-der-akkumulations-fenster-für-alle-signale",
+    "href": "reports/Field_Campaign_26.html#vergleich-der-akkumulations-fenster-für-alle-signale",
+    "title": "5  On-Farm Feldkampagne (Field Campaign)",
+    "section": "13.1 Vergleich der Akkumulations-Fenster für alle Signale",
+    "text": "13.1 Vergleich der Akkumulations-Fenster für alle Signale\nWir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für Standort (plot_nr) und Behandlung (treatment).\n\n\n\nAIC Modellvergleich für enzymatische Signale und PCs\n\n\nSignal\n7-Tage\n14-Tage\n30-Tage\nAridity (14d)\nBest_Lag\n\n\n\n\nNAG\n2048.9\n2039.4\n2045.7\n2055.8\n14-Tage\n\n\nGLS\n2606.6\n2603.7\n2604.8\n2612.4\n14-Tage\n\n\nMUP\n2821.9\n2821.3\n2817.9\n2819.8\n30-Tage\n\n\nMUX\n1954.1\n1953.7\n1953.5\n1952.2\nAridity (14d)\n\n\nPC1\n713.5\n710.5\n712.6\n716.8\n14-Tage\n\n\nPC2\n533.0\n531.5\n527.6\n532.3\n30-Tage\n\n\nNtot\n2502.5\n2502.9\n2519.8\n2556.3\n7-Tage\n\n\n\n\n\nDas Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster (“Lag”), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität sehr deutlich vom 14-Tage-Fenster gesteuert wird.",
+    "crumbs": [
+      "Praxisversuche",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
+    ]
+  },
+  {
+    "objectID": "reports/Field_Campaign_26.html#visualisierung-des-besten-prädiktors-pc1-vs.-14-tage-niederschlag",
+    "href": "reports/Field_Campaign_26.html#visualisierung-des-besten-prädiktors-pc1-vs.-14-tage-niederschlag",
+    "title": "5  On-Farm Feldkampagne (Field Campaign)",
+    "section": "13.2 Visualisierung des besten Prädiktors (PC1 vs. 14-Tage Niederschlag)",
+    "text": "13.2 Visualisierung des besten Prädiktors (PC1 vs. 14-Tage Niederschlag)",
+    "crumbs": [
+      "Praxisversuche",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>On-Farm Feldkampagne (Field Campaign)</span>"
     ]
   }
 ]
