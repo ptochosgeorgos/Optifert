@@ -10,11 +10,25 @@ book:
   date: today
   repo-url: https://github.com/ptochosgeorgos/Optifert
   repo-actions: [edit, issue]
+#   chapters:
+#     - index.qmd
+#     - reports/DEMO_25.qmd
+#     - reports/Lysimeter.qmd
+#     - reports/Field_Campaign.qmd
   chapters:
     - index.qmd
-    - reports/DEMO.qmd
-    - reports/Lysimeter.qmd
-    - reports/Field_Campaign.qmd
+    - part: "DEMO"
+      chapters:
+        - reports/DEMO_25.qmd
+        - reports/DEMO_26.qmd
+    - part: "Lysimeter"
+      chapters:
+        - reports/Lysimeter.qmd
+    - part: "Praxisversuche"
+      chapters:
+        - reports/Field_Campaign_25.qmd
+        - reports/Field_Campaign_26.qmd        
+
 format:
   html:
     theme: cosmo

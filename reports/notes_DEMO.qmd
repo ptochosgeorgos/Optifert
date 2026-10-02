@@ -1,7 +1,10 @@
-# Bibliotheken und zentrales Daten-Setup laden
-# Das Setup-Skript hat den Master-Datensatz generiert
+
 # 1. Hintergrund und Methodik
 # 2. Explorative Datenanalyse: Nmin pro Verfahren
+  
+  to-dos:
+  Tim: Resultate pro (Mess)zeitpunkt ergänzen
+  
 # 3. Sensor-Signale: Enzymatische Aktivität (EEA)
 # 4. Systemische Kopplung: Korrelationsanalyse
 # 1. Daten auswählen und Korrelationsmatrix berechnen
@@ -30,3 +33,6 @@
 # 7. Saisonaler Ansatz: Erste vs. Letzte Messung
 # 1. Daten aggregieren auf Saison-Ebene (Erste bis Letzte Messung)
 # 2. Modell fitten (Niederschlag entfällt als Fixed Effect)
+
+
+Lag Analyse machen wie bei anderen.

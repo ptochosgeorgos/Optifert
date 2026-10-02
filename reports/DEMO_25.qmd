@@ -13,6 +13,7 @@ execute:
 library(tidyverse)
 library(rrcov)
 
+
 # Das Setup-Skript hat den Master-Datensatz generiert
 df_final <- read_csv("../data/DEMO/prep_data/DEMO_2025_cleansed.csv", show_col_types = FALSE)
 ```
@@ -275,7 +276,7 @@ Das Modell (`lmer`) verwendet folgende Struktur:
 Für die Modellierung gelten folgende Annahmen:
 1.  **Konvertierungsfaktor:** Die Umrechnung von $mg/kg$ in $kg/ha$ erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, $1.5 \ g/cm^3$).
 2.  **Ertrags-Baseline (Mais):** Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (`Total_N_Entzug_kg_ha`) der jeweiligen Parzelle exklusiv für die Kultur *Mais* (`Kultur == "MA"`) berechnet.
-3.  **Logistischer Pflanzenentzug (S-Kurve):** Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis $10^\circ C$) modelliert [@archontoulisNonlinearRegressionModels2015; @overmanMathematicalModelsCrop2002]:
+3.  **Logistischer Pflanzenentzug (S-Kurve):** Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis $6^\circ C$) modelliert [@archontoulisNonlinearRegressionModels2015; @overmanMathematicalModelsCrop2002]:
     $$ N_{up}(GDD) = \frac{N_{max}}{1 + \exp(-0.012 \cdot (GDD - 750))} $$
     Die Parameter sind:
     *   $N_{max} =$ Historischer Mais-Entzug der Parzelle
