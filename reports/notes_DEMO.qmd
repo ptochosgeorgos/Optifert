@@ -1,5 +1,8 @@
 
 # 1. Hintergrund und Methodik
+
+  Tim: Verfahren beschreiben
+
 # 2. Explorative Datenanalyse: Nmin pro Verfahren
   
   to-dos:
@@ -21,6 +24,16 @@
 # Plot 2: Ammonium (NH4) in Rottönen
 # Beide Plots nebeneinander darstellen
 # 6. Mechanistisches N-Balance Modell (Intervall-basiert)
+  
+  Marc: Hinzufügen von Düngeevents
+  
+  Tim: C/N, Textur, pH hinzufügen
+  
+  Zusätzlich zum Ansatz mit Intervallen, Über ganze Saison rechnen und
+  diesbezüglich Aussagekraft von einzeln Messpunkte testen
+  
+  "N-Uptake" mit Erntedaten skalieren
+  
 # 1. Daten vorbereiten und Variablen transformieren
 # 2. Das LMM fitten
 # 3. Modellzusammenfassung
