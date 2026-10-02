@@ -1,0 +1,25 @@
+# Bibliotheken und zentrales Daten-Setup laden
+# Vollständig vorbereitete Daten aus prep_data/ laden
+# Relevel der Behandlungen für konsistente Darstellungen
+# 1. Hintergrund und Methodik
+# 2. Explorative Datenanalyse: Nmin pro Verfahren
+# 3. Sensor-Signale: Enzymatische Aktivität (EEA)
+# 4. Systemische Kopplung: Korrelationsanalyse
+# 1. Daten auswählen und Korrelationsmatrix berechnen
+# 2. Die Matrix ins Long-Format umwandeln
+# 3. Heatmap plotten
+# 5. Biologisches Profil und Dimensionsreduktion
+# Score-Plot
+# 6. Mechanistisches N-Balance Modell (Intervall-basiert)
+# 1. Bilden der Zeitintervalle
+# 2. Intervall-Variablen berechnen
+# 3. LMM fitten
+# Metriken
+# 3D-Oberfläche aufspannen
+# 7. Saisonaler Ansatz: Erste vs. Letzte Messung & Auswaschungsbilanz
+# 5. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
+# Wir filtern NAs und unvollständige Proxy-Daten
+# Nutzen df_pca um PC1 und PC2 zur Verfügung zu haben
+# Zentrierung und Skalierung der Prädiktoren für stabile Konvergenz
+# Ermittle den besten (niedrigsten) AIC pro Zeile und markiere ihn
+# Nehmen wir an, das 30-Tage-Fenster ist für PC1 aussagekräftig im Lysimeter

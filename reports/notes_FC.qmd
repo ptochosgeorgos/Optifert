@@ -1,0 +1,15 @@
+# Bibliotheken und zentrales Daten-Setup laden
+# Vorbereitete Daten aus prep_data/ laden
+# Relevel der Hauptvarianten für einheitliche Darstellungen
+# 1. Hintergrund und Methodik
+# 2. Explorative Datenanalyse: Nmin pro Verfahren
+# 3. Sensor-Signale: Enzymatische Aktivität (EEA)
+# 4. Systemische Kopplung: Korrelationsanalyse
+# 5. Biologisches Profil und Dimensionsreduktion
+# 6. Mechanistisches LMM-Modell (Hierarchische Modellierung)
+# 7. Saisonaler Ansatz: Erste vs. Letzte Messung & Ertragskopplung
+# 8. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
+# Wir filtern NAs und unvollständige Proxy-Daten
+# Nutzen df_pca um PC1 und PC2 zur Verfügung zu haben
+# Zentrierung und Skalierung der Prädiktoren für stabile Konvergenz
+# Ermittle den besten (niedrigsten) AIC pro Zeile und markiere ihn

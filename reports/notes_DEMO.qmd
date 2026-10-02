@@ -1,0 +1,32 @@
+# Bibliotheken und zentrales Daten-Setup laden
+# Das Setup-Skript hat den Master-Datensatz generiert
+# 1. Hintergrund und Methodik
+# 2. Explorative Datenanalyse: Nmin pro Verfahren
+# 3. Sensor-Signale: Enzymatische Aktivität (EEA)
+# 4. Systemische Kopplung: Korrelationsanalyse
+# 1. Daten auswählen und Korrelationsmatrix berechnen
+# 2. Die Matrix für ggplot ins Long-Format umwandeln
+# 3. Die Heatmap plotten
+# 5. Biologisches Profil und Dimensionsreduktion
+# Paket für robuste PCA (muss geladen sein)
+# 1. Datenvorbereitung (Nur vollständige Datensätze behalten)
+# 2. Robuste PCA berechnen (scale = TRUE ist essenziell bei Enzymen!)
+# 3. Scores (Koordinaten auf PC1/PC2) und erklärte Varianz extrahieren
+# 4. Der finale Biplot (Score-Plot)
+# Paket für die Anordnung von Plots laden
+# Plot 1: Nitrat (NO3) in Blautönen
+# Plot 2: Ammonium (NH4) in Rottönen
+# Beide Plots nebeneinander darstellen
+# 6. Mechanistisches N-Balance Modell (Intervall-basiert)
+# 1. Daten vorbereiten und Variablen transformieren
+# 2. Das LMM fitten
+# 3. Modellzusammenfassung
+# 4. Parameter extrahieren für den Bericht
+# 5. Modellperformance Metriken
+# Erstelle ein Grid für die Ebene
+# Berechne Z-Werte der Regressionsebene (Basislinie = 0 für Random Effects, PC1 = 0)
+# Umformen in eine Matrix für plotly::add_surface
+# Interaktiver Plotly-Graph
+# 7. Saisonaler Ansatz: Erste vs. Letzte Messung
+# 1. Daten aggregieren auf Saison-Ebene (Erste bis Letzte Messung)
+# 2. Modell fitten (Niederschlag entfällt als Fixed Effect)
