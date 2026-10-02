@@ -29,10 +29,16 @@
   
   Tim: C/N, Textur, pH hinzufügen
   
+  
+  
   Zusätzlich zum Ansatz mit Intervallen, Über ganze Saison rechnen und
   diesbezüglich Aussagekraft von einzeln Messpunkte testen
   
   "N-Uptake" mit Erntedaten skalieren
+  
+  Gasemissionen mit Messungen von Klimagruppe vor 3(?) Jahren und Auswaschung mit     Sias-Resultaten (bei Francesco anfragen) adressieren
+  
+  
   
 # 1. Daten vorbereiten und Variablen transformieren
 # 2. Das LMM fitten
@@ -49,3 +55,5 @@
 
 
 Lag Analyse machen wie bei anderen.
+
+

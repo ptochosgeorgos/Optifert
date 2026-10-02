@@ -27,8 +27,8 @@ book:
     - part: "Praxisversuche"
       chapters:
         - reports/Field_Campaign_25.qmd
-        - reports/Field_Campaign_26.qmd        
-
+        - reports/Field_Campaign_26.qmd
+    - part: "ZOFE"
 format:
   html:
     theme: cosmo
