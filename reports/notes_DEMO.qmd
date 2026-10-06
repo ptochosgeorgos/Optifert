@@ -1,59 +1,29 @@
 
 # 1. Hintergrund und Methodik
-
-  Tim: Verfahren beschreiben
-
 # 2. Explorative Datenanalyse: Nmin pro Verfahren
   
-  to-dos:
-  Tim: Resultate pro (Mess)zeitpunkt ergänzen
+  Tim: Resultate pro (Mess)zeitpunkt darstellen und beschreiben
+  Tim: Nmin in kgN/ha
   
 # 3. Sensor-Signale: Enzymatische Aktivität (EEA)
+
+  Tim: Resultate pro (Mess)zeitpunkt darstellen und beschreiben
+  
 # 4. Systemische Kopplung: Korrelationsanalyse
-# 1. Daten auswählen und Korrelationsmatrix berechnen
-# 2. Die Matrix für ggplot ins Long-Format umwandeln
-# 3. Die Heatmap plotten
+
+  Marc: Schlussfolgerung ergänzen
+  
+  Interkorrelation ist möglicher Hinweis auf geteilte Ressourcen und Umweltbedingungen. Aber grosse Korrelation vermindeert unabhängige Information... Daher ist die Korrelation ermutingen, aber wir machen rPCA um diese Information zu kondensieren. Wenn wir annehm,end, dass NAG ~ Nmin, dann nehmen wir an, dass die Mineraliserungn Nmin akkumulieren und somit die Pflanzenaufnahme in jedem Fall übertreffen würde..... Diese Annahme ist fragwürdig, es könnte auch in Folge besseren Pflkanzenwachstums eine Verdünnung stattfinden, ähnlich dem Piper-Steenbjerg effekt. 
+  
 # 5. Biologisches Profil und Dimensionsreduktion
-# Paket für robuste PCA (muss geladen sein)
-# 1. Datenvorbereitung (Nur vollständige Datensätze behalten)
-# 2. Robuste PCA berechnen (scale = TRUE ist essenziell bei Enzymen!)
-# 3. Scores (Koordinaten auf PC1/PC2) und erklärte Varianz extrahieren
-# 4. Der finale Biplot (Score-Plot)
-# Paket für die Anordnung von Plots laden
-# Plot 1: Nitrat (NO3) in Blautönen
-# Plot 2: Ammonium (NH4) in Rottönen
-# Beide Plots nebeneinander darstellen
+
+Tim: upgrade PCA, eigenvektoren > interpretation der PC-Achsen
+
 # 6. Mechanistisches N-Balance Modell (Intervall-basiert)
-  
-  Marc: Hinzufügen von Düngeevents
-  
-  Tim: C/N, Textur, pH hinzufügen
-  
-  
-  
-  Zusätzlich zum Ansatz mit Intervallen, Über ganze Saison rechnen und
-  diesbezüglich Aussagekraft von einzeln Messpunkte testen
-  
-  "N-Uptake" mit Erntedaten skalieren
-  
-  Gasemissionen mit Messungen von Klimagruppe vor 3(?) Jahren und Auswaschung mit     Sias-Resultaten (bei Francesco anfragen) adressieren
-  
-  
-  
-# 1. Daten vorbereiten und Variablen transformieren
-# 2. Das LMM fitten
-# 3. Modellzusammenfassung
-# 4. Parameter extrahieren für den Bericht
-# 5. Modellperformance Metriken
-# Erstelle ein Grid für die Ebene
-# Berechne Z-Werte der Regressionsebene (Basislinie = 0 für Random Effects, PC1 = 0)
-# Umformen in eine Matrix für plotly::add_surface
-# Interaktiver Plotly-Graph
+
+marc: Massenbilanzformel überprüfen angesichts LAP drop
+
 # 7. Saisonaler Ansatz: Erste vs. Letzte Messung
-# 1. Daten aggregieren auf Saison-Ebene (Erste bis Letzte Messung)
-# 2. Modell fitten (Niederschlag entfällt als Fixed Effect)
 
 
 Lag Analyse machen wie bei anderen.
-
-DigitSoil Ansatz mit mechanistischem Model vergleichen
