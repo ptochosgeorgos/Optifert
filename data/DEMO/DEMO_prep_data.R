@@ -47,7 +47,7 @@ site_config <- list(
   latitude     = 47.428,
   longitude    = 8.520,
   crop         = "MA",
-  base_temp    = 6
+  base_temp    = get_crop_base_temp("MA")
 )
 
 # ==============================================================================
@@ -208,6 +208,19 @@ meteo_df <- map_dfr(all_years, function(yr) {
   )
 })
 
+# Rollierende Wetterfenster berechnen (7d, 14d, 30d für Niederschlag & GDD)
+meteo_roll <- meteo_df |>
+  arrange(Datum) |>
+  mutate(
+    Precip_7d = zoo::rollsumr(Precip_mm, k = 7, fill = NA),
+    Precip_14d = zoo::rollsumr(Precip_mm, k = 14, fill = NA),
+    Precip_30d = zoo::rollsumr(Precip_mm, k = 30, fill = NA),
+    GDD_7d = zoo::rollsumr(GDD, k = 7, fill = NA),
+    GDD_14d = zoo::rollsumr(GDD, k = 14, fill = NA),
+    GDD_30d = zoo::rollsumr(GDD, k = 30, fill = NA),
+    Aridity_Index_14d = Precip_14d / (GDD_14d + 1)
+  )
+
 # Anwenden der modularen Feature-Engineering Funktionen
 df_final <- df_merged |> 
   add_intervals_and_delta_nmin(
@@ -228,6 +241,7 @@ df_final <- df_merged |>
     gdd_t1_col = "Cum_GDD_t1",
     gdd_t2_col = "Cum_GDD_t2"
   ) |> 
+  left_join(meteo_roll, by = "Datum") |>
   mutate(
     LTE = site_config$lte,
     # Standardisiertes Spaltenschema
@@ -257,5 +271,6 @@ output_file <- file.path(prep_dir, "DEMO_2025_cleansed.csv")
 message("Exportiere finalen Datensatz nach: ", output_file)
 write_csv(df_final, output_file)
 write_csv(df_final, file.path(prep_dir, "DEMO_cleansed.csv"))
+saveRDS(df_final, file.path(prep_dir, "DEMO_2025_cleansed.rds"))
 saveRDS(df_final, file.path(prep_dir, "DEMO_cleansed.rds"))
 message("Erfolgreich abgeschlossen! Zeilen: ", nrow(df_final), ", Spalten: ", ncol(df_final))

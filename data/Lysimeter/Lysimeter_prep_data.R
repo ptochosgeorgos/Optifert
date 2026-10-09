@@ -26,6 +26,11 @@ get_script_dir <- function() {
 script_dir <- get_script_dir()
 here_lysi <- function(...) file.path(script_dir, ...)
 
+# Modulare Hilfsfunktionen laden
+utils_path <- file.path(script_dir, "../../scripts/meteo_nmin_utils.R")
+if (!file.exists(utils_path)) utils_path <- "scripts/meteo_nmin_utils.R"
+if (file.exists(utils_path)) source(utils_path)
+
 # ==============================================================================
 # 0. STANDORT- & VERSUCHS-KONFIGURATION
 # ==============================================================================
@@ -36,7 +41,7 @@ site_config <- list(
   latitude      = 47.254,
   longitude     = 8.310,
   crop          = "WW",
-  base_temp     = 0,
+  base_temp     = if (exists("get_crop_base_temp")) get_crop_base_temp("WW") else 0,
   swissflux_uid = "feslj41e3vt34c"
 )
 

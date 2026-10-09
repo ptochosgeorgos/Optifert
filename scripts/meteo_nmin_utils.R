@@ -10,6 +10,58 @@ library(tibble)
 library(jsonlite)
 library(lubridate)
 
+#' Ermittelt die agronomische Basistemperatur (T_base) für Growing Degree Days (GDD)
+#'
+#' Basiert auf Standardwerten der schweizerischen/mitteleuropäischen Agrarmeteorologie (Agroscope/GRUD):
+#' - Wintergetreide (WW, WG, WR, TR): 0.0 °C
+#' - Sommergetreide (SW, SG, HA): 0.0 °C
+#' - Raps (RA): 4.5 °C
+#' - Zuckerrüben (ZR): 5.0 °C
+#' - Mais (MA, KM, SM): 6.0 °C (mitteleuropäischer Kältetoleranz-Standard)
+#' - Leguminosen / Ölsaaten (SO, SB): 8.0 °C
+#' - Kunstwiesen / Gras (KW, GRAS): 5.0 °C
+#'
+#' @param crop Kulturkürzel (z.B. "MA", "WW", "KM", "SM", "RA") oder Klartext
+#' @param default Fallback-Temperatur falls Kultur unbekannt (Default: 6.0)
+#' @return Basistemperatur in °C (numeric)
+#' @export
+get_crop_base_temp <- function(crop, default = 6.0) {
+  if (is.null(crop) || length(crop) == 0) {
+    return(default)
+  }
+  
+  crop_clean <- toupper(trimws(as.character(crop)))
+  
+  dplyr::case_when(
+    crop_clean %in% c("WW", "WG", "WR", "TR", "WEIZEN", "WINTERWEIZEN", "GERSTE", "WINTERGERSTE", "ROGGEN", "TRITICALE") ~ 0.0,
+    crop_clean %in% c("SW", "SG", "HA", "SOMMERWEIZEN", "SOMMERGERSTE", "HAFER") ~ 0.0,
+    crop_clean %in% c("RA", "RAPS", "WINTERRAPS") ~ 4.5,
+    crop_clean %in% c("ZR", "ZUCKERRUEBE", "RUEBEN") ~ 5.0,
+    crop_clean %in% c("KW", "KUNSTWIESE", "GRAS", "WIESE") ~ 5.0,
+    crop_clean %in% c("MA", "KM", "SM", "MAIS", "SILOMAIS", "KOERNERMAIS") ~ 6.0,
+    crop_clean %in% c("SO", "SB", "SOJA", "SONNENBLUME") ~ 8.0,
+    TRUE ~ default
+  )
+}
+
+#' Berechnet GDD (Growing Degree Days) tages- oder zeilenweise
+#'
+#' @param temp_mean Mittlere Tagestemperatur (°C)
+#' @param crop Kulturkürzel (optional)
+#' @param base_temp Basistemperatur in °C (optional, überschreibt crop)
+#' @return Vektor mit GDD-Werten
+#' @export
+calc_gdd <- function(temp_mean, crop = NULL, base_temp = NULL) {
+  bt <- if (!is.null(base_temp)) {
+    base_temp
+  } else if (!is.null(crop)) {
+    get_crop_base_temp(crop)
+  } else {
+    6.0
+  }
+  pmax(0, temp_mean - bt)
+}
+
 #' Lade tägliche Wetterdaten über die Open-Meteo Archiv-API
 #'
 #' @param lat Breitengrad (numeric)
@@ -72,7 +124,7 @@ fetch_meteo <- function(lat, lon, start_date, end_date, base_temp = 6) {
 
 #' Lade tägliche Wetterdaten direkt über eine Standort-Konfigurationsliste (site_config)
 #'
-#' @param site_config Liste mit Feldern: latitude (oder lat), longitude (oder lon), optional base_temp
+#' @param site_config Liste mit Feldern: latitude (oder lat), longitude (oder lon), optional crop und/oder base_temp
 #' @param start_date Startdatum
 #' @param end_date Enddatum
 #' @return Tibble mit Spalten: Datum, Temp_mean, Precip_mm, GDD
@@ -80,7 +132,15 @@ fetch_meteo <- function(lat, lon, start_date, end_date, base_temp = 6) {
 fetch_meteo_site <- function(site_config, start_date, end_date) {
   lat <- site_config$latitude %||% site_config$lat
   lon <- site_config$longitude %||% site_config$lon
-  base_temp <- site_config$base_temp %||% 6
+  
+  # Basistemperatur agronomisch/kulturspezifisch ermitteln:
+  base_temp <- if (!is.null(site_config$base_temp)) {
+    site_config$base_temp
+  } else if (!is.null(site_config$crop)) {
+    get_crop_base_temp(site_config$crop)
+  } else {
+    6.0
+  }
   
   if (is.null(lat) || is.null(lon)) {
     stop("site_config muss 'latitude' (oder 'lat') und 'longitude' (oder 'lon') enthalten.")
