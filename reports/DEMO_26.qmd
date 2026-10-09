@@ -14,7 +14,7 @@ library(tidyverse)
 library(rrcov)
 
 # Das Setup-Skript hat den Master-Datensatz generiert
-df_final <- read_csv("../data/DEMO/prep_data/DEMO_2025_cleansed.csv", show_col_types = FALSE)
+df_final <- readRDS("../data/DEMO/prep_data/DEMO_2025_cleansed.rds")
 ```
 
 # 1. Hintergrund und Methodik

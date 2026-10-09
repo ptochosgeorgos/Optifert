@@ -17,6 +17,7 @@ book:
 #     - reports/Field_Campaign.qmd
   chapters:
     - index.qmd
+    - reports/vorwort.qmd
     - part: "DEMO"
       chapters:
         - reports/DEMO_25.qmd
