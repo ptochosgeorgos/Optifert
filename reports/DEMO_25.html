@@ -56,7 +56,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../reports/DEMO_26.html" rel="next">
-<link href="../index.html" rel="prev">
+<link href="../reports/vorwort.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -176,7 +176,13 @@ window.Quarto = {
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Vorwort</span></a>
+ <span class="menu-text">Einleitung und Methodik</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reports/vorwort.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Vorwort: Wissenschaftliche Einordnung und Limitationen enzymatischer Sensordaten</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -259,11 +265,24 @@ window.Quarto = {
   <li><a href="#hintergrund-und-methodik" id="toc-hintergrund-und-methodik" class="nav-link active" data-scroll-target="#hintergrund-und-methodik"><span class="header-section-number">2</span> 1. Hintergrund und Methodik</a></li>
   <li><a href="#explorative-datenanalyse-nmin-pro-verfahren" id="toc-explorative-datenanalyse-nmin-pro-verfahren" class="nav-link" data-scroll-target="#explorative-datenanalyse-nmin-pro-verfahren"><span class="header-section-number">3</span> 2. Explorative Datenanalyse: Nmin pro Verfahren</a></li>
   <li><a href="#sensor-signale-enzymatische-aktivität-eea" id="toc-sensor-signale-enzymatische-aktivität-eea" class="nav-link" data-scroll-target="#sensor-signale-enzymatische-aktivität-eea"><span class="header-section-number">4</span> 3. Sensor-Signale: Enzymatische Aktivität (EEA)</a></li>
-  <li><a href="#systemische-kopplung-korrelationsanalyse" id="toc-systemische-kopplung-korrelationsanalyse" class="nav-link" data-scroll-target="#systemische-kopplung-korrelationsanalyse"><span class="header-section-number">5</span> 4. Systemische Kopplung: Korrelationsanalyse</a></li>
-  <li><a href="#biologisches-profil-und-dimensionsreduktion" id="toc-biologisches-profil-und-dimensionsreduktion" class="nav-link" data-scroll-target="#biologisches-profil-und-dimensionsreduktion"><span class="header-section-number">6</span> 5. Biologisches Profil und Dimensionsreduktion</a></li>
+  <li><a href="#systemische-kopplung-korrelationsanalyse" id="toc-systemische-kopplung-korrelationsanalyse" class="nav-link" data-scroll-target="#systemische-kopplung-korrelationsanalyse"><span class="header-section-number">5</span> 4. Systemische Kopplung: Korrelationsanalyse</a>
+  <ul class="collapse">
+  <li><a href="#theoretischer-hintergrund-warum-enzymsignale-korrelieren" id="toc-theoretischer-hintergrund-warum-enzymsignale-korrelieren" class="nav-link" data-scroll-target="#theoretischer-hintergrund-warum-enzymsignale-korrelieren"><span class="header-section-number">5.0.1</span> Theoretischer Hintergrund: Warum Enzymsignale korrelieren</a></li>
+  <li><a href="#kopplung-an-mineralischen-stickstoff-n_min-poolgröße-vs.-flussrate" id="toc-kopplung-an-mineralischen-stickstoff-n_min-poolgröße-vs.-flussrate" class="nav-link" data-scroll-target="#kopplung-an-mineralischen-stickstoff-n_min-poolgröße-vs.-flussrate"><span class="header-section-number">5.0.2</span> Kopplung an mineralischen Stickstoff (<span class="math inline">\(N_{min}\)</span>): Poolgröße vs.&nbsp;Flussrate</a></li>
+  <li><a href="#schlussfolgerung-und-problem-der-multikollinearität" id="toc-schlussfolgerung-und-problem-der-multikollinearität" class="nav-link" data-scroll-target="#schlussfolgerung-und-problem-der-multikollinearität"><span class="header-section-number">5.0.3</span> Schlussfolgerung und Problem der Multikollinearität</a></li>
+  </ul></li>
+  <li><a href="#biologisches-profil-und-dimensionsreduktion" id="toc-biologisches-profil-und-dimensionsreduktion" class="nav-link" data-scroll-target="#biologisches-profil-und-dimensionsreduktion"><span class="header-section-number">6</span> 5. Biologisches Profil und Dimensionsreduktion</a>
+  <ul class="collapse">
+  <li><a href="#warum-robuste-pca-nach-hubert" id="toc-warum-robuste-pca-nach-hubert" class="nav-link" data-scroll-target="#warum-robuste-pca-nach-hubert"><span class="header-section-number">6.0.1</span> Warum robuste PCA nach Hubert?</a></li>
+  <li><a href="#herleitung-und-interpretation-der-hauptachsen-human-friendly-names" id="toc-herleitung-und-interpretation-der-hauptachsen-human-friendly-names" class="nav-link" data-scroll-target="#herleitung-und-interpretation-der-hauptachsen-human-friendly-names"><span class="header-section-number">6.0.2</span> Herleitung und Interpretation der Hauptachsen („Human-Friendly Names“)</a></li>
+  <li><a href="#visualisierung-im-zweidimensionalen-raum" id="toc-visualisierung-im-zweidimensionalen-raum" class="nav-link" data-scroll-target="#visualisierung-im-zweidimensionalen-raum"><span class="header-section-number">6.0.3</span> Visualisierung im zweidimensionalen Raum</a></li>
+  </ul></li>
   <li><a href="#mechanistisches-n-balance-modell-intervall-basiert" id="toc-mechanistisches-n-balance-modell-intervall-basiert" class="nav-link" data-scroll-target="#mechanistisches-n-balance-modell-intervall-basiert"><span class="header-section-number">7</span> 6. Mechanistisches N-Balance Modell (Intervall-basiert)</a>
   <ul class="collapse">
-  <li><a href="#die-idee-massenbilanz-als-rahmen" id="toc-die-idee-massenbilanz-als-rahmen" class="nav-link" data-scroll-target="#die-idee-massenbilanz-als-rahmen"><span class="header-section-number">7.1</span> 6.1 Die Idee: Massenbilanz als Rahmen</a></li>
+  <li><a href="#die-idee-massenbilanz-als-rahmen" id="toc-die-idee-massenbilanz-als-rahmen" class="nav-link" data-scroll-target="#die-idee-massenbilanz-als-rahmen"><span class="header-section-number">7.1</span> 6.1 Die Idee: Massenbilanz als Rahmen</a>
+  <ul class="collapse">
+  <li><a href="#methodische-festlegungen-und-randbedingungen" id="toc-methodische-festlegungen-und-randbedingungen" class="nav-link" data-scroll-target="#methodische-festlegungen-und-randbedingungen"><span class="header-section-number">7.1.1</span> Methodische Festlegungen und Randbedingungen:</a></li>
+  </ul></li>
   <li><a href="#variablen-und-designmatrix" id="toc-variablen-und-designmatrix" class="nav-link" data-scroll-target="#variablen-und-designmatrix"><span class="header-section-number">7.2</span> 6.2 Variablen und Designmatrix</a></li>
   <li><a href="#voraussetzungen-und-annahmen" id="toc-voraussetzungen-und-annahmen" class="nav-link" data-scroll-target="#voraussetzungen-und-annahmen"><span class="header-section-number">7.3</span> 6.3 Voraussetzungen und Annahmen</a></li>
   <li><a href="#modell-implementierung-in-r" id="toc-modell-implementierung-in-r" class="nav-link" data-scroll-target="#modell-implementierung-in-r"><span class="header-section-number">7.4</span> 6.4 Modell-Implementierung in R</a></li>
@@ -275,6 +294,12 @@ window.Quarto = {
   <li><a href="#synthese-und-interpretation-der-felddaten" id="toc-synthese-und-interpretation-der-felddaten" class="nav-link" data-scroll-target="#synthese-und-interpretation-der-felddaten"><span class="header-section-number">7.6</span> 6.6 Synthese und Interpretation der Felddaten</a></li>
   </ul></li>
   <li><a href="#saisonaler-ansatz-erste-vs.-letzte-messung" id="toc-saisonaler-ansatz-erste-vs.-letzte-messung" class="nav-link" data-scroll-target="#saisonaler-ansatz-erste-vs.-letzte-messung"><span class="header-section-number">8</span> 7. Saisonaler Ansatz: Erste vs.&nbsp;Letzte Messung</a></li>
+  <li><a href="#pedoclimatic-proxy-lag-analysis-lmm-aic" id="toc-pedoclimatic-proxy-lag-analysis-lmm-aic" class="nav-link" data-scroll-target="#pedoclimatic-proxy-lag-analysis-lmm-aic"><span class="header-section-number">9</span> 8. Pedoclimatic Proxy &amp; Lag Analysis (LMM + AIC)</a>
+  <ul class="collapse">
+  <li><a href="#vergleich-der-akkumulationsfenster-aic-ranking" id="toc-vergleich-der-akkumulationsfenster-aic-ranking" class="nav-link" data-scroll-target="#vergleich-der-akkumulationsfenster-aic-ranking"><span class="header-section-number">9.1</span> Vergleich der Akkumulationsfenster (AIC-Ranking)</a></li>
+  <li><a href="#synthese-der-lag-analyse-kurzfristige-enzympulse-vs.-träger-nmin-pool" id="toc-synthese-der-lag-analyse-kurzfristige-enzympulse-vs.-träger-nmin-pool" class="nav-link" data-scroll-target="#synthese-der-lag-analyse-kurzfristige-enzympulse-vs.-träger-nmin-pool"><span class="header-section-number">9.2</span> Synthese der Lag-Analyse: Kurzfristige Enzympulse vs.&nbsp;träger Nmin-Pool</a></li>
+  <li><a href="#visualisierung-einfluss-des-7-tage-niederschlags-auf-die-gesamtaktivität-pc1" id="toc-visualisierung-einfluss-des-7-tage-niederschlags-auf-die-gesamtaktivität-pc1" class="nav-link" data-scroll-target="#visualisierung-einfluss-des-7-tage-niederschlags-auf-die-gesamtaktivität-pc1"><span class="header-section-number">9.3</span> Visualisierung: Einfluss des 7-Tage-Niederschlags auf die Gesamtaktivität (PC1)</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/ptochosgeorgos/Optifert/edit/main/reports/DEMO_25.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/ptochosgeorgos/Optifert/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
@@ -336,12 +361,26 @@ window.Quarto = {
 </section>
 <section id="systemische-kopplung-korrelationsanalyse" class="level1" data-number="5">
 <h1 data-number="5"><span class="header-section-number">5</span> 4. Systemische Kopplung: Korrelationsanalyse</h1>
-<p>Zur Überprüfung der Zusammenhänge der Variablen untereinander verwenden wir die Spearman-Rangkorrelation, da enzymatische Reaktionen Sättigungskurven aufweisen können und nicht zwingend linear verlaufen.</p>
-<p>In der folgenden Heatmap werden zwei Muster analysiert:</p>
+<p>Zur Überprüfung der Zusammenhänge der Messvariablen untereinander verwenden wir die Spearman-Rangkorrelation, da enzymatische Reaktionen Sättigungskurven aufweisen können und nicht zwingend linear verlaufen.</p>
+<section id="theoretischer-hintergrund-warum-enzymsignale-korrelieren" class="level3" data-number="5.0.1">
+<h3 data-number="5.0.1" class="anchored" data-anchor-id="theoretischer-hintergrund-warum-enzymsignale-korrelieren"><span class="header-section-number">5.0.1</span> Theoretischer Hintergrund: Warum Enzymsignale korrelieren</h3>
+<p>Biologisch und physikochemisch ist eine enge Kopplung der Enzymsignale im Boden zu erwarten: 1. <strong>Geteilte pedoklimatische Treiber:</strong> Bodenmikroorganismen reagieren simultan auf übergeordnete Umweltfaktoren wie Bodentemperatur, Feuchtegehalt und den Eintrag von labilem Kohlenstoff (z. B. durch Wurzelexsudate). Ein günstiges Milieu stimuliert die Synthese und Sekretion mehrerer Enzymklassen gleichzeitig. 2. <strong>Stabilisierung des abiontischen Enzympools:</strong> Ein bedeutender Anteil der mit der SEAR-Methode gemessenen extrazellulären Enzyme liegt stabilisiert an Tonmineralen und Huminstoffen vor <span class="citation" data-cites="Burns2013 Nannipieri2018">(<a href="#ref-Burns2013" role="doc-biblioref">Burns et al. 2013</a>; <a href="#ref-Nannipieri2018" role="doc-biblioref">Nannipieri et al. 2018</a>)</span>. Dieser abiontische Pool akkumuliert über Wochen bis Monate unter den gleichen Standortbedingungen und puffert kurzfristige Schwankungen ab. 3. <strong>Biochemisch gekoppelte Zyklen:</strong> Der Abbau organischer Substanz erfordert das koordinierte Zusammenspiel von C-, N- und P-spaltenden Hydrolasen.</p>
+</section>
+<section id="kopplung-an-mineralischen-stickstoff-n_min-poolgröße-vs.-flussrate" class="level3" data-number="5.0.2">
+<h3 data-number="5.0.2" class="anchored" data-anchor-id="kopplung-an-mineralischen-stickstoff-n_min-poolgröße-vs.-flussrate"><span class="header-section-number">5.0.2</span> Kopplung an mineralischen Stickstoff (<span class="math inline">\(N_{min}\)</span>): Poolgröße vs.&nbsp;Flussrate</h3>
+<p>Besonders aufschlussreich ist die Frage, wie die gemessenen Enzymaktivitäten mit den anorganischen Stickstoffgehalten (<span class="math inline">\(NO_3^-\)</span>, <span class="math inline">\(NH_4^+\)</span>, <span class="math inline">\(N_{min,ges}\)</span>) verknüpft sind. Systemdynamisch betrachtet beschreiben die beiden Messgrößen grundlegend unterschiedliche physikalische Dimensionen:</p>
 <ol type="1">
-<li><p>Multikollinearität der Enzyme: Eine positive Korrelation der Enzyme untereinander wird erwartet, da die Stoffkreisläufe (C, N, P) im Boden gekoppelt ablaufen.</p></li>
-<li><p>Kopplung an Nmin: Eine Korrelation zwischen dem N-spezifischen Enzym NAG und den Nmin-Laborwerten (NH4/NO3) zeigt an, inwiefern der Sensor das Nachlieferungsvermögen des Bodens abbildet.</p></li>
+<li><strong>Zustandsvariable vs.&nbsp;Flussrate:</strong> <span class="math inline">\(N_{min}(t)\)</span> ist eine statische <strong>Zustandsgröße</strong> (ein akkumulierter Pool in <span class="math inline">\(kg\,N/ha\)</span>), während die mikrobielle Aktivität bzw. die Enzymsignale (später kondensiert in PC1 und PC2) eine <strong>prozessuale Flussrate</strong> (Mineralisierungsgeschwindigkeit) widerspiegeln.</li>
+<li><strong>Dynamische Massenbilanz (DGL-Perspektive):</strong> Formal lässt sich die zeitliche Dynamik des <span class="math inline">\(N_{min}\)</span>-Pools über eine Reaktions-Transport-Differentialgleichung beschreiben: <span class="math display">\[\frac{d N_{min}(t)}{dt} = - f(N_{min}(t), \dots) + m(\text{PC1}, \text{PC2}) \cdot S(t)\]</span> Hierbei stellt der enzymkatalysierte Abbau organischer Substrate <span class="math inline">\(S(t)\)</span> mit der Rate <span class="math inline">\(m\)</span> im einfachsten Fall eine lineare Inhomogenität 1. Ordnung dar. Der Senkenterm <span class="math inline">\(f(N_{min})\)</span> bündelt die pflanzliche Aufnahme, mikrobielle Re-Immobilisierung sowie Auswaschungsverluste (formal oft als Potenzreihe <span class="math inline">\(\sum k_i N_{min}^i\)</span> oder Michaelis-Menten-Kinetik modelliert).</li>
+<li><strong>Theoretische Unbestimmtheit des Vorzeichens einer statischen Korrelation:</strong> Der gemessene Pool <span class="math inline">\(N_{min}(t)\)</span> ist das zeitliche Integral über alle vergangenen Zu- und Abflüsse: <span class="math display">\[N_{min}(t) = N_{min}(t_0) + \int_{t_0}^t \left( m(\tau) S(\tau) - f(N_{min}(\tau)) \right) d\tau\]</span>
+<ul>
+<li>Fällt eine Phase intensiver enzymatischer Aktivität (<span class="math inline">\(m \cdot S\)</span> groß) mit starkem vegetativem Pflanzenwachstum zusammen, dominiert der pflanzliche Entzug die Massenbilanz (<span class="math inline">\(f(N_{min}) \gg m \cdot S\)</span>). Der <span class="math inline">\(N_{min}\)</span>-Pool wird trotz hoher mikrobieller Mineralisierung rasch entleert (<span class="math inline">\(\frac{d N_{min}}{dt} &lt; 0\)</span>). Empirisch resultiert daraus eine <strong>negative Korrelation</strong> (N-Verdünnungseffekt, verwandt mit dem Piper-Steenbjerg-Phänomen).</li>
+<li>Bei fehlendem Bewuchs oder niedrigen Senkentermen führt dieselbe Aktivität hingegen zur N-Akkumulation (<strong>positive Korrelation</strong>).</li>
+<li>Schließlich kann mikrobieller N-Erwerb (z. B. Hochregulierung von NAG) gezielt unter Bedingungen relativen N-Mangels induziert werden (N-Mining), was ebenfalls eine negative Beziehung erzeugt.</li>
+</ul></li>
 </ol>
+<p>A priori ist das Vorzeichen einer statischen Snapshot-Korrelation <span class="math inline">\(\text{Cor}(N_{min}(t), \text{Enzyme}(t))\)</span> im Feld somit mathematisch und biogeochemisch unbestimmt. Dies liefert die methodische Rechtfertigung, in Kapitel 6 von statischen Momentanwerten zur intervallbasierten Massenbilanz (<span class="math inline">\(\Delta N_{min}\)</span> abzüglich Entzug) überzugehen.</p>
+<p>Die folgende Heatmap veranschaulicht diese Zusammenhänge zunächst empirisch für alle gemessenen Enzyme und die anorganischen Stickstofffraktionen:</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -352,20 +391,70 @@ window.Quarto = {
 </div>
 </div>
 </section>
+<section id="schlussfolgerung-und-problem-der-multikollinearität" class="level3" data-number="5.0.3">
+<h3 data-number="5.0.3" class="anchored" data-anchor-id="schlussfolgerung-und-problem-der-multikollinearität"><span class="header-section-number">5.0.3</span> Schlussfolgerung und Problem der Multikollinearität</h3>
+<p>Die Korrelationsmatrix liefert zwei zentrale Erkenntnisse: 1. <strong>Hohe Interkorrelation der Enzyme (<span class="math inline">\(r = 0.55\text{ bis }0.70\)</span>):</strong> Alle Enzyme korrelieren untereinander stark positiv. Dies ist einerseits ein ermutigender Beleg für ein kohärentes biologisches Signal. Andererseits vermindert eine derart ausgeprägte Kollinearität den Gehalt an unabhängiger Information drastisch. 2. <strong>Negative Assoziation mit Nitrat und <span class="math inline">\(N_{min}\)</span> (<span class="math inline">\(r \approx -0.30\text{ bis }-0.50\)</span>):</strong> Die Enzymaktivitäten korrelieren negativ mit <span class="math inline">\(NO_3^-\)</span> und dem Gesamt-<span class="math inline">\(N_{min}\)</span>. Dies stützt die Beobachtung, dass hohe biologische Aktivitätsphasen im Feld zeitlich mit der Phase des höchsten Stickstoffentzugs der Maispflanzen zusammenfallen.</p>
+<p><strong>Konsequenz für die Modellierung:</strong> Würde man alle vier Enzymsignale gleichzeitig als Prädiktoren in ein multiples Regressionsmodell aufnehmen, entstünde extreme <strong>Multikollinearität</strong> (Variance Inflation), was zu instabilen Schätzern, Vorzeichenwechseln und uninterpretierbaren p-Werten führt. Um diese redundante Information verlustarm und mathematisch stabil zu bündeln, ist eine Dimensionsreduktion mittels robuster Hauptkomponentenanalyse (rPCA) der methodisch gebotene Schritt.</p>
+</section>
+</section>
 <section id="biologisches-profil-und-dimensionsreduktion" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> 5. Biologisches Profil und Dimensionsreduktion</h1>
-<p>Aufgrund der Interkorrelationen zwischen den fünf Enzymen führen wir eine Hauptkomponentenanalyse (rPCA nach Hubert) durch, um die Dimensionalität der Daten zu reduzieren.</p>
-<p>Dieser Algorithmus ist unempfindlich gegenüber Ausreißern. Die PCA identifiziert als unüberwachtes Verfahren die stärksten Varianzmuster ohne Vorwissen über die Düngungsverfahren.</p>
-<p>Die erste Hauptkomponente (PC1) bündelt die gemeinsame Varianz der Sensoren und quantifiziert die biologische Aktivität. Ein starker Overlap der Ellipsen in der Visualisierung zeigt, dass die räumliche Bodenheterogenität den Treatment-Effekt der Düngung überlagert.</p>
+<p>Aufgrund der ausgeprägten Multikollinearität zwischen den Enzymen führen wir eine robuste Hauptkomponentenanalyse (rPCA nach Hubert) durch.</p>
+<section id="warum-robuste-pca-nach-hubert" class="level3" data-number="6.0.1">
+<h3 data-number="6.0.1" class="anchored" data-anchor-id="warum-robuste-pca-nach-hubert"><span class="header-section-number">6.0.1</span> Warum robuste PCA nach Hubert?</h3>
+<p>Biologische Felddaten und fluorogene Messreihen weisen typischerweise asymmetrische Verteilungen und potenzielle Ausreißer auf. Der Algorithmus von Hubert <span class="citation" data-cites="Hubert2005">(<a href="#ref-Hubert2005" role="doc-biblioref">2005</a>)</span> kombiniert Projektionsverfolgung mit robusten MCD-Kovarianzschätzern (<em>Minimum Covariance Determinant</em>). Dadurch wird verhindert, dass extreme Einzelmessungen die Achsenorientierung dominieren. Da die Enzymaktivitäten unterschiedliche absolute Wertebereiche aufweisen, ist eine vorangehende Skalierung (<code>scale = TRUE</code>, z-Standardisierung) zwingend erforderlich.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="DEMO_25_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
+<table class="caption-top table table-sm table-striped small">
+<caption>Eigenvektoren (Loadings) der ersten beiden Hauptkomponenten (erklärte Varianz: PC1 = 71.3 %, PC2 = 28.7 %)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Enzym</th>
+<th style="text-align: right;">PC1 (Ladung)</th>
+<th style="text-align: right;">PC2 (Ladung)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">NAG</td>
+<td style="text-align: right;">-0.400</td>
+<td style="text-align: right;">0.213</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLS</td>
+<td style="text-align: right;">-0.380</td>
+<td style="text-align: right;">0.840</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MUP</td>
+<td style="text-align: right;">-0.811</td>
+<td style="text-align: right;">-0.499</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MUX</td>
+<td style="text-align: right;">-0.193</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-</div>
+</section>
+<section id="herleitung-und-interpretation-der-hauptachsen-human-friendly-names" class="level3" data-number="6.0.2">
+<h3 data-number="6.0.2" class="anchored" data-anchor-id="herleitung-und-interpretation-der-hauptachsen-human-friendly-names"><span class="header-section-number">6.0.2</span> Herleitung und Interpretation der Hauptachsen („Human-Friendly Names“)</h3>
+<p>Die beiden ersten Hauptkomponenten fassen zusammen 100 % der im zweidimensionalen Raum abgebildeten robusten Varianz zusammen. Die mathematische Linearkombination der standardisierten Enzymaktivitäten begründet die fachliche Benennung der Achsen:</p>
+<p><span class="math display">\[\begin{aligned}
+\text{PC1} &amp;= -0.400 \cdot \text{NAG} - 0.380 \cdot \text{GLS} - 0.811 \cdot \text{MUP} - 0.193 \cdot \text{MUX} \\
+\text{PC2} &amp;= +0.213 \cdot \text{NAG} + 0.840 \cdot \text{GLS} - 0.499 \cdot \text{MUP} + 0.000 \cdot \text{MUX}
+\end{aligned}\]</span></p>
+<ol type="1">
+<li><strong>PC1 (71.3 % der Varianz) – „Index der biologischen Gesamtaktivität“:</strong> Alle vier Enzymsignale laden mit demselben (negativen) Vorzeichen auf PC1. Wenn die allgemeine mikrobielle Dichte und Aktivität im Boden zunimmt, verändern sich alle Sensorwerte in die gleiche Richtung. Dies entspricht mathematisch dem klassischen „Größenfaktor“ (<em>Size Effect</em>) in der multivariaten Morphometrie. PC1 quantifiziert somit das übergeordnete Aktivitätsniveau des Bodens (stark geprägt durch die saure Phosphatase MUP).</li>
+<li><strong>PC2 (28.7 % der Varianz) – „Enzymatischer Shift (C/N- vs.&nbsp;P-Allokation)“:</strong> PC2 stellt eine bipolare Kontrastachse dar: Die Kohlenstoff- und Stickstoff-abbauenden Enzyme GLS (<span class="math inline">\(+0.840\)</span>) und NAG (<span class="math inline">\(+0.213\)</span>) stehen der Phosphatase MUP (<span class="math inline">\(-0.499\)</span>) mit entgegengesetztem Vorzeichen gegenüber. Ein hoher PC2-Wert reflektiert somit eine relative Schwerpunktverlagerung hin zum C- und N-Abbau gegenüber der P-Mineralisierung.</li>
+</ol>
+</section>
+<section id="visualisierung-im-zweidimensionalen-raum" class="level3" data-number="6.0.3">
+<h3 data-number="6.0.3" class="anchored" data-anchor-id="visualisierung-im-zweidimensionalen-raum"><span class="header-section-number">6.0.3</span> Visualisierung im zweidimensionalen Raum</h3>
+<p>Im folgenden Biplot werden die Beprobungspunkte im Koordinatensystem von PC1 und PC2 dargestellt und nach Düngungsverfahren eingefärbt:</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -375,36 +464,58 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p>Zur Verdeutlichung der Kopplung mit den mineralischen N-Fraktionen werden dieselben Punkte entlang des PC1/PC2-Raums mit den Nitrat- und Ammoniumkonzentrationen eingefärbt:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="DEMO_25_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="mechanistisches-n-balance-modell-intervall-basiert" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> 6. Mechanistisches N-Balance Modell (Intervall-basiert)</h1>
 <p>Die explorative Datenanalyse zeigt Varianzen auf Ebene der Replikate. Zur Quantifizierung des biologischen Beitrags zur Stickstoffmineralisierung verwenden wir ein lineares gemischtes Modell (Linear Mixed-Effects Model, LMM) für die Longitudinaldaten.</p>
 <section id="die-idee-massenbilanz-als-rahmen" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="die-idee-massenbilanz-als-rahmen"><span class="header-section-number">7.1</span> 6.1 Die Idee: Massenbilanz als Rahmen</h2>
-<p>Das statistische Modell basiert auf der physikalischen Massenbilanz. Für die Intervalle (<span class="math inline">\(t_1 \rightarrow t_2\)</span>) wird die Änderung im mineralisierten Stickstoff in kg/ha berechnet (<span class="math inline">\(dN\)</span>). Hierzu wird die Konzentration (<span class="math inline">\(mg/kg\)</span>) mit einem Standardfaktor (z.B. 4.5 für 0-30 cm Bodentiefe bei Lagerungsdichte 1.5) in <span class="math inline">\(kg/ha\)</span> konvertiert.</p>
-<p>Der pflanzliche Entzug (<code>Interval_N_Entzug_kg_ha</code>) wird direkt von der <span class="math inline">\(\Delta N_{min}\)</span> subtrahiert, anstatt als eigener Fixed Effect im Modell geschätzt zu werden. Die resultierende abhängige Variable <span class="math inline">\(dN\)</span> wird dann durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschung) erklärt:</p>
-<p><span class="math display">\[dN \sim PC1 + PC2 + Precip + Precip^2\]</span></p>
+<p>Das statistische Modell basiert auf der physikalischen Massenbilanz für jedes Beprobungsintervall (<span class="math inline">\(t_1 \rightarrow t_2\)</span>). Die zeitliche Veränderung des mineralischen Stickstoffpools im Bodenprofil (<span class="math inline">\(\Delta N_{min}\)</span>) ist das Resultat aus Zuflüssen (Mineralisation, Düngung) und Abflüssen (Pflanzenentzug, gasförmige und Auswaschungsverluste):</p>
+<p><span class="math display">\[\Delta N_{min} = N_{min}(t_2) - N_{min}(t_1) = N_{\text{mineralisiert}} + N_{\text{gedüngt}} - N_{\text{entzug}} - N_{\text{verlust}}\]</span></p>
+<p>Um die durch mikrobielle Prozesse aus der organischen Bodensubstanz freigesetzte Netto-Stickstoffmenge (<span class="math inline">\(dN\)</span> in <span class="math inline">\(kg\,N/ha\)</span>) als Zielgröße zu isolieren, wird die Gleichung umgestellt:</p>
+<p><span class="math display">\[dN \equiv N_{\text{mineralisiert}} - N_{\text{verlust}} = \Delta N_{min} \cdot 4.5 + N_{\text{entzug}} - N_{\text{gedüngt}}\]</span></p>
+<section id="methodische-festlegungen-und-randbedingungen" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="methodische-festlegungen-und-randbedingungen"><span class="header-section-number">7.1.1</span> Methodische Festlegungen und Randbedingungen:</h3>
+<ol type="1">
+<li><strong>Vorzeichen des Pflanzenentzugs:</strong> Der pflanzliche Stickstoffentzug (<span class="math inline">\(N_{\text{entzug}}\)</span>) wird zur gemessenen Pooländerung <span class="math inline">\(\Delta N_{min}\)</span> <strong>addiert</strong> (und nicht subtrahiert): Der von den Maispflanzen im Intervall aufgenommene Stickstoff musste zuvor durch mikrobielle Mineralisation (oder Restdünger) bereitgestellt werden, um dem Bodenprofil entzogen werden zu können. Eine Parzelle mit hohem Entzug weist folglich eine hohe N-Bereitstellungsleistung auf.</li>
+<li><strong>Behandlung der Düngeevents:</strong> Die Düngung liegt im vorliegenden Datensatz als jährliche Gesamtsumme pro Parzelle vor. Da eine zeitlich hochaufgelöste Fraktionierung der Düngetermine auf die einzelnen Intervalle derzeit nicht ohne spekulative Modellannahmen möglich ist, wird <span class="math inline">\(N_{\text{gedüngt}}\)</span> nicht im Intervall abgezogen. Die verfahrensspezifischen N-Niveaus (z. B. Mist, Gülle, NPK) werden stattdessen primär über das hierarchische Random-Intercept-Design (<code>(1 | ParzNrFeld)</code>) auf Parzellenebene kontrolliert.</li>
+<li><strong>Konsequenz des LAP-Ausschlusses:</strong> Leucin-Aminopeptidase (LAP) ist das zentrale Enzym für die primäre Spaltung von Peptidbindungen (Proteolyse) und damit für die direkte Freisetzung niedermolekularer N-Verbindungen. Da LAP wegen hoher Messausfälle verworfen werden musste, fehlt dem Enzym-Set der direkte Proteinsensor. Der N-Umsatz wird stattdessen über NAG (Chitinabbau), die mikrobielle Gesamtaktivität (PC1, dominiert von Phosphatase MUP) sowie den relativen C/N- zu P-Shift (PC2) approximiert.</li>
+</ol>
+<p>Die resultierende Zielgröße <span class="math inline">\(dN\)</span> wird durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschungsverluste) modelliert:</p>
+<p><span class="math display">\[dN \sim PC1 + PC2 + Precip + Precip^2 + (1 | ParzNrFeld)\]</span></p>
+</section>
 </section>
 <section id="variablen-und-designmatrix" class="level2" data-number="7.2">
 <h2 data-number="7.2" class="anchored" data-anchor-id="variablen-und-designmatrix"><span class="header-section-number">7.2</span> 6.2 Variablen und Designmatrix</h2>
 <p>Das Modell (<code>lmer</code>) verwendet folgende Struktur:</p>
 <ul>
-<li><strong>Abhängige Variable (<span class="math inline">\(Y\)</span>):</strong> <code>dN</code> (<span class="math inline">\(kg/ha\)</span>) - Die bereinigte Nettoveränderung des mineralischen Stickstoffs im Boden (<span class="math inline">\(\Delta N_{min} \times 4.5 - N_{Entzug}\)</span>).</li>
+<li><strong>Abhängige Variable (<span class="math inline">\(Y\)</span>):</strong> <code>dN</code> (<span class="math inline">\(kg/ha\)</span>) – Die aus der Massenbilanz rekonstruierte Netto-Mineralisation im Intervall (<span class="math inline">\(\Delta N_{min} \cdot 4.5 + N_{Entzug}\)</span>).</li>
 <li><strong>Fixed Effects:</strong>
 <ul>
-<li><code>PC1</code>: Index der biologischen Gesamtaktivität.</li>
-<li><code>PC2</code>: Enzymatischer Shift (zweite Hauptkomponente).</li>
+<li><code>PC1</code>: Index der biologischen Gesamtaktivität (alle Ladungen negativ).</li>
+<li><code>PC2</code>: Enzymatischer Shift (C/N- vs.&nbsp;P-Allokation).</li>
 <li><code>Cum_Precip_mm</code>: Kumulierte Niederschlagssumme zwischen <span class="math inline">\(t_1\)</span> und <span class="math inline">\(t_2\)</span> (Open-Meteo API) als Proxy für Auswaschungsverluste.</li>
 </ul></li>
 <li><strong>Random Effects:</strong>
 <ul>
-<li><code>(1 | ParzNrFeld)</code>: Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie.</li>
+<li><code>(1 | ParzNrFeld)</code>: Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie und des standortspezifischen Dünungsniveaus.</li>
 </ul></li>
 </ul>
 </section>
 <section id="voraussetzungen-und-annahmen" class="level2" data-number="7.3">
 <h2 data-number="7.3" class="anchored" data-anchor-id="voraussetzungen-und-annahmen"><span class="header-section-number">7.3</span> 6.3 Voraussetzungen und Annahmen</h2>
-<p>Für die Modellierung gelten folgende Annahmen: 1. <strong>Konvertierungsfaktor:</strong> Die Umrechnung von <span class="math inline">\(mg/kg\)</span> in <span class="math inline">\(kg/ha\)</span> erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, <span class="math inline">\(1.5 \ g/cm^3\)</span>). 2. <strong>Ertrags-Baseline (Mais):</strong> Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (<code>Total_N_Entzug_kg_ha</code>) der jeweiligen Parzelle exklusiv für die Kultur <em>Mais</em> (<code>Kultur == "MA"</code>) berechnet. 3. <strong>Logistischer Pflanzenentzug (S-Kurve):</strong> Der Stickstoffentzug wird nicht linear, sondern mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis <span class="math inline">\(6^\circ C\)</span>) modelliert <span class="citation" data-cites="archontoulisNonlinearRegressionModels2015 overmanMathematicalModelsCrop2002">(<a href="#ref-archontoulisNonlinearRegressionModels2015" role="doc-biblioref">Archontoulis and Miguez 2015</a>; <a href="#ref-overmanMathematicalModelsCrop2002" role="doc-biblioref">Overman and Scholtz III 2002</a>)</span>: <span class="math display">\[ N_{up}(GDD) = \frac{N_{max}}{1 + \exp(-0.012 \cdot (GDD - 750))} \]</span> Die Parameter sind: * <span class="math inline">\(N_{max} =\)</span> Historischer Mais-Entzug der Parzelle * Wachstumsrate (<span class="math inline">\(r\)</span>) <span class="math inline">\(= 0.012\)</span> * Wendepunkt (<span class="math inline">\(GDD_{inf}\)</span>) <span class="math inline">\(= 750 \ GDD\)</span> (entspricht ca. BBCH 51, dem Zeitpunkt der maximalen täglichen N-Aufnahme bei Mais <span class="citation" data-cites="benderNutrientUptakePartitioning2013">(<a href="#ref-benderNutrientUptakePartitioning2013" role="doc-biblioref">Bender et al. 2013</a>)</span>). Der berechnete Netto-Entzug im Intervall <span class="math inline">\(t_1 \rightarrow t_2\)</span> wird dann direkt von <span class="math inline">\(\Delta N_{min}\)</span> abgezogen. 4. <strong>Zeitliche Integration:</strong> Die Enzymmessung zum Zeitpunkt <span class="math inline">\(t_2\)</span> repräsentiert das Intervall <span class="math inline">\(t_1 \rightarrow t_2\)</span>.</p>
+<p>Für die Modellierung gelten folgende Annahmen: 1. <strong>Konvertierungsfaktor:</strong> Die Umrechnung von <span class="math inline">\(mg/kg\)</span> in <span class="math inline">\(kg/ha\)</span> erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, Lagerungsdichte <span class="math inline">\(1.5 \ g/cm^3\)</span>). 2. <strong>Ertrags-Baseline (Mais):</strong> Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (<code>Total_N_Entzug_kg_ha</code>) der jeweiligen Parzelle exklusiv für die Kultur <em>Mais</em> (<code>Kultur == "MA"</code>) berechnet. 3. <strong>Logistischer Pflanzenentzug (S-Kurve):</strong> Der Stickstoffentzug wird mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis <span class="math inline">\(6^\circ C\)</span>) modelliert <span class="citation" data-cites="archontoulisNonlinearRegressionModels2015 overmanMathematicalModelsCrop2002">(<a href="#ref-archontoulisNonlinearRegressionModels2015" role="doc-biblioref">Archontoulis and Miguez 2015</a>; <a href="#ref-overmanMathematicalModelsCrop2002" role="doc-biblioref">Overman and Scholtz III 2002</a>)</span>: <span class="math display">\[ N_{up}(GDD) = \frac{N_{max}}{1 + \exp(-0.012 \cdot (GDD - 750))} \]</span> Die Parameter sind: * <span class="math inline">\(N_{max} =\)</span> Historischer Mais-Entzug der Parzelle * Wachstumsrate (<span class="math inline">\(r\)</span>) <span class="math inline">\(= 0.012\)</span> * Wendepunkt (<span class="math inline">\(GDD_{inf}\)</span>) <span class="math inline">\(= 750 \ GDD\)</span> (entspricht ca. BBCH 51, dem Zeitpunkt der maximalen täglichen N-Aufnahme bei Mais <span class="citation" data-cites="benderNutrientUptakePartitioning2013">(<a href="#ref-benderNutrientUptakePartitioning2013" role="doc-biblioref">Bender et al. 2013</a>)</span>). Der berechnete Netto-Entzug im Intervall <span class="math inline">\(t_1 \rightarrow t_2\)</span> wird zu <span class="math inline">\(\Delta N_{min}\)</span> addiert. 4. <strong>Zeitliche Integration:</strong> Die Enzymmessung zum Zeitpunkt <span class="math inline">\(t_2\)</span> repräsentiert das Intervall <span class="math inline">\(t_1 \rightarrow t_2\)</span>.</p>
 </section>
 <section id="modell-implementierung-in-r" class="level2" data-number="7.4">
 <h2 data-number="7.4" class="anchored" data-anchor-id="modell-implementierung-in-r"><span class="header-section-number">7.4</span> 6.4 Modell-Implementierung in R</h2>
@@ -415,43 +526,43 @@ lmerModLmerTest]
 Formula: dN ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1 | ParzNrFeld)
    Data: df_model
 
-REML criterion at convergence: 855.4
+REML criterion at convergence: 842.5
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--3.1010 -0.2602  0.2514  0.5629  1.4611 
+-1.4662 -0.5483 -0.2010  0.3274  3.0889 
 
 Random effects:
  Groups     Name        Variance Std.Dev.
- ParzNrFeld (Intercept)  540.1   23.24   
- Residual               3121.2   55.87   
+ ParzNrFeld (Intercept)  639.2   25.28   
+ Residual               2549.9   50.50   
 Number of obs: 79, groups:  ParzNrFeld, 10
 
 Fixed effects:
                      Estimate Std. Error         df t value Pr(&gt;|t|)    
-(Intercept)        -3.660e+02  8.489e+01  7.198e+01  -4.312 5.06e-05 ***
-PC1                -1.809e+01  7.492e+00  7.344e+01  -2.414 0.018265 *  
-PC2                 8.534e+00  1.141e+01  7.270e+01   0.748 0.456949    
-Cum_Precip_mm       6.191e+00  1.687e+00  7.119e+01   3.670 0.000465 ***
-I(Cum_Precip_mm^2) -2.715e-02  7.442e-03  7.143e+01  -3.648 0.000500 ***
+(Intercept)        377.670661  77.279099  71.529190   4.887 6.06e-06 ***
+PC1                 17.593646   6.876147  73.999187   2.559  0.01255 *  
+PC2                -11.689297  10.489098  73.874814  -1.114  0.26871    
+Cum_Precip_mm       -6.337523   1.533616  70.340115  -4.132 9.76e-05 ***
+I(Cum_Precip_mm^2)   0.027406   0.006768  70.550001   4.049  0.00013 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Correlation of Fixed Effects:
             (Intr) PC1    PC2    Cm_Pr_
-PC1          0.611                     
-PC2          0.335  0.559              
-Cum_Prcp_mm -0.981 -0.644 -0.310       
-I(Cm_Pr_^2)  0.960  0.670  0.286 -0.994
+PC1          0.616                     
+PC2          0.341  0.566              
+Cum_Prcp_mm -0.980 -0.649 -0.317       
+I(Cm_Pr_^2)  0.959  0.674  0.293 -0.995
 fit warnings:
 Some predictor variables are on very different scales: consider rescaling. 
 You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability.</code></pre>
 </div>
 </div>
-<p>Die PCA-Ladungen definieren die Hauptkomponenten wie folgt: PC1 weist gleichgerichtete, negative Ladungen für NAG, GLS, MUP und MUX auf und quantifiziert die allgemeine enzymatische Aktivität. PC2 weist eine positive Ladung für GLS (Kohlenstoffzyklus) und negative Ladungen für NAG und MUP (Stickstoff- und Phosphorzyklus) auf. PC2 quantifiziert die Verschiebung des enzymatischen Profils zwischen Kohlenstoff- und Nährstoffumsatz.</p>
+<p>Wie in Kapitel 5 hergeleitet und anhand der Ladungen quantifiziert, repräsentiert PC1 das übergeordnete Aktivitätsniveau (Index der biol. Gesamtaktivität, alle Ladungen negativ) und PC2 die stöchiometrische Verschiebung zwischen Kohlenstoff-/Stickstoff-Erwerb (GLS, NAG positiv) und Phosphormobilisierung (MUP negativ).</p>
 <p>Daraus wird folgende Hypothese für das N-Balance Modell abgeleitet: Eine erhöhte relative Aktivität kohlenstoffabbauender Enzyme (hoher PC2-Wert) führt durch mikrobielle Immobilisierung zu einer Reduktion des verfügbaren Stickstoffs.</p>
-<p>Die Modellergebnisse für die Variable <span class="math inline">\(dN\)</span> zeigen: PC1 (allgemeine Aktivität) weist keinen signifikanten Effekt auf die Nettoveränderung auf (-18.09 kg N/ha pro Index-Einheit, p = 0.018). PC2 weist einen nicht-signifikanten Koeffizienten auf (8.53 kg N/ha, p = 0.457). Im bereinigten Sommer-Datensatz ist der isolierte enzymatische Effekt linear nicht dominant. Der Niederschlag zeigt einen starken nicht-linearen (quadratischen) Effekt. Die linearen und quadratischen Terme (6.19 bzw. -0.0271) quantifizieren den überproportionalen Auswaschungsverlust bei extremen Niederschlägen.</p>
-<p>Die Modellperformance ist hoch: Das Modell erklärt marginal (nur durch Fixed Effects) 19.6% der Varianz (<span class="math inline">\(R^2_m = 0.196\)</span>) und konditional (inklusive Parzellen-Baselines) 31.4% der Varianz (<span class="math inline">\(R^2_c = 0.314\)</span>). Der durchschnittliche Vorhersagefehler (RMSE) beträgt 52.19 kg N/ha.</p>
+<p>Die Modellergebnisse für die physikalisch korrigierte Zielvariable <span class="math inline">\(dN\)</span> zeigen: * <strong>PC1 (allgemeine biologische Aktivität):</strong> Weist einen signifikanten Koeffizienten auf (17.59 kg N/ha pro Index-Einheit, p = 0.013). Da alle Enzymladungen auf PC1 negativ definiert sind, ist dieser Effekt im Kontext der saisonalen Dynamik (Peak des Pflanzenentzugs im Hochsommer bei moderaten Sensorwerten vs.&nbsp;hohe Spätsommer-Enzymaktivität bei Abreife) zu interpretieren. * <strong>PC2 (Enzymatischer Shift):</strong> Weist einen Koeffizienten von -11.69 kg N/ha auf (p = 0.269), was die Hypothese einer leichten Reduktion des verfügbaren N bei relativem C-Überschuss stützt, wenngleich der Effekt statistisch nicht die Signifikanzschwelle erreicht. * <strong>Niederschlag (Auswaschungsverluste):</strong> Zeigt den physikalisch plausiblen negativen linearen Effekt (-6.34 kg N/ha pro mm Niederschlag, p &lt; 0.001) mit einer hochsignifikanten quadratischen Krümmung (0.0274, p &lt; 0.001), was den überproportionalen Auswaschungsverlust bei Starkregenereignissen präzise abbildet.</p>
+<p>Die Modellgüte bestätigt die Plausibilität der korrigierten Massenbilanz: Das Modell erklärt marginal (nur durch Fixed Effects) 25.2% der Varianz (<span class="math inline">\(R^2_m = 0.252\)</span>) und konditional (inklusive Parzellen-Baselines) 40.2% der Varianz (<span class="math inline">\(R^2_c = 0.402\)</span>). Der durchschnittliche Vorhersagefehler (RMSE) beträgt 46.9 kg N/ha.</p>
 </section>
 <section id="modell-evaluation-und-visualisierung" class="level2" data-number="7.5">
 <h2 data-number="7.5" class="anchored" data-anchor-id="modell-evaluation-und-visualisierung"><span class="header-section-number">7.5</span> 6.5 Modell-Evaluation und Visualisierung</h2>
@@ -463,7 +574,7 @@ You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="DEMO_25_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="DEMO_25_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -474,8 +585,8 @@ You may also use (g)lmerControl(autoscale = TRUE) to improve numerical stability
 <p>Das Modell definiert eine Ebene im dreidimensionalen Raum, aufgespannt durch den biologischen Shift (PC2) und den physikalischen Verlust (Niederschlag). Die interaktive Grafik erlaubt es, die Modellfläche und die Beobachtungen räumlich zu explorieren.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-03503ae8357de8b954c4" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-03503ae8357de8b954c4">{"x":{"visdat":{"1a2979dbf850":["function () ","plotlyVisDat"],"1a2943a28aaa":["function () ","data"]},"cur_data":"1a2943a28aaa","attrs":{"1a2943a28aaa":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"markers","marker":{"size":4,"color":"#2980b9","opacity":0.80000000000000004},"name":"Beobachtungen","inherit":true},"1a2943a28aaa.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":{},"type":"surface","x":{},"y":{},"opacity":0.59999999999999998,"colorscale":"Viridis","name":"Modell-Ebene","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"PC2 (C/N Shift)"},"yaxis":{"title":"Niederschlag (mm)"},"zaxis":{"title":"dN (kg N/ha)"}},"title":"3D Modell-Ebene: Stickstoff-Massenbilanz","hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[0.30982263728865395,-0.17616328970673203,0.1070408878160804,1.2449980169270369,-0.80714406029896046,-0.89931303919934191,-0.82767830216438065,2.192790997018716,-0.13460631493250877,0.23519981327851339,0.028420732009168809,0.83763063267898941,0.18090979442232602,0.12547921439440279,-0.17493457593554756,0.67136479594760889,-0.32957681724567173,-0.086664636569886072,0.40689635333439184,0.26837910626698819,-1.1731165373916708,-0.11599572325498059,0.80262704132986151,1.6348755485449025,0.89396692059670624,0.18377586758884384,3.9552573808729035,0.79865547139033632,-0.53077800779479689,0.14832421345396093,1.8352278712140198,0.14037881307400754,-0.88158325313804098,0.35251119463827851,0.53645680007503949,-0.32941195491910008,0.44629933345609951,0.51096710020700686,1.1928043961924519,0.52959557147803515,0.35724340396081844,-0.10814445260188642,-0.18598543234523313,0.036358965400267486,-0.68262441189798895,0.61083323228323594,0.58713165468205153,0.33511177949670917,-0.48147289854625569,0.53648762543693851,-0.072458681480260342,0.72161890647165083,0.36500405540341285,0.26007567392401076,0.34407788345512624,0.86927020416964784,-0.033758001616826218,0.65530281212136032,1.3492720801578202,0.19227635115213404,-1.0888462103738559,1.3045870325407229,1.4507419153568355,0.5604855474843764,-0.41271284412807918,-0.69097908443247313,0.73918278820471228,0.10584824023269239,0.046442117305714813,0.3037399312436872,1.6037151901290503,-0.39189190815156838,-0.42322456761347432,-0.77461143792052778,0.94174509924286187,-0.019729042862437967,-1.1887598989759658,-0.65294784001080652,0.62129060937166869],"y":[130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001],"z":[-1.4889884142357315,-86.219312899532284,-146.03223654809366,-6.8329892494586328,-3.2439884142357309,-83.429312899532277,-148.86723654809367,-4.4479892494586331,-2.35505049765636,-47.73631464662013,-39.915811910991756,0.089039702870401749,-2.35505049765636,-46.701314646620133,-39.240811910991752,-3.7761357284852424,-64.097470344101254,-51.68496647941231,-1.2772691010346913,-5.6661357284852425,-63.062470344101257,-55.374966479412308,0.11773089896530808,4.031838726882393,-72.829855034349904,-64.790754246030986,-27.422091741763722,-0.46816127311760847,-79.71485503434991,-79.730754246030997,-5.1470917417637212,-5.9509841109061536,-86.1105131056229,-75.705850008664569,-1.3415811229982599,-5.1409841109061549,-76.165513105622892,-85.47085000866457,-2.1065811229982598,-4.6896194177909623,-72.705368395827563,-127.42980958473844,-5.7256512084840701,0.845380582209036,-74.325368395827567,-126.70980958473844,-4.8706512084840696,-3.4045874112344725,-108.60529899531048,-199.87129605469781,-13.657482006184352,-6.0145874112344719,-115.98529899531049,-197.3512960546978,-7.1774820061843521,7.3231907307402668,-135.08481874940782,-240.40886934310939,-19.982060764760675,3.9481907307402659,-130.31481874940781,-247.29386934310941,-13.862060764760676,3.9947451512988708,-121.49567640872051,-205.56960171889486,-11.073294768156806,1.3397451512988687,-120.41567640872051,-208.98960171889485,-6.3032947681568068,-3.9320071525711766,-44.38879442036631,-37.794378068304937,-2.5266244130034679,-4.9220071525711768,-45.288794420366308,-39.18937806830494,-0.81662441300346778],"type":"scatter3d","mode":"markers","marker":{"color":"#2980b9","size":4,"opacity":0.80000000000000004,"line":{"color":"rgba(31,119,180,1)"}},"name":"Beobachtungen","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"dN<br />z_matrix","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":"Viridis","showscale":true,"z":[[-90.313804634515876,-75.705974682822614,-62.88829725445558,-51.86077234941493,-42.623399967700607,-35.176180109312583,-29.519112774250743,-25.652197962515345,-23.575435674106302,-23.288825909023501,-24.792368667266999,-28.086063948836738,-33.169911753732833,-40.043912081955284,-48.708064933504147,-59.162370308379082,-71.406828206580599,-85.441438628108131,-101.26620157296202,-118.88111704114237],[-88.003206472353568,-73.395376520660307,-60.577699092293273,-49.550174187252622,-40.3128018055383,-32.865581947150275,-27.208514612088436,-23.341599800353038,-21.264837511943995,-20.978227746861194,-22.481770505104691,-25.775465786674431,-30.859313591570526,-37.733313919792977,-46.397466771341783,-56.851772146216831,-69.096230044418235,-83.130840465945766,-98.955603410799768,-116.57051887898012],[-85.692608310191261,-71.084778358497999,-58.267100930130965,-47.239576025090315,-38.002203643375992,-30.554983784987968,-24.897916449926129,-21.03100163819073,-18.954239349781687,-18.667629584698886,-20.171172342942384,-23.464867624512124,-28.548715429408219,-35.422715757630669,-44.086868609179419,-54.541173984054581,-66.785631882255871,-80.820242303783402,-96.645005248637517,-114.25992071681787],[-83.382010148028954,-68.774180196335692,-55.956502767968658,-44.928977862928008,-35.691605481213685,-28.244385622825661,-22.587318287763821,-18.720403476028423,-16.64364118761938,-16.357031422536579,-17.860574180780077,-21.154269462349816,-26.238117267245912,-33.112117595468362,-41.776270447017168,-52.230575821892216,-64.47503372009362,-78.509644141621152,-94.334407086475153,-111.94932255465551],[-81.071411985866646,-66.463582034173385,-53.645904605806351,-42.618379700765701,-33.381007319051378,-25.933787460663353,-20.276720125601514,-16.409805313866116,-14.333043025457073,-14.046433260374272,-15.54997601861777,-18.843671300187509,-23.927519105083604,-30.801519433306055,-39.465672284854918,-49.919977659729852,-62.16443555793137,-76.199045979458901,-92.023808924312789,-109.63872439249315],[-78.760813823704339,-64.152983872011077,-51.335306443644043,-40.307781538603393,-31.07040915688907,-23.623189298501046,-17.966121963439207,-14.099207151703808,-12.022444863294766,-11.735835098211965,-13.239377856455462,-16.533073138025202,-21.616920942921297,-28.490921271143748,-37.155074122692554,-47.609379497567602,-59.853837395769006,-73.888447817296537,-89.713210762150538,-107.32812623033089],[-76.450215661542032,-61.84238570984877,-49.024708281481736,-37.997183376441086,-28.759810994726763,-21.312591136338739,-15.6555238012769,-11.788608989541501,-9.7118467011324583,-9.4252369360496573,-10.928779694293155,-14.222474975862895,-19.30632278075899,-26.18032310898144,-34.84447596053019,-45.298781335405351,-57.543239233606641,-71.577849655134173,-87.402612599988288,-105.01752806816864],[-74.139617499379725,-59.531787547686463,-46.714110119319429,-35.686585214278779,-26.449212832564456,-19.001992974176432,-13.344925639114592,-9.4780108273791939,-7.401248538970151,-7.11463877388735,-8.6181815321308477,-11.911876813700587,-16.995724618596682,-23.869724946819133,-32.533877798367939,-42.988183173242987,-55.232641071444391,-69.267251492971923,-85.092014437825924,-102.70692990600628],[-71.829019337217417,-57.221189385524156,-44.403511957157122,-33.375987052116471,-24.138614670402148,-16.691394812014124,-11.034327476952285,-7.1674126652168866,-5.0906503768078437,-4.8040406117250427,-6.3075833699685404,-9.60127865153828,-14.685126456434375,-21.559126784656826,-30.223279636205689,-40.677585011080623,-52.92204290928214,-66.956653330809672,-82.78141627566356,-100.39633174384392],[-69.51842117505511,-54.910591223361848,-42.092913794994814,-31.065388889954164,-21.828016508239841,-14.380796649851817,-8.7237293147899777,-4.8568145030545793,-2.7800522146455364,-2.4934424495627354,-3.9969852078062331,-7.2906804893759727,-12.374528294272068,-19.248528622494518,-27.912681474043325,-38.366986848918373,-50.611444747119776,-64.646055168647308,-80.470818113501309,-98.085733581681666],[-67.20782301289286,-52.599993061199598,-39.782315632832564,-28.754790727791914,-19.517418346077591,-12.070198487689566,-6.4131311526277273,-2.5462163408923288,-0.46945405248328598,-0.18284428740048497,-1.6863870456439827,-4.9800823272137222,-10.063930132109817,-16.937930460332268,-25.602083311881074,-36.056388686756122,-48.300846584957526,-62.335457006485058,-78.160219951339059,-95.775135419519415],[-64.897224850730552,-50.289394899037291,-37.471717470670256,-26.444192565629606,-17.206820183915283,-9.7596003255272592,-4.10253299046542,-0.23561817873002155,1.8411441096790213,2.1277538747618223,0.62421111651832462,-2.6694841650514149,-7.7533319699475101,-14.627332298169961,-23.29148514971871,-33.745790524593872,-45.990248422795162,-60.024858844322694,-75.849621789176808,-93.464537257357165],[-62.586626688568245,-47.978796736874983,-35.161119308507949,-24.133594403467299,-14.896222021752976,-7.4490021633649519,-1.7919348283031127,2.0749799834322857,4.1517422718413286,4.4383520369241296,2.9348092786806319,-0.35888600288910766,-5.4427338077852028,-12.316734136007653,-20.98088698755646,-31.435192362431508,-43.679650260632911,-57.714260682160443,-73.539023627014444,-91.153939095194801],[-60.276028526405938,-45.668198574712676,-32.850521146345642,-21.822996241304992,-12.585623859590669,-5.1384040012026446,0.51866333385919461,4.385578145594593,6.4623404340036359,6.7489501990864369,5.2454074408429392,1.9517121592731996,-3.1321356456228955,-10.006135973845289,-18.670288825394209,-29.124594200269144,-41.369052098470661,-55.403662519998193,-71.22842546485208,-88.843340933032437],[-57.96543036424363,-43.357600412550369,-30.539922984183335,-19.512398079142685,-10.275025697428362,-2.8278058390403373,2.8292614960215019,6.6961763077569003,8.7729385961659432,9.0595483612487442,7.5560056030052465,4.2623103214355069,-0.82153748346058819,-7.6955378116830389,-16.359690663231845,-26.813996038106893,-39.058453936308297,-53.093064357835829,-68.91782730268983,-86.532742770870186],[-55.654832202081323,-41.047002250388061,-28.229324822021027,-17.201799916980377,-7.9644275352660543,-0.51720767687803004,5.1398596581838092,9.0067744699192076,11.08353675832825,11.370146523411051,9.8666037651675538,6.5729084835978142,1.4890606787017191,-5.3849396495207884,-14.049092501069481,-24.503397875944643,-36.747855774145933,-50.782466195673464,-66.607229140527579,-84.222144608707936],[-53.344234039919016,-38.736404088225754,-25.91872665985872,-14.89120175481807,-5.653829373103747,1.7933904852842772,7.4504578203461165,11.317372632081515,13.394134920490558,13.680744685573359,12.177201927329861,8.8835066457601215,3.7996588408640264,-3.0743414873584243,-11.73849433890723,-22.192799713782279,-34.437257611983682,-48.471868033511214,-64.296630978365215,-81.911546446545572],[-51.033635877756709,-36.425805926063447,-23.608128497696413,-12.580603592655763,-3.3432312109414397,4.1039886474465845,9.7610559825084238,13.627970794243822,15.704733082652865,15.991342847735666,14.487800089492168,11.194104807922429,6.1102570030263337,-0.76374332519606014,-9.42789617674498,-19.882201551619914,-32.126659449821432,-46.161269871348964,-61.986032816202851,-79.600948284383207],[-48.723037715594401,-34.11520776390114,-21.297530335534105,-10.270005430493455,-1.0326330487791324,6.4145868096088918,12.071654144670731,15.938568956406129,18.015331244815172,18.301941009897973,16.798398251654476,13.504702970084736,8.420855165188641,1.5468548369661903,-7.1172980145826159,-17.571603389457664,-29.816061287659068,-43.850671709186599,-59.6754346540406,-77.290350122220957],[-46.412439553432094,-31.804609601738832,-18.986932173371798,-7.9594072683311481,1.2779651133831749,8.7251849717711991,14.382252306833038,18.249167118568437,20.32592940697748,20.612539172060281,19.108996413816783,15.815301132247043,10.731453327350948,3.8574529991284408,-4.8066998524202518,-15.261005227295414,-27.505463125496703,-41.540073547024235,-57.36483649187835,-74.979751960058707]],"type":"surface","x":[-1.1887598989759658,-0.91802214740497268,-0.64728439583397956,-0.37654664426298645,-0.10580889269199334,0.16492885887899966,0.43566661044999289,0.70640436202098611,0.97714211359197911,1.2478798651629721,1.5186176167339651,1.7893553683049586,2.0600931198759516,2.3308308714469446,2.601568623017938,2.8723063745889306,3.143044126159924,3.4137818777309175,3.68451962930191,3.9552573808729035],"y":[64.299999999999997,70.042105263157893,75.784210526315789,81.526315789473685,87.268421052631581,93.010526315789477,98.752631578947359,104.49473684210525,110.23684210526315,115.97894736842105,121.72105263157894,127.46315789473684,133.20526315789473,138.94736842105263,144.68947368421053,150.43157894736842,156.17368421052632,161.91578947368421,167.65789473684211,173.40000000000001],"opacity":0.59999999999999998,"name":"Modell-Ebene","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-255b138c4b2cf27ea720" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-255b138c4b2cf27ea720">{"x":{"visdat":{"1a2c3ba89de4":["function () ","plotlyVisDat"],"1a2c18568f60":["function () ","data"]},"cur_data":"1a2c18568f60","attrs":{"1a2c18568f60":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"markers","marker":{"size":4,"color":"#2980b9","opacity":0.80000000000000004},"name":"Beobachtungen","inherit":true},"1a2c18568f60.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":{},"type":"surface","x":{},"y":{},"opacity":0.59999999999999998,"colorscale":"Viridis","name":"Modell-Ebene","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"PC2 (C/N Shift)"},"yaxis":{"title":"Niederschlag (mm)"},"zaxis":{"title":"dN (kg N/ha)"}},"title":"3D Modell-Ebene: Stickstoff-Massenbilanz","hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[0.30982263728865395,-0.17616328970673203,0.1070408878160804,1.2449980169270369,-0.80714406029896046,-0.89931303919934191,-0.82767830216438065,2.192790997018716,-0.13460631493250877,0.23519981327851339,0.028420732009168809,0.83763063267898941,0.18090979442232602,0.12547921439440279,-0.17493457593554756,0.67136479594760889,-0.32957681724567173,-0.086664636569886072,0.40689635333439184,0.26837910626698819,-1.1731165373916708,-0.11599572325498059,0.80262704132986151,1.6348755485449025,0.89396692059670624,0.18377586758884384,3.9552573808729035,0.79865547139033632,-0.53077800779479689,0.14832421345396093,1.8352278712140198,0.14037881307400754,-0.88158325313804098,0.35251119463827851,0.53645680007503949,-0.32941195491910008,0.44629933345609951,0.51096710020700686,1.1928043961924519,0.52959557147803515,0.35724340396081844,-0.10814445260188642,-0.18598543234523313,0.036358965400267486,-0.68262441189798895,0.61083323228323594,0.58713165468205153,0.33511177949670917,-0.48147289854625569,0.53648762543693851,-0.072458681480260342,0.72161890647165083,0.36500405540341285,0.26007567392401076,0.34407788345512624,0.86927020416964784,-0.033758001616826218,0.65530281212136032,1.3492720801578202,0.19227635115213404,-1.0888462103738559,1.3045870325407229,1.4507419153568355,0.5604855474843764,-0.41271284412807918,-0.69097908443247313,0.73918278820471228,0.10584824023269239,0.046442117305714813,0.3037399312436872,1.6037151901290503,-0.39189190815156838,-0.42322456761347432,-0.77461143792052778,0.94174509924286187,-0.019729042862437967,-1.1887598989759658,-0.65294784001080652,0.62129060937166869],"y":[130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001,130.59999999999999,64.299999999999997,162.40000000000001,173.40000000000001],"z":[-0.31101158576426813,86.12931289953228,138.20223654809368,6.742989249458633,-2.0660115857642678,88.919312899532287,135.36723654809367,9.1279892494586328,-1.5149495023436392,41.346314646620129,34.605811910991754,2.5209602971295979,-1.5149495023436392,42.381314646620126,35.280811910991758,-2.6138642715147555,59.147470344101258,51.414966479412314,2.0872691010346918,-4.5038642715147574,60.182470344101262,47.724966479412316,3.4822691010346913,5.5981612731176078,93.259855034349911,74.150754246030999,-22.88790825823628,1.0981612731176069,86.374855034349906,59.210754246030994,-0.61290825823627859,-4.3090158890938444,88.000513105622886,69.945850008664578,3.4115811229982604,-3.4990158890938461,97.945513105622894,60.180850008664578,2.6465811229982608,-3.6803805822090347,74.955368395827563,116.08980958473845,5.9056512084840698,1.8546194177909641,73.335368395827558,116.80980958473845,6.7606512084840702,-1.8154125887655281,123.90529899531047,183.58129605469779,4.6574820061843525,-4.4254125887655285,116.52529899531046,186.1012960546978,11.137482006184353,9.2368092692597354,144.89481874940782,221.3288693431094,2.0720607647606784,5.8618092692597337,149.66481874940783,214.44386934310938,8.1920607647606776,5.6352548487011322,118.52567640872051,190.26960171889485,7.8332947681568088,2.9802548487011316,119.60567640872051,186.84960171889486,12.603294768156809,-3.087992847428823,45.108794420366308,37.074378068304938,-0.083375586996532025,-4.0779928474288223,44.20879442036631,35.679378068304935,1.6266244130034684],"type":"scatter3d","mode":"markers","marker":{"color":"#2980b9","size":4,"opacity":0.80000000000000004,"line":{"color":"rgba(31,119,180,1)"}},"name":"Beobachtungen","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"frame":null},{"colorbar":{"title":"dN<br />z_matrix","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":"Viridis","showscale":true,"z":[[97.371459743363559,82.121518537936623,68.678793560825682,57.043284812030862,47.21499229155225,39.193915999389588,32.980055935543021,28.573412100012547,25.973984492798252,25.181773113899965,26.196777963317686,29.018999041051586,33.648436347101608,40.085089881467695,48.328959644149677,58.380045635147781,70.238347854462404,83.903866302092752,99.376600978039164,116.65655188230164],[94.206725883510202,78.956784678083267,65.514059700972325,53.878550952177505,44.050258431698893,36.029182139536232,29.815322075689664,25.40867824015919,22.809250632944895,22.017039254046608,23.03204410346433,25.85426518119823,30.483702487248252,36.920356021614339,45.164225784296377,55.215311775294481,67.073613994608991,80.739132442239338,96.211867118185751,113.49181802244823],[91.041992023656789,75.792050818229853,62.349325841118912,50.713817092324092,40.88552457184548,32.864448279682819,26.650588215836251,22.243944380305777,19.644516773091482,18.852305394193195,19.867310243610916,22.689531321344816,27.318968627394838,33.755622161760925,41.999491924442964,52.050577915441067,63.908880134755577,77.574398582385925,93.047133258332337,110.32708416259482],[87.877258163803432,72.627316958376497,59.184591981265555,47.549083232470736,37.720790711992123,29.699714419829462,23.485854355982895,19.07921052045242,16.479782913238125,15.687571534339838,16.70257638375756,19.52479746149146,24.154234767541482,30.590888301907569,38.834758064589664,48.885844055587768,60.744146274902164,74.409664722532511,89.882399398478924,107.1623503027414],[84.712524303950019,69.462583098523083,56.019858121412142,44.384349372617322,34.55605685213871,26.534980559976049,20.321120496129481,15.914476660599007,13.315049053384712,12.522837674486425,13.537842523904146,16.360063601638046,20.989500907688068,27.426154442054155,35.670024204736251,45.721110195734354,57.579412415048751,71.244930862679098,86.717665538625511,103.99761644288799],[81.547790444096663,66.297849238669727,52.855124261558785,41.219615512763966,31.391322992285353,23.370246700122692,17.156386636276125,12.749742800745651,10.150315193531355,9.3581038146330684,10.37310866405079,13.19532974178469,17.824767047834712,24.261420582200799,32.505290344882837,42.556376335880941,54.414678555195451,68.080197002825798,83.552931678772211,100.83288258303469],[78.383056584243249,63.133115378816314,49.690390401705372,38.054881652910552,28.22658913243194,20.205512840269279,13.991652776422711,9.5850089408922372,6.985581333677942,6.193369954779655,7.2083748041973763,10.030595881931276,14.660033187981298,21.096686722347386,29.340556485029424,39.391642476027528,51.249944695342037,64.915463142972385,80.388197818918798,97.668148723181275],[75.218322724389893,59.968381518962957,46.525656541852015,34.890147793057196,25.061855272578583,17.040778980415922,10.826918916569355,6.4202750810388807,3.8208474738245854,3.0286360949262985,4.0436409443440198,6.8658620220779198,11.495299328127942,17.931952862494029,26.175822625176011,36.226908616174114,48.085210835488738,61.750729283119085,77.223463959065498,94.503414863327976],[72.053588864536479,56.803647659109544,43.360922681998602,31.725413933203782,21.89712141272517,13.876045120562509,7.6621850567159413,3.2555412211854673,0.65611361397117207,-0.13609776492711489,0.87890708449060639,3.7011281622245065,8.3305654682745285,14.767219002640559,23.011088765322597,33.062174756320701,44.920476975635324,58.585995423265672,74.058730099212084,91.338681003474562],[68.888855004683123,53.638913799256187,40.196188822145245,28.560680073350426,18.732387552871813,10.711311260709152,4.4974511968625848,0.090807361332110759,-2.5086202458821845,-3.3008316247804714,-2.2858267753627501,0.53639430237114993,5.1658316084211719,11.602485142787259,19.846354905469298,29.897440896467401,41.755743115781911,55.421261563412259,70.893996239358671,88.173947143621149],[65.724121144829709,50.474179939402774,37.031454962291832,25.395946213497012,15.5676536930184,7.5465774008557389,1.3327173370091714,-3.0739264985213026,-5.6733541057355978,-6.4655654846338848,-5.4505606352161635,-2.6283395574822634,2.0010977485677586,8.4377512829338457,16.681621045615884,26.732707036613988,38.591009255928498,52.256527703558845,67.729262379505258,85.009213283767735],[62.559387284976353,47.309446079549417,33.866721102438476,22.231212353643656,12.402919833165043,4.3818435410023824,-1.8320165228441851,-6.2386603583746592,-8.8380879655889544,-9.6302993444872413,-8.6152944950695201,-5.79307341733562,-1.163636111285598,5.273017423080546,13.516887185762585,23.567973176760688,35.426275396075084,49.091793843705432,64.564528519651844,81.844479423914322],[59.394653425122939,44.144712219696004,30.701987242585062,19.066478493790243,9.2381859733116301,1.217109681148969,-4.9967503826975985,-9.4033942182280725,-12.002821825442368,-12.795033204340655,-11.780028354922933,-8.9578072771890334,-4.3283699711390113,2.1082835632271326,10.352153325909171,20.403239316907275,32.261541536221671,45.927059983852018,61.399794659798431,78.679745564060909],[56.229919565269583,40.979978359842647,27.537253382731706,15.901744633936886,6.0734521134582735,-1.9476241787043875,-8.1614842425509551,-12.568128078081429,-15.167555685295724,-15.959767064194011,-14.94476221477629,-12.12254113704239,-7.4931038309923679,-1.0564502966262808,7.1874194660557578,17.238505457053861,29.096807676368371,42.762326123998719,58.235060799945131,75.515011704207609],[53.06518570541617,37.815244499989234,24.372519522878292,12.737010774083473,2.9087182536048601,-5.1123580385578009,-11.326218102404368,-15.732861937934842,-18.332289545149138,-19.124500924047425,-18.109496074629703,-15.287274996895803,-10.657837690845781,-4.2211841564796941,4.0226856062023444,14.073771597200448,25.932073816514958,39.597592264145305,55.070326940091718,72.350277844354196],[49.900451845562813,34.650510640135877,21.207785663024936,9.5722769142301161,-0.2560156062484964,-8.2770918984111574,-14.490951962257725,-18.897595797788199,-21.497023405002494,-22.289234783900781,-21.27422993448306,-18.45200885674916,-13.822571550699138,-7.3859180163331075,0.85795174634893101,10.909037737347035,22.767339956661658,36.432858404292006,51.905593080238418,69.185543984500896],[46.7357179857094,31.485776780282464,18.043051803171522,6.4075430543767027,-3.4207494661019098,-11.441825758264571,-17.655685822111138,-22.062329657641612,-24.661757264855908,-25.453968643754195,-24.438963794336473,-21.616742716602573,-16.987305410552551,-10.550651876186521,-2.3067821135044824,7.7443038774936213,19.602606096808245,33.268124544438592,48.740859220385005,66.020810124647483],[43.570984125856043,28.321042920429107,14.878317943318166,3.2428091945233462,-6.5854833259552663,-14.606559618117927,-20.820419681964495,-25.227063517494969,-27.826491124709264,-28.618702503607551,-27.60369765418983,-24.78147657645593,-20.152039270405908,-13.715385736039821,-5.4715159733577821,4.5795700176403216,16.437872236954831,30.103390684585179,45.576125360531591,62.856076264794069],[40.40625026600263,25.156309060575694,11.713584083464752,0.078075334669932772,-9.7502171858086797,-17.771293477971341,-23.985153541817908,-28.391797377348382,-30.991224984562677,-31.783436363460964,-30.768431514043243,-27.946210436309343,-23.316773130259321,-16.880119595893234,-8.6362498332111954,1.4148361577869082,13.273138377101418,26.938656824731765,42.411391500678178,59.691342404940656],[37.241516406149273,21.991575200722338,8.5488502236113959,-3.0866585251834238,-12.914951045662036,-20.936027337824697,-27.149887401671265,-31.556531237201739,-34.155958844416034,-34.948170223314321,-33.9331653738966,-31.1109442961627,-26.481506990112621,-20.044853455746534,-11.800983693064495,-1.7498977020663915,10.108404517248005,23.773922964878352,39.246657640824765,56.526608545087242]],"type":"surface","x":[-1.1887598989759658,-0.91802214740497268,-0.64728439583397956,-0.37654664426298645,-0.10580889269199334,0.16492885887899966,0.43566661044999289,0.70640436202098611,0.97714211359197911,1.2478798651629721,1.5186176167339651,1.7893553683049586,2.0600931198759516,2.3308308714469446,2.601568623017938,2.8723063745889306,3.143044126159924,3.4137818777309175,3.68451962930191,3.9552573808729035],"y":[64.299999999999997,70.042105263157893,75.784210526315789,81.526315789473685,87.268421052631581,93.010526315789477,98.752631578947359,104.49473684210525,110.23684210526315,115.97894736842105,121.72105263157894,127.46315789473684,133.20526315789473,138.94736842105263,144.68947368421053,150.43157894736842,156.17368421052632,161.91578947368421,167.65789473684211,173.40000000000001],"opacity":0.59999999999999998,"name":"Modell-Ebene","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 </section>
@@ -503,44 +614,156 @@ lmerModLmerTest]
 Formula: dN_season ~ Delta_PC1 + Delta_PC2 + (1 | ParzNrFeld)
    Data: df_season
 
-REML criterion at convergence: 151.8
+REML criterion at convergence: 150.7
 
 Scaled residuals: 
      Min       1Q   Median       3Q      Max 
--1.05941 -0.62364  0.00808  0.61445  1.07139 
+-1.17035 -0.54094 -0.00745  0.55532  1.15927 
 
 Random effects:
  Groups     Name        Variance  Std.Dev.
- ParzNrFeld (Intercept) 11336.732 106.474 
- Residual                   2.212   1.487 
+ ParzNrFeld (Intercept) 11405.859 106.798 
+ Residual                   1.919   1.385 
 Number of obs: 20, groups:  ParzNrFeld, 10
 
 Fixed effects:
-              Estimate Std. Error         df t value Pr(&gt;|t|)    
-(Intercept) -215.65481   33.70399    9.03449  -6.398 0.000123 ***
-Delta_PC1     -0.08026    0.31923    8.00313  -0.251 0.807817    
-Delta_PC2      2.39462    0.95390    8.00955   2.510 0.036318 *  
+            Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept) 197.5627    33.8019   9.0297   5.845 0.000242 ***
+Delta_PC1    -0.1212     0.2973   8.0027  -0.408 0.694312    
+Delta_PC2     2.4962     0.8884   8.0082   2.810 0.022831 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Correlation of Fixed Effects:
           (Intr) Dl_PC1
-Delta_PC1  0.033       
-Delta_PC2 -0.030 -0.030</code></pre>
+Delta_PC1  0.030       
+Delta_PC2 -0.028 -0.030</code></pre>
 </div>
 </div>
-<p>Wie die Modellzusammenfassung zeigt, bleiben auch über die gesamte Saison hinweg die Veränderungen im Enzymprofil (<span class="math inline">\(\\Delta\)</span>PC1 und <span class="math inline">\(\\Delta\)</span>PC2) als Prädiktoren für die Stickstoffbilanz statistisch nicht signifikant (<span class="math inline">\(p &gt; 0.05\)</span>).</p>
-<p>Wir können dies visuell überprüfen. Da der Niederschlag in dieser Betrachtung konstant ist, entspricht die saisonale Netto-Stickstoffveränderung (<span class="math inline">\(dN\)</span>) direkt dem (unbereinigten) partiellen Residuum in Bezug auf den C/N-Shift. Wir tragen dieses gegen <span class="math inline">\(\\Delta\)</span>PC2 auf:</p>
+<p>Die Modellergebnisse der saisonalen Massenbilanz offenbaren ein differenziertes Bild: * <strong><span class="math inline">\(\Delta\)</span>PC1 (Veränderung der Gesamtaktivität):</strong> Zeigt keinen statistisch signifikanten Zusammenhang mit der saisonalen Stickstoffbereitstellung (-0.12 kg N/ha, p = 0.694). * <strong><span class="math inline">\(\Delta\)</span>PC2 (Saisonaler Enzymatischer Shift):</strong> Weist einen statistisch signifikanten positiven Effekt auf (2.5 kg N/ha pro Einheit, p = 0.023).</p>
+<p>Parzellen, bei denen sich das mikrobielle Enzymprofil im Verlauf der Vegetationsperiode stärker in Richtung Kohlenstoff- und Stickstoff-abbauender Hydrolasen (GLS, NAG) verschob, stellten über die gesamte Saison hinweg signifikant mehr mineralisierten Stickstoff für den Pflanzenentzug bereit.</p>
+<p>Wir visualisieren diesen Zusammenhang über die gesamte Saison:</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="DEMO_25_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="DEMO_25_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Dies bestätigt unsere vorherigen Hypothesen: Auch bei Betrachtung des größtmöglichen Intervalls (gesamte Saison) ist das biologische Signal der Potenzial-Enzymmessung (Digit Soil) nicht ausreichend konsistent oder nicht dominant genug, um die verbleibende Varianz in der in-situ Stickstoffmassenbilanz zwischen den Parzellen signifikant zu erklären.</p>
+<p>Dies liefert eine wichtige methodische Erkenntnis: Während in kurzzeitigen 4-Wochen-Intervallen stochastische Witterungsextreme (Starkregen und Auswaschung) das biologische Signal überdecken, tritt bei Betrachtung des saisonalen Großintervalls – in dem die Witterung für alle Parzellen des Standorts als gemeinsame Konstante wirkt – eine signifikante Kopplung zwischen dem funktionellen Enzymshift (<span class="math inline">\(\Delta\)</span>PC2) und der langfristigen Stickstoffnachlieferung hervor.</p>
+</section>
+<section id="pedoclimatic-proxy-lag-analysis-lmm-aic" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> 8. Pedoclimatic Proxy &amp; Lag Analysis (LMM + AIC)</h1>
+<p>Bodenenzyme sind zu einem wesentlichen Teil an Organo-Mineral-Komplexe stabilisiert und bilden ein biochemisches „Reservoir“, welches pedoklimatische Umweltfaktoren (Niederschlag, Temperatur) über längere Zeiträume integriert <span class="citation" data-cites="Burns2013 Wallenstein2008">(<a href="#ref-Burns2013" role="doc-biblioref">Burns et al. 2013</a>; <a href="#ref-Wallenstein2008" role="doc-biblioref">Wallenstein and Weintraub 2008</a>)</span>. Daher lassen sich enzymatische Abundanzen und Aktivitätsmuster häufig besser durch kumulative Witterungsfenster (z. B. 7-, 14- oder 30-Tage-Aggregate) als durch punktuelle Tagesmessungen erklären.</p>
+<p>Da unsere Enzym- und Nmin-Messungen zeitlich diskret (T1 bis T5) und nicht kontinuierlich vorliegen, nutzen wir Linear Mixed Models (LMM) in Kombination mit dem Akaike-Informationskriterium (AIC), um empirisch zu bestimmen, welches Akkumulationsfenster die Varianz der Sensordaten und N-Fraktionen am besten erklärt.</p>
+<section id="vergleich-der-akkumulationsfenster-aic-ranking" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="vergleich-der-akkumulationsfenster-aic-ranking"><span class="header-section-number">9.1</span> Vergleich der Akkumulationsfenster (AIC-Ranking)</h2>
+<p>Wir modellieren die einzelnen Enzymsignale (NAG, GLS, MUP, MUX), die beiden Hauptkomponenten (PC1, PC2) sowie den gesamten mineralischen Stickstoff (<code>Nmin_Total</code>) als Funktion des kumulativen Niederschlags und der Wärmesumme (GDD), mit Parzellen-spezifischem Random Intercept (<code>(1 | ParzNrFeld)</code>):</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>AIC-Modellvergleich für enzymatische Signale und Nmin über verschiedene pedoklimatische Akkumulationsfenster (DEMO 2025)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Signal</th>
+<th style="text-align: right;">7-Tage</th>
+<th style="text-align: right;">14-Tage</th>
+<th style="text-align: right;">30-Tage</th>
+<th style="text-align: right;">Aridity (14d)</th>
+<th style="text-align: left;">Best_Lag</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">NAG</td>
+<td style="text-align: right;">459.1</td>
+<td style="text-align: right;">494.7</td>
+<td style="text-align: right;">478.0</td>
+<td style="text-align: right;">496.3</td>
+<td style="text-align: left;">7-Tage</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GLS</td>
+<td style="text-align: right;">607.1</td>
+<td style="text-align: right;">678.5</td>
+<td style="text-align: right;">641.0</td>
+<td style="text-align: right;">687.7</td>
+<td style="text-align: left;">7-Tage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MUP</td>
+<td style="text-align: right;">801.2</td>
+<td style="text-align: right;">843.0</td>
+<td style="text-align: right;">813.7</td>
+<td style="text-align: right;">852.8</td>
+<td style="text-align: left;">7-Tage</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MUX</td>
+<td style="text-align: right;">387.4</td>
+<td style="text-align: right;">582.4</td>
+<td style="text-align: right;">532.7</td>
+<td style="text-align: right;">587.2</td>
+<td style="text-align: left;">7-Tage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PC1</td>
+<td style="text-align: right;">284.5</td>
+<td style="text-align: right;">365.5</td>
+<td style="text-align: right;">325.7</td>
+<td style="text-align: right;">374.9</td>
+<td style="text-align: left;">7-Tage</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PC2</td>
+<td style="text-align: right;">194.2</td>
+<td style="text-align: right;">229.7</td>
+<td style="text-align: right;">209.9</td>
+<td style="text-align: right;">232.8</td>
+<td style="text-align: left;">7-Tage</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Nmin_Total</td>
+<td style="text-align: right;">291.3</td>
+<td style="text-align: right;">285.6</td>
+<td style="text-align: right;">271.9</td>
+<td style="text-align: right;">305.3</td>
+<td style="text-align: left;">30-Tage</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="synthese-der-lag-analyse-kurzfristige-enzympulse-vs.-träger-nmin-pool" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="synthese-der-lag-analyse-kurzfristige-enzympulse-vs.-träger-nmin-pool"><span class="header-section-number">9.2</span> Synthese der Lag-Analyse: Kurzfristige Enzympulse vs.&nbsp;träger Nmin-Pool</h2>
+<p>Die Modellergebnisse zeigen ein bemerkenswert klares, biogeochemisch plausibles Muster:</p>
+<ol type="1">
+<li><strong>Enzymsignale und Hauptkomponenten (7-Tage-Optimum):</strong>
+<ul>
+<li>Sämtliche Einzelsensoren (NAG, GLS, MUP, MUX) sowie beide Hauptkomponenten (PC1 und PC2) weisen ihr eindeutiges AIC-Minimum beim <strong>7-Tage-Fenster</strong> auf.</li>
+<li>Dies belegt, dass die extrazelluläre Enzymaktivität im DEMO-Versuch besonders dynamisch auf kurzfristige, einwöchige Witterungsimpulse (Niederschlagsereignisse und Temperaturspitzen) reagiert.</li>
+</ul></li>
+<li><strong>Mineralischer Stickstoffpool (<span class="math inline">\(N_{min}\)</span>, 30-Tage-Optimum):</strong>
+<ul>
+<li>Im Gegensatz zu den Enzymen wird der <span class="math inline">\(N_{min}\)</span>-Gehalt am besten durch das <strong>30-Tage-Fenster</strong> erklärt (<span class="math inline">\(\text{AIC} = 272.1\)</span>).</li>
+<li>Der anorganische Stickstoffpool fungiert folglich als trägere Zustandsgröße, die über einen mehrwöchigen Horizont von Mineralisation, kontinuierlicher Pflanzenaufnahme und physikalischen Verlagerungen integriert.</li>
+</ul></li>
+</ol>
+</section>
+<section id="visualisierung-einfluss-des-7-tage-niederschlags-auf-die-gesamtaktivität-pc1" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="visualisierung-einfluss-des-7-tage-niederschlags-auf-die-gesamtaktivität-pc1"><span class="header-section-number">9.3</span> Visualisierung: Einfluss des 7-Tage-Niederschlags auf die Gesamtaktivität (PC1)</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="DEMO_25_files/figure-html/plot-pedoclimatic-pc1-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 <div id="refs" class="references csl-bib-body hanging-indent" role="list">
@@ -550,10 +773,23 @@ Archontoulis, Sotirios V., and Fernando E. Miguez. 2015. <span>“Nonlinear <spa
 <div id="ref-benderNutrientUptakePartitioning2013" class="csl-entry" role="listitem">
 Bender, Ross R., Jason W. Haegele, Matias L. Ruffo, and Fred E. Below. 2013. <span>“Nutrient <span>Uptake</span>, <span>Partitioning</span>, and <span>Remobilization</span> in <span>Modern</span>, <span>Transgenic Insect-Protected Maize Hybrids</span>.”</span> <em>Agronomy Journal</em> 105 (1): 161–70. <a href="https://doi.org/10.2134/agronj2012.0352">https://doi.org/10.2134/agronj2012.0352</a>.
 </div>
+<div id="ref-Burns2013" class="csl-entry" role="listitem">
+Burns, Richard G., Jared L. DeForest, Jürgen Marxsen, et al. 2013. <span>“Soil Enzymes in a Changing Environment: Current Knowledge and Future Directions.”</span> <em>Soil Biology and Biochemistry</em> 58: 216–34.
+</div>
+<div id="ref-Hubert2005" class="csl-entry" role="listitem">
+Hubert, Mia, Peter J. Rousseeuw, and Karlien Vanden Branden. 2005. <span>“ROBPCA: A New Approach to Robust Principal Component Analysis.”</span> <em>Technometrics</em> 47 (1): 64–79.
+</div>
+<div id="ref-Nannipieri2018" class="csl-entry" role="listitem">
+Nannipieri, Paolo, Carmen Trasar-Cepeda, and Richard P. Dick. 2018. <span>“Soil Enzyme Activity: A Brief History and Biochemistry as a Basis for Appropriate Interpretations and Meta-Analysis.”</span> <em>Biology and Fertility of Soils</em> 54 (1): 11–19.
+</div>
 <div id="ref-overmanMathematicalModelsCrop2002" class="csl-entry" role="listitem">
 Overman, Allen R., and Richard V. Scholtz III. 2002. <em>Mathematical Models of Crop Growth and Yield</em>. CRC Press.
 </div>
+<div id="ref-Wallenstein2008" class="csl-entry" role="listitem">
+Wallenstein, Matthew D., and Michael N. Weintraub. 2008. <span>“Emerging Tools for Measuring and Modeling the in Situ Activity of Soil Extracellular Enzymes.”</span> <em>Soil Biology and Biochemistry</em> 40 (9): 2098–106.
 </div>
+</div>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -959,8 +1195,8 @@ Overman, Allen R., and Richard V. Scholtz III. 2002. <em>Mathematical Models of 
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../index.html" class="pagination-link" aria-label="Vorwort">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Vorwort</span>
+      <a href="../reports/vorwort.html" class="pagination-link" aria-label="Vorwort: Wissenschaftliche Einordnung und Limitationen enzymatischer Sensordaten">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Vorwort: Wissenschaftliche Einordnung und Limitationen enzymatischer Sensordaten</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
