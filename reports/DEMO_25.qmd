@@ -66,6 +66,32 @@ df_final |>
   )
 ```
 
+```{r}
+# Zeitliche Dynamik
+df_final |> 
+  # 1. Nur Zeilen mit gültigen Werten behalten
+  drop_na(NH4, NO3, Verfahren) |> 
+  
+  # Durchschnittswerte und SE
+  ggplot(aes(x = Datum, y = Nmin_Total, colour = Verfahren)) +
+  stat_summary(fun.data = mean_se, geom = "line", na.rm = TRUE) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .5) +
+  
+  # Optik
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 45, size = 10, hjust = 1),
+    axis.title.y = element_text(),
+    axis.text.y = element_text(size = 12)
+  ) +
+  scale_color_brewer(palette = "Paired", direction = -1) +
+  labs(
+    title = "Stickstoffkonzentration pro Zeitpunkt",
+    subtitle = "Vergleich der Düngungsverfahren (Laborwerte)",
+    y = "Konzentration (mg/kg)"
+  )
+```
+
 # 3. Sensor-Signale: Enzymatische Aktivität (EEA)
 
 Analog zu den Nmin-Werten analysieren wir die Rohsignale der Digit Soil Sensoren. Ursprünglich wurden fünf Enzymaktivitäten erfasst (LAP, NAG, GLS, MUP, MUX). In den Messreihen zeigte sich jedoch, dass das Enzym LAP (Leucin-Aminopeptidase) erhebliche Messausfälle und unvollständige Werte (hoher NA-Anteil) aufweist. Um einen übermässigen Ausschluss valider Probenahmezeitpunkte bei multivariaten Analysen zu vermeiden, konzentriert sich die Auswertung auf die vier verlässlich quantifizierten Enzyme: **NAG, GLS, MUP und MUX**.
@@ -102,6 +128,42 @@ df_final |>
     title = "Verteilung der Enzymaktivitäten im Boden",
     subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren (NAG, GLS, MUP, MUX)",
     x = "Düngungsverfahren",
+    y = "Enzymaktivität"
+  )
+```
+
+```{r}
+# Zeitliche Dynamik
+df_final |> 
+  # Nur Zeilen behalten, die alle 4 Enzymwerte haben
+  drop_na(NAG, GLS, MUP, MUX, Verfahren) |> 
+  
+  # Ins Long-Format umformen (alle 4 Enzyme untereinander)
+  pivot_longer(
+    cols = c(NAG, GLS, MUP, MUX), 
+    names_to = "Enzym", 
+    values_to = "Aktivitaet"
+  ) |> 
+  
+  # Durchschnittswerte und SE
+  ggplot(aes(x = Datum, y = Aktivitaet, colour = Verfahren)) +
+  stat_summary(fun.data = mean_se, geom = "line", na.rm = TRUE) +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .5) +
+  
+  # facet_wrap für die 4 Enzyme
+  facet_wrap(~ Enzym, scales = "free_y", ncol = 1) +
+  
+  # Optik
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 45, size = 10, hjust = 1),
+    axis.title.y = element_text(),
+    axis.text.y = element_text(size = 12)
+  ) +
+  scale_color_brewer(palette = "Paired", direction = -1) +
+  labs(
+    title = "Enzymaktivitäten pro Zeitpunkt",
+    subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren (NAG, GLS, MUP, MUX)",
     y = "Enzymaktivität"
   )
 ```
@@ -225,14 +287,14 @@ knitr::kable(
 Die beiden ersten Hauptkomponenten fassen zusammen 100 % der im zweidimensionalen Raum abgebildeten robusten Varianz zusammen. Die mathematische Linearkombination der standardisierten Enzymaktivitäten begründet die fachliche Benennung der Achsen:
 
 $$\begin{aligned}
-\text{PC1} &= -0.400 \cdot \text{NAG} - 0.380 \cdot \text{GLS} - 0.811 \cdot \text{MUP} - 0.193 \cdot \text{MUX} \\
-\text{PC2} &= +0.213 \cdot \text{NAG} + 0.840 \cdot \text{GLS} - 0.499 \cdot \text{MUP} + 0.000 \cdot \text{MUX}
+\text{PC1} &= -0.362 \cdot \text{NAG} - 0.378 \cdot \text{GLS} - 0.828 \cdot \text{MUP} - 0.201 \cdot \text{MUX} \\
+\text{PC2} &= +0.244 \cdot \text{NAG} + 0.836 \cdot \text{GLS} - 0.491 \cdot \text{MUP} + 0.011 \cdot \text{MUX}
 \end{aligned}$$
 
 1. **PC1 (`r var_pc1` % der Varianz) – „Index der biologischen Gesamtaktivität“:**
    Alle vier Enzymsignale laden mit demselben (negativen) Vorzeichen auf PC1. Wenn die allgemeine mikrobielle Dichte und Aktivität im Boden zunimmt, verändern sich alle Sensorwerte in die gleiche Richtung. Dies entspricht mathematisch dem klassischen „Größenfaktor“ (*Size Effect*) in der multivariaten Morphometrie. PC1 quantifiziert somit das übergeordnete Aktivitätsniveau des Bodens (stark geprägt durch die saure Phosphatase MUP).
 2. **PC2 (`r var_pc2` % der Varianz) – „Enzymatischer Shift (C/N- vs. P-Allokation)“:**
-   PC2 stellt eine bipolare Kontrastachse dar: Die Kohlenstoff- und Stickstoff-abbauenden Enzyme GLS ($+0.840$) und NAG ($+0.213$) stehen der Phosphatase MUP ($-0.499$) mit entgegengesetztem Vorzeichen gegenüber. Ein hoher PC2-Wert reflektiert somit eine relative Schwerpunktverlagerung hin zum C- und N-Abbau gegenüber der P-Mineralisierung.
+   PC2 stellt eine bipolare Kontrastachse dar: Die Kohlenstoff- und Stickstoff-abbauenden Enzyme GLS ($+0.836$) und NAG ($+0.244$) stehen der Phosphatase MUP ($-0.491$) mit entgegengesetztem Vorzeichen gegenüber. Ein hoher PC2-Wert reflektiert somit eine relative Schwerpunktverlagerung hin zum C- und N-Abbau gegenüber der P-Mineralisierung.
 
 ### Visualisierung im zweidimensionalen Raum
 
@@ -528,7 +590,7 @@ df_season <- df_pca |>
     PC1_last = last(PC1),
     PC2_first = first(PC2),
     PC2_last = last(PC2),
-    Season_N_Entzug = sum(Interval_N_Entzug_kg_ha[-1], na.rm = TRUE),
+    Season_N_Entzug = last(N_up_t2) - first(N_up_t2),
     .groups = "drop"
   ) |>
   mutate(
@@ -556,11 +618,11 @@ d_pc2_pval <- round(s_coefs["Delta_PC2", "Pr(>|t|)"], 3)
 d_pc2_pval_text <- ifelse(d_pc2_pval < 0.001, "< 0.001", paste0("= ", d_pc2_pval))
 ```
 
-Die Modellergebnisse der saisonalen Massenbilanz offenbaren ein differenziertes Bild:
+Die Modellergebnisse der saisonalen Massenbilanz zeigen auf Basis der bereinigten Enzymwerte (`DEMO_25_EEA_Jasmins_recalc.xlsx`):
 * **$\Delta$PC1 (Veränderung der Gesamtaktivität):** Zeigt keinen statistisch signifikanten Zusammenhang mit der saisonalen Stickstoffbereitstellung (`r d_pc1_est` kg N/ha, p `r d_pc1_pval_text`).
-* **$\Delta$PC2 (Saisonaler Enzymatischer Shift):** Weist einen statistisch signifikanten positiven Effekt auf (`r d_pc2_est` kg N/ha pro Einheit, p `r d_pc2_pval_text`). 
+* **$\Delta$PC2 (Saisonaler Enzymatischer Shift):** Weist einen positiven Koeffizienten auf (`r d_pc2_est` kg N/ha pro Einheit, p `r d_pc2_pval_text`), erreicht jedoch bei der geringen Fallzahl ($n = 20$ Replikate über 10 Parzellen) und nach Ausschluss der unterhalb der Nachweisgrenze liegenden NAG-Messwerte nicht mehr das 5-%-Signifikanzniveau.
 
-Parzellen, bei denen sich das mikrobielle Enzymprofil im Verlauf der Vegetationsperiode stärker in Richtung Kohlenstoff- und Stickstoff-abbauender Hydrolasen (GLS, NAG) verschob, stellten über die gesamte Saison hinweg signifikant mehr mineralisierten Stickstoff für den Pflanzenentzug bereit.
+Tendenziell zeigten Parzellen, bei denen sich das mikrobielle Enzymprofil im Verlauf der Vegetationsperiode stärker in Richtung Kohlenstoff- und Stickstoff-abbauender Hydrolasen (GLS, NAG) verschob, über die gesamte Saison hinweg eine höhere Stickstoffbereitstellung.
 
 Wir visualisieren diesen Zusammenhang über die gesamte Saison:
 
@@ -577,7 +639,7 @@ ggplot(df_season, aes(x = Delta_PC2, y = dN_season)) +
   )
 ```
 
-Dies liefert eine wichtige methodische Erkenntnis: Während in kurzzeitigen 4-Wochen-Intervallen stochastische Witterungsextreme (Starkregen und Auswaschung) das biologische Signal überdecken, tritt bei Betrachtung des saisonalen Großintervalls – in dem die Witterung für alle Parzellen des Standorts als gemeinsame Konstante wirkt – eine signifikante Kopplung zwischen dem funktionellen Enzymshift ($\Delta$PC2) und der langfristigen Stickstoffnachlieferung hervor.
+Während in kurzzeitigen 4-Wochen-Intervallen stochastische Witterungsextreme (Starkregen und Auswaschung) das biologische Signal vollständig überdecken, deutet sich bei Betrachtung des saisonalen Großintervalls – in dem die Witterung für alle Parzellen des Standorts als gemeinsame Konstante wirkt – zumindest eine positive Tendenz zwischen dem funktionellen Enzymshift ($\Delta$PC2) und der langfristigen Stickstoffnachlieferung an.
 
 
 # 8. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
@@ -641,16 +703,16 @@ knitr::kable(
 )
 ```
 
-## Synthese der Lag-Analyse: Kurzfristige Enzympulse vs. träger Nmin-Pool
+## Synthese der Lag-Analyse: Kurzfristige C/N-Enzympulse vs. trägere P- und Nmin-Pools
 
-Die Modellergebnisse zeigen ein bemerkenswert klares, biogeochemisch plausibles Muster:
+Die Modellergebnisse zeigen eine klare Differenzierung der Reaktionszeiten:
 
-1. **Enzymsignale und Hauptkomponenten (7-Tage-Optimum):**
-   * Sämtliche Einzelsensoren (NAG, GLS, MUP, MUX) sowie beide Hauptkomponenten (PC1 und PC2) weisen ihr eindeutiges AIC-Minimum beim **7-Tage-Fenster** auf.
-   * Dies belegt, dass die extrazelluläre Enzymaktivität im DEMO-Versuch besonders dynamisch auf kurzfristige, einwöchige Witterungsimpulse (Niederschlagsereignisse und Temperaturspitzen) reagiert.
-2. **Mineralischer Stickstoffpool ($N_{min}$, 30-Tage-Optimum):**
-   * Im Gegensatz zu den Enzymen wird der $N_{min}$-Gehalt am besten durch das **30-Tage-Fenster** erklärt ($\text{AIC} = 272.1$).
-   * Der anorganische Stickstoffpool fungiert folglich als trägere Zustandsgröße, die über einen mehrwöchigen Horizont von Mineralisation, kontinuierlicher Pflanzenaufnahme und physikalischen Verlagerungen integriert.
+1. **C- und N-Zyklus-Enzyme sowie C/N-Shift (7-Tage-Optimum):**
+   * Die Hydrolasen des Kohlenstoff- und Stickstoffkreislaufs (**NAG, GLS, MUX**) sowie der stöchiometrische Shift (**PC2**) weisen ihr AIC-Minimum beim **7-Tage-Fenster** auf.
+   * Dies belegt, dass der mikrobielle C- und N-Abbau im DEMO-Versuch besonders dynamisch auf kurzfristige, einwöchige Witterungsimpulse (Niederschlagsereignisse und Temperaturspitzen) reagiert.
+2. **Phosphatase (MUP), Gesamtaktivität (PC1) und mineralischer Stickstoffpool ($N_{min}$, 30-Tage-Optimum):**
+   * Die saure Phosphatase (**MUP**), die stark durch MUP geprägte erste Hauptkomponente (**PC1**) sowie der mineralische Gesamtstickstoff (**$N_{min}$**, $\text{AIC} = 267.1$) werden am besten durch das **30-Tage-Fenster** erklärt.
+   * Während MUP bekanntlich stark an Bodenkolloide sorbiert und dadurch eine hohe Persistenz im Boden aufweist, fungiert der anorganische Stickstoffpool als trägere Zustandsgröße, die über einen mehrwöchigen Horizont von Mineralisation, kontinuierlicher Pflanzenaufnahme und physikalischen Verlagerungen integriert.
 
 ## Visualisierung: Einfluss des 7-Tage-Niederschlags auf die Gesamtaktivität (PC1)
 

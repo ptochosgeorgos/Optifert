@@ -102,33 +102,29 @@ df_yield_avg <- df_demo_clean |>
   )
 
 # ==============================================================================
-# 3. DIGIT SOIL EEA-DATEN (Enzymaktivitäten)
+# 3. DIGIT SOIL EEA-DATEN (Enzymaktivitäten - Jasmins Neuberechnung)
 # ==============================================================================
 
-eea_file <- here_demo("raw_data/eea_report_LTE_2025_basic_analysis.CSV")
-df_eea_raw <- read_csv2(eea_file, show_col_types = FALSE)
+eea_file <- here_demo("raw_data/DEMO_25_EEA_Jasmins_recalc.xlsx")
+df_eea_raw <- readxl::read_xlsx(eea_file)
 
 df_eea_clean <- df_eea_raw |> 
-  # Fehlertexte in NA wandeln, als numerisch deklarieren, negative Werte nullen
-  mutate(across(LAP:MUX, ~na_if(as.character(.), "inv Samp"))) |> 
-  mutate(across(LAP:MUX, as.numeric)) |> 
-  mutate(across(LAP:MUX, ~ifelse(!is.na(.) & . < 0, 0, .))) |> 
-  
-  # Regex-Extraktion für ID und Datum
+  rename(
+    LAP = LEU,
+    NAG = GLA,
+    GLS = GLS,
+    MUP = PHO,
+    MUX = XYL
+  ) |> 
   mutate(
-    Parzelle_Roh = str_extract(project_sample_id, "\\d{1,3}[AB]"),
-    ParzNrFeld = parse_number(Parzelle_Roh),
-    Probe = str_extract(Parzelle_Roh, "[AB]"), # Replikat A oder B
-    
-    Datum_Text = str_extract(project_sample_id, "\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}"),
-    Datum = dmy(Datum_Text), 
-    
-    # Fehlende Daten mit Standarddatum auffüllen falls nötig
-    Datum = replace_na(Datum, as.Date("2025-09-11")),
+    across(c(LAP, NAG, GLS, MUP, MUX), as.numeric),
+    ParzNrFeld = parse_number(Plot),
+    Probe = str_extract(Plot, "[AB]"), # Replikat A oder B
+    Datum = as.Date(Datum),
     Versuchsjahr = year(Datum),
     UID = paste(Versuchsjahr, ParzNrFeld, sep = "_")
   ) |> 
-  select(UID, Versuchsjahr, ParzNrFeld, Probe, Datum, LAP, NAG, GLS, MUP, MUX, Comments)
+  select(UID, Versuchsjahr, ParzNrFeld, Probe, Datum, BOB, LAP, NAG, GLS, MUP, MUX)
 
 # ==============================================================================
 # 4. LABOR-DATEN (Nmin: Ammonium, Nitrat, Schwefel)
