@@ -105,7 +105,7 @@ df_yield_avg <- df_demo_clean |>
 # 3. DIGIT SOIL EEA-DATEN (Enzymaktivitäten - Jasmins Neuberechnung)
 # ==============================================================================
 
-eea_file <- here_demo("raw_data/DEMO_25_EEA_Jasmins_recalc.xlsx")
+eea_file <- here_demo("raw_data/DEMO87_EEA_2025_Jasmins_recalc.xlsx")
 df_eea_raw <- readxl::read_xlsx(eea_file)
 
 df_eea_clean <- df_eea_raw |> 
@@ -130,7 +130,7 @@ df_eea_clean <- df_eea_raw |>
 # 4. LABOR-DATEN (Nmin: Ammonium, Nitrat, Schwefel)
 # ==============================================================================
 
-nmin_file <- here_demo("raw_data/DEMO_Nmin.xlsx")
+nmin_file <- here_demo("raw_data/DEMO87_Nmin_2025.xlsx")
 spaltennamen <- names(read_xlsx(nmin_file, sheet = "List", n_max = 0))
 df_nmin_raw <- read_xlsx(nmin_file, sheet = "List", skip = 4, col_names = spaltennamen)
 
