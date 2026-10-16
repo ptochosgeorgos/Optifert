@@ -1,45 +1,39 @@
 
 # 1. Hintergrund und Methodik
+
+  Tim: Verfahren beschreiben
+
 # 2. Explorative Datenanalyse: Nmin pro Verfahren
   
-  Tim: Resultate pro (Mess)zeitpunkt darstellen und beschreiben
-  Tim: Nmin in kgN/ha
-  
 # 3. Sensor-Signale: Enzymatische Aktivität (EEA)
-
-  Tim: Resultate pro (Mess)zeitpunkt darstellen und beschreiben
-  
 # 4. Systemische Kopplung: Korrelationsanalyse
-
-  [x] Marc: Schlussfolgerung ergänzen (Erledigt in DEMO_25.qmd)
-  - Interkorrelation als geteilte Umweltbedingungen/Ressourcen vs. Multikollinearität
-  - Diskussion NAG ~ Nmin vs. Pflanzenaufnahme/Verdünnung (Piper-Steenbjerg-Effekt)
-  - Methodische Brücke zur rPCA
-
+# 1. Daten auswählen und Korrelationsmatrix berechnen
+# 2. Die Matrix für ggplot ins Long-Format umwandeln
+# 3. Die Heatmap plotten
 # 5. Biologisches Profil und Dimensionsreduktion
 
-  [x] Tim / Marc: Upgrade PCA, Eigenvektoren > Interpretation der PC-Achsen (Erledigt in DEMO_25.qmd)
-  - Loadings-Tabelle (PC1 = 71.4%, PC2 = 28.6%)
-  - Herleitung der Human-Friendly Names (PC1 = Index biol. Gesamtaktivität / Size-Faktor; PC2 = Enzymatischer Shift / C/N vs. P Stöchiometrie)
-  - Gradientenplots für NO3 und NH4 im PC-Raum
-
 # 6. Mechanistisches N-Balance Modell (Intervall-basiert)
-
-  [x] Marc: Massenbilanzformel überprüfen angesichts LAP drop (Erledigt in DEMO_25.qmd)
-  - Vorzeichenkorrektur: dN = Delta_Nmin + N_Entzug (Bereitgestellter N = Pooländerung + Pflanzenentzug)
-  - Begründung zur Nicht-Fraktionierung der jährlichen Gesamtdüngung (Abbildung über Random Intercepts)
-  - Methodische Einordnung des LAP-Drops (Proteolytischer Sensor entfällt, Fokus auf NAG, Gesamtbiomasse PC1 und C/N-vs-P Shift PC2)
+  
+  Marc: Hinzufügen von Düngeevents
+  
+  Tim: C/N, Textur, pH hinzufügen
+  
+  
+  
+  Zusätzlich zum Ansatz mit Intervallen, Über ganze Saison rechnen und
+  diesbezüglich Aussagekraft von einzeln Messpunkte testen
+  
+  "N-Uptake" mit Erntedaten skalieren
+  
+  Gasemissionen mit Messungen von Klimagruppe vor 3(?) Jahren und Auswaschung mit     Sias-Resultaten (bei Francesco anfragen) adressieren
+  
+  
 
 # 7. Saisonaler Ansatz: Erste vs. Letzte Messung
+# 1. Daten aggregieren auf Saison-Ebene (Erste bis Letzte Messung)
+# 2. Modell fitten (Niederschlag entfällt als Fixed Effect)
 
-  [x] Marc / Agent: Saisonaler Ansatz mit physikalisch korrigierter Bilanz gerechnet (Erledigt in DEMO_25.qmd)
-  - Delta_PC2 (Enzymatischer C/N-Shift) signifikant positiv (p = 0.0228, +2.50 kg N/ha pro Einheit)
-  - Biologische Makro-Kopplung bei Ausschaltung der Niederschlagsvarianz über die Gesamtsaison
 
-# 8. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
+Lag Analyse machen wie bei anderen.
 
-  [x] Marc / Agent: Lag-Analyse analog zu Fields25 implementiert (Erledigt in DEMO_25.qmd & DEMO_prep_data.R)
-  - Rollierende 7d, 14d, 30d Fenster für Niederschlag & GDD in DEMO_prep_data.R festgeschrieben
-  - AIC-Vergleich: Alle Enzymsignale (NAG, GLS, MUP, MUX) und PCs haben Optimum bei 7-Tage-Fenster
-  - Nmin_Total hat Optimum bei 30-Tage-Fenster (träger Pool vs. kurzfristige Enzympulse)
-  - LMM-Visualisierung von PC1 vs. 7-Tage-Niederschlag eingebunden
+DigitSoil Ansatz mit mechanistischem Model vergleichen

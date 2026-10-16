@@ -1,0 +1,93 @@
+---
+title: "Langzeitversuch ZOFE"
+format: html
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| echo: false
+# Bibliotheken und zentrales Daten-Setup laden
+library(tidyverse)
+library(rrcov)
+
+# Das Setup-Skript hat den Master-Datensatz generiert
+df_final <- read_csv("../data/ZOFE/prep_data/ZOFE_2024_cleansed.csv", show_col_types = FALSE)
+```
+
+
+# X. Sensor-Signale: Enzymatische Aktivität (EEA)
+
+```{r}
+df_final |> 
+  # Nur Zeilen behalten, die alle 4 Enzymwerte haben
+  drop_na(NAG, GLS, MUP, MUX, Verfahren) |> 
+  
+  # Ins Long-Format umformen (alle 4 Enzyme untereinander)
+  pivot_longer(
+    cols = c(NAG, GLS, MUP, MUX), 
+    names_to = "Enzym", 
+    values_to = "Aktivitaet"
+  ) |> 
+  
+  # Der Boxplot
+  ggplot(aes(x = Verfahren, y = Aktivitaet, fill = Verfahren)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 21, outlier.size = 2) +
+  
+  # facet_wrap für die 4 Enzyme
+  facet_wrap(~ Enzym, scales = "free_y", ncol = 1) +
+  
+  # Optik
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) +
+  labs(
+    title = "Verteilung der Enzymaktivitäten im Boden",
+    subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren (NAG, GLS, MUP, MUX)",
+    x = "Düngungsverfahren",
+    y = "Enzymaktivität"
+  )
+```
+
+# X. Systemische Kopplung: Korrelationsanalyse
+
+```{r}
+# 1. Daten auswählen und Korrelationsmatrix berechnen
+cor_matrix <- df_final |> 
+  select(NAG, GLS, MUP, MUX, soil_0_20_Corg, soil_0_20_Ctot, soil_0_20_Ntot, soil_0_20_P_AAE10) |> 
+  drop_na() |> 
+  cor(method = "spearman") # Spearman ist robuster bei biologischen Daten
+
+# 2. Die Matrix für ggplot ins Long-Format umwandeln
+cor_data <- cor_matrix |> 
+  as.data.frame() |> 
+  rownames_to_column(var = "Var1") |> 
+  pivot_longer(cols = -Var1, names_to = "Var2", values_to = "Korrelation")
+
+# 3. Die Heatmap plotten
+ggplot(cor_data, aes(x = Var1, y = Var2, fill = Korrelation)) +
+  geom_tile(color = "white", linewidth = 1) +
+  
+  # Die Zahlenwerte in die Kästchen schreiben
+  geom_text(aes(label = round(Korrelation, 2)), color = "black", size = 5) +
+  
+  # Farbverlauf von Rot (-1) über Weiß (0) zu Blau (+1)
+  scale_fill_distiller(palette = "RdBu", direction = 1, limits = c(-1, 1)) +
+  
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    axis.text = element_text(size = 12, face = "bold")
+  ) +
+  labs(
+    title = "Korrelations-Heatmap",
+    subtitle = "Spearman-Korrelation zwischen Enzymen, Nmin und Bodeneigenschaften",
+    fill = "Korrelation\n(Spearman)"
+  )
+```
