@@ -20,10 +20,10 @@ df_final <- read_csv("../data/ZOFE/prep_data/ZOFE_2024_cleansed.csv", show_col_t
 
 # X. Sensor-Signale: Enzymatische Aktivität (EEA)
 
-```{r}
+```{r, fig.height=8}
 df_final |> 
   # Nur Zeilen behalten, die alle 4 Enzymwerte haben
-  drop_na(NAG, GLS, MUP, MUX, Verfahren) |> 
+  drop_na(NAG, GLS, MUP, MUX, Verfahren) |>
   
   # Ins Long-Format umformen (alle 4 Enzyme untereinander)
   pivot_longer(
@@ -59,7 +59,7 @@ df_final |>
 ```{r}
 # 1. Daten auswählen und Korrelationsmatrix berechnen
 cor_matrix <- df_final |> 
-  select(NAG, GLS, MUP, MUX, soil_0_20_Corg, soil_0_20_Ctot, soil_0_20_Ntot, soil_0_20_P_AAE10) |> 
+  select(NAG, GLS, MUP, MUX, soil_0_20_Corg, soil_0_20_Ctot, soil_0_20_Ntot, soil_0_20_P_AAE10, soil_0_20_pH_H2O) |> 
   drop_na() |> 
   cor(method = "spearman") # Spearman ist robuster bei biologischen Daten
 
@@ -83,11 +83,58 @@ ggplot(cor_data, aes(x = Var1, y = Var2, fill = Korrelation)) +
   theme(
     axis.title = element_blank(),
     panel.grid = element_blank(),
-    axis.text = element_text(size = 12, face = "bold")
+    axis.text = element_text(size = 12, face = "bold", angle = 45, h = .9)
   ) +
   labs(
     title = "Korrelations-Heatmap",
     subtitle = "Spearman-Korrelation zwischen Enzymen, Nmin und Bodeneigenschaften",
     fill = "Korrelation\n(Spearman)"
+  )
+```
+
+# X. Biologisches Profil und Dimensionsreduktion
+```{r}
+# Paket für robuste PCA (muss geladen sein)
+library(rrcov)
+
+# 1. Datenvorbereitung (Nur vollständige Datensätze behalten)
+df_pca <- df_final |> 
+  drop_na(NAG, GLS, MUP, MUX, Verfahren)
+
+# 2. Robuste PCA berechnen (scale = TRUE ist essenziell bei Enzymen!)
+pca_rob <- PcaHubert(df_pca |> select(NAG, GLS, MUP, MUX), scale = TRUE)
+
+# 3. Scores (Koordinaten auf PC1/PC2) und erklärte Varianz extrahieren
+df_pca <- df_pca |> 
+  mutate(
+    PC1 = getScores(pca_rob)[, 1],
+    PC2 = getScores(pca_rob)[, 2]
+  )
+
+eigenvals <- getEigenvalues(pca_rob)
+var_pc1 <- round((eigenvals[1] / sum(eigenvals)) * 100, 1)
+var_pc2 <- round((eigenvals[2] / sum(eigenvals)) * 100, 1)
+
+# 4. Der finale Biplot (Score-Plot)
+ggplot(df_pca, aes(x = PC1, y = PC2, color = Verfahren)) +
+  # Ursprungslinien zur Orientierung
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
+  
+  # Die Datenpunkte
+  geom_point(size = 4, alpha = 0.8) +
+  
+  # Optik
+  theme_minimal(base_size = 14) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Biologisches Profil der Düngungsverfahren",
+    subtitle = "Robuste PCA der Digit Soil Sensordaten",
+    x = paste0("PC1 (", var_pc1, "%) - Index der biol. Gesamtaktivität"),
+    y = paste0("PC2 (", var_pc2, "%) - Enzymatischer Shift"),
+    color = "Düngung"
   )
 ```
