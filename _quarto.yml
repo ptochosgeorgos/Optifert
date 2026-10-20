@@ -33,6 +33,9 @@ book:
     - part: "ZOFE"
       chapters:
         - reports/ZOFE.qmd
+    - part: "Synthese & Modell-Evaluation"
+      chapters:
+        - reports/Synthese_Modellvergleich.qmd
     
 format:
   html:

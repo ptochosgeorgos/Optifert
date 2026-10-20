@@ -237,16 +237,24 @@ if (exists("env_daily")) {
   
   library(zoo)
   
-  # Rolling Summen berechnen
+  # Rolling Summen berechnen (1d, 3d, 7d, 14d, 30d, 90d=3m, 180d=6m)
   env_proxies <- env_daily |>
     mutate(
-      Precip_7d = rollapply(precip_sum, width = 7, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
-      Precip_14d = rollapply(precip_sum, width = 14, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
-      Precip_30d = rollapply(precip_sum, width = 30, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_1d   = precip_sum,
+      Precip_3d   = rollapply(precip_sum, width = 3, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_7d   = rollapply(precip_sum, width = 7, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_14d  = rollapply(precip_sum, width = 14, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_30d  = rollapply(precip_sum, width = 30, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_90d  = rollapply(precip_sum, width = 90, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      Precip_180d = rollapply(precip_sum, width = 180, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
       
-      GDD_7d = rollapply(GDD, width = 7, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
-      GDD_14d = rollapply(GDD, width = 14, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
-      GDD_30d = rollapply(GDD, width = 30, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_1d   = GDD,
+      GDD_3d   = rollapply(GDD, width = 3, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_7d   = rollapply(GDD, width = 7, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_14d  = rollapply(GDD, width = 14, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_30d  = rollapply(GDD, width = 30, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_90d  = rollapply(GDD, width = 90, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
+      GDD_180d = rollapply(GDD, width = 180, FUN = sum, align = "right", fill = NA, na.rm = TRUE),
       
       Aridity_14d = Precip_14d / (GDD_14d + 1)
     ) |>

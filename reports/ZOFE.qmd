@@ -512,7 +512,9 @@ zofe_models <- bind_rows(
   eval_zofe_lmm("Total_N_Entzug_kg_ha ~ SEA_eff + Duengung_N_Regime + (1|id_block)", df_zmod,
                 "Z4: Digit-Soil SEA_eff + Düngungsregime"),
   eval_zofe_lmm("Total_N_Entzug_kg_ha ~ PC1 + PC2 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zmod,
-                "Z5: OptiFert rPCA + Boden (P_AAE10, Ton) + Düngungsregime (Optimum)")
+                "Z5: OptiFert rPCA + Boden (P_AAE10, Ton) + Düngungsregime (Mit Enzymen)"),
+  eval_zofe_lmm("Total_N_Entzug_kg_ha ~ soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zmod,
+                "Z6 (Ablation): OHNE Enzyme (-2 df) | Nur Boden (P_AAE10, Ton) + Düngungsregime")
 )
 
 knitr::kable(

@@ -298,28 +298,38 @@ df_merged <- df_temporal |>
 all_years <- unique(na.omit(df_merged$Versuchsjahr))
 if (length(all_years) == 0) all_years <- 2025
 
-meteo_df <- map_dfr(all_years, function(yr) {
-  fetch_meteo_site(
-    site_config = site_config,
-    start_date  = paste0(yr, "-01-01"), 
-    end_date    = paste0(yr, "-12-31")
-  )
-})
+meteo_df <- fetch_meteo_site(
+  site_config = site_config,
+  start_date  = paste0(min(all_years) - 1, "-07-01"), 
+  end_date    = paste0(max(all_years), "-12-31")
+)
 
-# Rollierende Wetterfenster berechnen (7d, 14d, 30d für Niederschlag, GDD & GDD_soil)
+# Rollierende Wetterfenster berechnen (1d, 3d, 7d, 14d, 30d, 90d=3m, 180d=6m für Niederschlag, GDD & GDD_soil)
 meteo_roll <- meteo_df |>
   arrange(Datum) |>
   mutate(
-    Precip_7d = zoo::rollsumr(Precip_mm, k = 7, fill = NA),
-    Precip_14d = zoo::rollsumr(Precip_mm, k = 14, fill = NA),
-    Precip_30d = zoo::rollsumr(Precip_mm, k = 30, fill = NA),
-    GDD_7d = zoo::rollsumr(GDD, k = 7, fill = NA),
-    GDD_14d = zoo::rollsumr(GDD, k = 14, fill = NA),
-    GDD_30d = zoo::rollsumr(GDD, k = 30, fill = NA),
-    GDD_soil_7d = zoo::rollsumr(GDD_soil, k = 7, fill = NA),
-    GDD_soil_14d = zoo::rollsumr(GDD_soil, k = 14, fill = NA),
-    GDD_soil_30d = zoo::rollsumr(GDD_soil, k = 30, fill = NA),
-    CWB_7d = zoo::rollsumr(CWB_mm, k = 7, fill = NA),
+    Precip_1d   = Precip_mm,
+    Precip_3d   = zoo::rollsumr(Precip_mm, k = 3, fill = NA),
+    Precip_7d   = zoo::rollsumr(Precip_mm, k = 7, fill = NA),
+    Precip_14d  = zoo::rollsumr(Precip_mm, k = 14, fill = NA),
+    Precip_30d  = zoo::rollsumr(Precip_mm, k = 30, fill = NA),
+    Precip_90d  = zoo::rollsumr(Precip_mm, k = 90, fill = NA),
+    Precip_180d = zoo::rollsumr(Precip_mm, k = 180, fill = NA),
+    GDD_1d      = GDD,
+    GDD_3d      = zoo::rollsumr(GDD, k = 3, fill = NA),
+    GDD_7d      = zoo::rollsumr(GDD, k = 7, fill = NA),
+    GDD_14d     = zoo::rollsumr(GDD, k = 14, fill = NA),
+    GDD_30d     = zoo::rollsumr(GDD, k = 30, fill = NA),
+    GDD_90d     = zoo::rollsumr(GDD, k = 90, fill = NA),
+    GDD_180d    = zoo::rollsumr(GDD, k = 180, fill = NA),
+    GDD_soil_1d   = GDD_soil,
+    GDD_soil_3d   = zoo::rollsumr(GDD_soil, k = 3, fill = NA),
+    GDD_soil_7d   = zoo::rollsumr(GDD_soil, k = 7, fill = NA),
+    GDD_soil_14d  = zoo::rollsumr(GDD_soil, k = 14, fill = NA),
+    GDD_soil_30d  = zoo::rollsumr(GDD_soil, k = 30, fill = NA),
+    GDD_soil_90d  = zoo::rollsumr(GDD_soil, k = 90, fill = NA),
+    GDD_soil_180d = zoo::rollsumr(GDD_soil, k = 180, fill = NA),
+    CWB_7d  = zoo::rollsumr(CWB_mm, k = 7, fill = NA),
     CWB_14d = zoo::rollsumr(CWB_mm, k = 14, fill = NA),
     CWB_30d = zoo::rollsumr(CWB_mm, k = 30, fill = NA),
     Aridity_Index_14d = Precip_14d / (GDD_14d + 1)

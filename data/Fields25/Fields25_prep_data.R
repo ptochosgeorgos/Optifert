@@ -451,24 +451,39 @@ if (exists("fetch_meteo") && exists("fetch_coords")) {
     f_lon <- farms_coords$lon[i]
     f_site <- farms_coords$plot_nr[i]
     if (!is.na(f_lat) && !is.na(f_lon)) {
-      m <- fetch_meteo(f_lat, f_lon, "2025-01-01", "2025-12-31", site_config$base_temp)
+      m <- fetch_meteo(f_lat, f_lon, "2024-07-01", "2025-12-31", site_config$base_temp)
       m <- m |> mutate(plot_nr = as.numeric(f_site))
       meteo_all <- bind_rows(meteo_all, m)
     }
   }
   
   if (nrow(meteo_all) > 0) {
-    # Berechne rollierende Aggregationen
+    # Berechne rollierende Aggregationen (1d, 3d, 7d, 14d, 30d, 90d=3m, 180d=6m)
     meteo_roll <- meteo_all |>
       arrange(plot_nr, Datum) |>
       group_by(plot_nr) |>
       mutate(
-        Precip_7d = zoo::rollsumr(Precip_mm, k = 7, fill = NA),
-        Precip_14d = zoo::rollsumr(Precip_mm, k = 14, fill = NA),
-        Precip_30d = zoo::rollsumr(Precip_mm, k = 30, fill = NA),
-        GDD_7d = zoo::rollsumr(GDD, k = 7, fill = NA),
-        GDD_14d = zoo::rollsumr(GDD, k = 14, fill = NA),
-        GDD_30d = zoo::rollsumr(GDD, k = 30, fill = NA)
+        Precip_1d   = Precip_mm,
+        Precip_3d   = zoo::rollsumr(Precip_mm, k = 3, fill = NA),
+        Precip_7d   = zoo::rollsumr(Precip_mm, k = 7, fill = NA),
+        Precip_14d  = zoo::rollsumr(Precip_mm, k = 14, fill = NA),
+        Precip_30d  = zoo::rollsumr(Precip_mm, k = 30, fill = NA),
+        Precip_90d  = zoo::rollsumr(Precip_mm, k = 90, fill = NA),
+        Precip_180d = zoo::rollsumr(Precip_mm, k = 180, fill = NA),
+        GDD_1d      = GDD,
+        GDD_3d      = zoo::rollsumr(GDD, k = 3, fill = NA),
+        GDD_7d      = zoo::rollsumr(GDD, k = 7, fill = NA),
+        GDD_14d     = zoo::rollsumr(GDD, k = 14, fill = NA),
+        GDD_30d     = zoo::rollsumr(GDD, k = 30, fill = NA),
+        GDD_90d     = zoo::rollsumr(GDD, k = 90, fill = NA),
+        GDD_180d    = zoo::rollsumr(GDD, k = 180, fill = NA),
+        GDD_soil_1d   = GDD_soil,
+        GDD_soil_3d   = zoo::rollsumr(GDD_soil, k = 3, fill = NA),
+        GDD_soil_7d   = zoo::rollsumr(GDD_soil, k = 7, fill = NA),
+        GDD_soil_14d  = zoo::rollsumr(GDD_soil, k = 14, fill = NA),
+        GDD_soil_30d  = zoo::rollsumr(GDD_soil, k = 30, fill = NA),
+        GDD_soil_90d  = zoo::rollsumr(GDD_soil, k = 90, fill = NA),
+        GDD_soil_180d = zoo::rollsumr(GDD_soil, k = 180, fill = NA)
       ) |>
       ungroup() |>
       mutate(

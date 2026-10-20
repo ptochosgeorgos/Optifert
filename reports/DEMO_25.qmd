@@ -835,7 +835,8 @@ bench_table <- bind_rows(
   eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Fert_N_slow_Interval + (1|ParzNrFeld)", df_cand, model_label = "M7: M2 + Org. Dünger-Pool (slow)"),
   eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + NBilanz_cum_kg_ha + (1|ParzNrFeld)", df_cand, model_label = "M8: M2 + 30J Kum. N-Bilanz"),
   eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M9: M2 + Kultur (SM vs. WG)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M10: M2 + Bodenfeuchte (0-28 cm) + Kultur (Optimum)")
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M10: M2 + Bodenfeuchte (0-28 cm) + Kultur (Mit Enzymen)"),
+  eval_candidate_lmm("dN_fert_adj ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M11 (Ablation): OHNE Enzyme | Nur Precip² + Bodenfeuchte + Kultur")
 )
 
 knitr::kable(
@@ -1015,6 +1016,11 @@ comp_models <- bind_rows(
     "dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
     df_comp,
     model_label = paste0("3. OptiFert rPCA (PC1 + PC2 orthogonal | VIF = ", vif_rpca, ", inkl. C/N-vs.-P Shift)")
+  ),
+  eval_candidate_lmm(
+    "dN_fert_adj ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    df_comp,
+    model_label = "4. Ablation OHNE Enzyme (-2 df | Nur Hydro-Thermik & Kultur)"
   )
 )
 
@@ -1130,53 +1136,71 @@ Da unsere Enzym- und Nmin-Messungen zeitlich diskret (T1 bis T5) und nicht konti
 library(lme4)
 library(purrr)
 
-# 1. Filtern und Skalieren der Prädiktoren für stabile Konvergenz
+# 1. Filtern und Skalieren der Prädiktoren für stabile Konvergenz (1d, 3d, 7d, 14d, 30d, 90d=3m, 180d=6m)
 lmm_data <- df_pca |>
   filter(!is.na(Precip_7d), !is.na(GDD_7d)) |>
-  mutate(across(c(Precip_7d, Precip_14d, Precip_30d, GDD_7d, GDD_14d, GDD_30d, Aridity_Index_14d), scale))
+  mutate(across(c(
+    Precip_1d, Precip_3d, Precip_7d, Precip_14d, Precip_30d, Precip_90d, Precip_180d,
+    GDD_1d, GDD_3d, GDD_7d, GDD_14d, GDD_30d, GDD_90d, GDD_180d,
+    Aridity_Index_14d
+  ), scale))
 ```
 
-## Vergleich der Akkumulationsfenster (AIC-Ranking)
+## Vergleich der Akkumulationsfenster (AIC-Ranking: 1d, 3d, 7d, 14d, 30d, 3m, 6m)
 
-Wir modellieren die einzelnen Enzymsignale (NAG, GLS, MUP, MUX), die beiden Hauptkomponenten (PC1, PC2) sowie den gesamten mineralischen Stickstoff (`Nmin_Total`) als Funktion des kumulativen Niederschlags und der kulturspezifischen Wärmesumme ($\text{GDD}$ bei $T_{\text{base}} = 6.0\,^\circ\text{C}$ für Mais; @mcmasterGrowingDegreedaysOne1997; @bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014), mit Parzellen-spezifischem Random Intercept (`(1 | ParzNrFeld)`):
+Wir modellieren die einzelnen Enzymsignale (NAG, GLS, MUP, MUX), die beiden Hauptkomponenten (PC1, PC2) sowie den gesamten mineralischen Stickstoff (`Nmin_Total`) als Funktion des kumulativen Niederschlags und der kulturspezifischen Wärmesumme ($\text{GDD}$ bei $T_{\text{base}} = 6.0\,^\circ\text{C}$ für Mais; @mcmasterGrowingDegreedaysOne1997; @bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014) über sieben Zeitskalen (**1 Tag, 3 Tage, 7 Tage, 14 Tage, 30 Tage [1m], 90 Tage [3m] und 180 Tage [6m]**), mit Parzellen-spezifischem Random Intercept (`(1 | ParzNrFeld)`):
 
 ```{r lmm-all-aic, warning=FALSE, message=FALSE}
 responses <- c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Nmin_Total")
 
 fit_models <- function(resp_var) {
-  f_7d  <- as.formula(paste(resp_var, "~ Precip_7d + GDD_7d + (1|ParzNrFeld)"))
-  f_14d <- as.formula(paste(resp_var, "~ Precip_14d + GDD_14d + (1|ParzNrFeld)"))
-  f_30d <- as.formula(paste(resp_var, "~ Precip_30d + GDD_30d + (1|ParzNrFeld)"))
-  f_ari <- as.formula(paste(resp_var, "~ Aridity_Index_14d + (1|ParzNrFeld)"))
+  f_1d   <- as.formula(paste(resp_var, "~ Precip_1d + GDD_1d + (1|ParzNrFeld)"))
+  f_3d   <- as.formula(paste(resp_var, "~ Precip_3d + GDD_3d + (1|ParzNrFeld)"))
+  f_7d   <- as.formula(paste(resp_var, "~ Precip_7d + GDD_7d + (1|ParzNrFeld)"))
+  f_14d  <- as.formula(paste(resp_var, "~ Precip_14d + GDD_14d + (1|ParzNrFeld)"))
+  f_30d  <- as.formula(paste(resp_var, "~ Precip_30d + GDD_30d + (1|ParzNrFeld)"))
+  f_90d  <- as.formula(paste(resp_var, "~ Precip_90d + GDD_90d + (1|ParzNrFeld)"))
+  f_180d <- as.formula(paste(resp_var, "~ Precip_180d + GDD_180d + (1|ParzNrFeld)"))
+  f_ari  <- as.formula(paste(resp_var, "~ Aridity_Index_14d + (1|ParzNrFeld)"))
   
   d <- lmm_data |> filter(!is.na(!!sym(resp_var)))
   ctrl <- lmerControl(optimizer = "Nelder_Mead")
   
-  m_7d  <- lmer(f_7d, data = d, REML = FALSE, control = ctrl)
-  m_14d <- lmer(f_14d, data = d, REML = FALSE, control = ctrl)
-  m_30d <- lmer(f_30d, data = d, REML = FALSE, control = ctrl)
-  m_ari <- lmer(f_ari, data = d, REML = FALSE, control = ctrl)
+  m_1d   <- suppressMessages(lmer(f_1d, data = d, REML = FALSE, control = ctrl))
+  m_3d   <- suppressMessages(lmer(f_3d, data = d, REML = FALSE, control = ctrl))
+  m_7d   <- suppressMessages(lmer(f_7d, data = d, REML = FALSE, control = ctrl))
+  m_14d  <- suppressMessages(lmer(f_14d, data = d, REML = FALSE, control = ctrl))
+  m_30d  <- suppressMessages(lmer(f_30d, data = d, REML = FALSE, control = ctrl))
+  m_90d  <- suppressMessages(lmer(f_90d, data = d, REML = FALSE, control = ctrl))
+  m_180d <- suppressMessages(lmer(f_180d, data = d, REML = FALSE, control = ctrl))
+  m_ari  <- suppressMessages(lmer(f_ari, data = d, REML = FALSE, control = ctrl))
   
-  aic_vals <- AIC(m_7d, m_14d, m_30d, m_ari)
+  aic_vals <- AIC(m_1d, m_3d, m_7d, m_14d, m_30d, m_90d, m_180d, m_ari)
   tibble(
     Signal = resp_var,
-    `7-Tage` = aic_vals$AIC[1],
-    `14-Tage` = aic_vals$AIC[2],
-    `30-Tage` = aic_vals$AIC[3],
-    `Aridity (14d)` = aic_vals$AIC[4]
+    `1-Tag (1d)`     = aic_vals$AIC[1],
+    `3-Tage (3d)`    = aic_vals$AIC[2],
+    `7-Tage (7d)`    = aic_vals$AIC[3],
+    `14-Tage (14d)`  = aic_vals$AIC[4],
+    `30-Tage (1m)`   = aic_vals$AIC[5],
+    `90-Tage (3m)`   = aic_vals$AIC[6],
+    `180-Tage (6m)`  = aic_vals$AIC[7],
+    `Aridity (14d)`  = aic_vals$AIC[8]
   )
 }
 
 aic_results <- map_dfr(responses, fit_models)
 
-# Bester (niedrigster) AIC pro Zeile
+lag_cols <- c("1-Tag (1d)", "3-Tage (3d)", "7-Tage (7d)", "14-Tage (14d)", "30-Tage (1m)", "90-Tage (3m)", "180-Tage (6m)", "Aridity (14d)")
+
 aic_results_display <- aic_results |>
   rowwise() |>
-  mutate(Best_Lag = c("7-Tage", "14-Tage", "30-Tage", "Aridity (14d)")[which.min(c(`7-Tage`, `14-Tage`, `30-Tage`, `Aridity (14d)`))])
+  mutate(Best_Lag = lag_cols[which.min(c_across(all_of(lag_cols)))]) |>
+  ungroup()
 
 knitr::kable(
   aic_results_display, 
-  caption = "AIC-Modellvergleich für enzymatische Signale und Nmin über verschiedene pedoklimatische Akkumulationsfenster (DEMO 2025)",
+  caption = "AIC-Modellvergleich für enzymatische Signale und Nmin über kurz-, mittel- und langfristige pedoklimatische Akkumulationsfenster (1d, 3d, 7d, 14d, 30d/1m, 90d/3m, 180d/6m im DEMO-Versuch 2025)",
   digits = 1
 )
 ```

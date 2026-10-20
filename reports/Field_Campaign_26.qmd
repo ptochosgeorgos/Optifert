@@ -409,16 +409,17 @@ library(lme4)
 # Wir filtern NAs und unvollständige Proxy-Daten
 # Nutzen df_pca um PC1 und PC2 zur Verfügung zu haben
 lmm_data <- df_pca |>
-  filter(!is.na(Precip_7d), !is.na(GDD_7d))
-
-# Zentrierung und Skalierung der Prädiktoren für stabile Konvergenz
-lmm_data <- lmm_data |>
-  mutate(across(c(Precip_7d, Precip_14d, Precip_30d, GDD_7d, GDD_14d, GDD_30d, Aridity_Index_14d), scale))
+  filter(!is.na(Precip_7d), !is.na(GDD_7d)) |>
+  mutate(across(c(
+    Precip_1d, Precip_3d, Precip_7d, Precip_14d, Precip_30d, Precip_90d, Precip_180d,
+    GDD_1d, GDD_3d, GDD_7d, GDD_14d, GDD_30d, GDD_90d, GDD_180d,
+    Aridity_Index_14d
+  ), scale))
 ```
 
-## Vergleich der Akkumulations-Fenster für alle Signale
+## Vergleich der Akkumulations-Fenster für alle Signale (1d, 3d, 7d, 14d, 30d, 3m, 6m)
 
-Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für Standort (`plot_nr`) und Behandlung (`treatment`).
+Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme über sieben Zeitskalen (**1 Tag, 3 Tage, 7 Tage, 14 Tage, 30 Tage [1m], 90 Tage [3m] und 180 Tage [6m]**), mit zufälligen Effekten für Standort (`plot_nr`) und Behandlung (`treatment`).
 
 ```{r lmm-all-aic, warning=FALSE, message=FALSE}
 library(purrr)
@@ -426,41 +427,52 @@ library(purrr)
 responses <- c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Ntot")
 
 fit_models <- function(resp_var) {
-  # Dynamische Formel-Erstellung
-  f_7d  <- as.formula(paste(resp_var, "~ Precip_7d + GDD_7d + (1|plot_nr) + (1|treatment)"))
-  f_14d <- as.formula(paste(resp_var, "~ Precip_14d + GDD_14d + (1|plot_nr) + (1|treatment)"))
-  f_30d <- as.formula(paste(resp_var, "~ Precip_30d + GDD_30d + (1|plot_nr) + (1|treatment)"))
-  f_ari <- as.formula(paste(resp_var, "~ Aridity_Index_14d + (1|plot_nr) + (1|treatment)"))
+  f_1d   <- as.formula(paste(resp_var, "~ Precip_1d + GDD_1d + (1|plot_nr) + (1|treatment)"))
+  f_3d   <- as.formula(paste(resp_var, "~ Precip_3d + GDD_3d + (1|plot_nr) + (1|treatment)"))
+  f_7d   <- as.formula(paste(resp_var, "~ Precip_7d + GDD_7d + (1|plot_nr) + (1|treatment)"))
+  f_14d  <- as.formula(paste(resp_var, "~ Precip_14d + GDD_14d + (1|plot_nr) + (1|treatment)"))
+  f_30d  <- as.formula(paste(resp_var, "~ Precip_30d + GDD_30d + (1|plot_nr) + (1|treatment)"))
+  f_90d  <- as.formula(paste(resp_var, "~ Precip_90d + GDD_90d + (1|plot_nr) + (1|treatment)"))
+  f_180d <- as.formula(paste(resp_var, "~ Precip_180d + GDD_180d + (1|plot_nr) + (1|treatment)"))
+  f_ari  <- as.formula(paste(resp_var, "~ Aridity_Index_14d + (1|plot_nr) + (1|treatment)"))
   
-  # Datensatz für diese Response filtern um NAs zu vermeiden
   d <- lmm_data |> filter(!is.na(!!sym(resp_var)))
   
-  # lmerControl wird verwendet, um Konvergenzwarnungen zu minimieren
   ctrl <- lmerControl(optimizer ="Nelder_Mead")
-  m_7d  <- lmer(f_7d, data = d, REML = FALSE, control = ctrl)
-  m_14d <- lmer(f_14d, data = d, REML = FALSE, control = ctrl)
-  m_30d <- lmer(f_30d, data = d, REML = FALSE, control = ctrl)
-  m_ari <- lmer(f_ari, data = d, REML = FALSE, control = ctrl)
+  m_1d   <- suppressMessages(lmer(f_1d, data = d, REML = FALSE, control = ctrl))
+  m_3d   <- suppressMessages(lmer(f_3d, data = d, REML = FALSE, control = ctrl))
+  m_7d   <- suppressMessages(lmer(f_7d, data = d, REML = FALSE, control = ctrl))
+  m_14d  <- suppressMessages(lmer(f_14d, data = d, REML = FALSE, control = ctrl))
+  m_30d  <- suppressMessages(lmer(f_30d, data = d, REML = FALSE, control = ctrl))
+  m_90d  <- suppressMessages(lmer(f_90d, data = d, REML = FALSE, control = ctrl))
+  m_180d <- suppressMessages(lmer(f_180d, data = d, REML = FALSE, control = ctrl))
+  m_ari  <- suppressMessages(lmer(f_ari, data = d, REML = FALSE, control = ctrl))
   
-  aic_vals <- AIC(m_7d, m_14d, m_30d, m_ari)
+  aic_vals <- AIC(m_1d, m_3d, m_7d, m_14d, m_30d, m_90d, m_180d, m_ari)
   
   tibble(
     Signal = resp_var,
-    `7-Tage` = aic_vals$AIC[1],
-    `14-Tage` = aic_vals$AIC[2],
-    `30-Tage` = aic_vals$AIC[3],
-    `Aridity (14d)` = aic_vals$AIC[4]
+    `1-Tag (1d)`     = aic_vals$AIC[1],
+    `3-Tage (3d)`    = aic_vals$AIC[2],
+    `7-Tage (7d)`    = aic_vals$AIC[3],
+    `14-Tage (14d)`  = aic_vals$AIC[4],
+    `30-Tage (1m)`   = aic_vals$AIC[5],
+    `90-Tage (3m)`   = aic_vals$AIC[6],
+    `180-Tage (6m)`  = aic_vals$AIC[7],
+    `Aridity (14d)`  = aic_vals$AIC[8]
   )
 }
 
 aic_results <- map_dfr(responses, fit_models)
 
-# Ermittle den besten (niedrigsten) AIC pro Zeile und markiere ihn
+lag_cols <- c("1-Tag (1d)", "3-Tage (3d)", "7-Tage (7d)", "14-Tage (14d)", "30-Tage (1m)", "90-Tage (3m)", "180-Tage (6m)", "Aridity (14d)")
+
 aic_results_display <- aic_results |>
   rowwise() |>
-  mutate(Best_Lag = c("7-Tage", "14-Tage", "30-Tage", "Aridity (14d)")[which.min(c(`7-Tage`, `14-Tage`, `30-Tage`, `Aridity (14d)`))])
+  mutate(Best_Lag = lag_cols[which.min(c_across(all_of(lag_cols)))]) |>
+  ungroup()
 
-knitr::kable(aic_results_display, caption = "AIC Modellvergleich für enzymatische Signale und PCs", digits = 1)
+knitr::kable(aic_results_display, caption = "AIC Modellvergleich für enzymatische Signale und PCs über 1d, 3d, 7d, 14d, 30d (1m), 90d (3m) und 180d (6m)", digits = 1)
 ```
 
 Das Modell mit dem niedrigsten AIC repräsentiert das wahrscheinlichste Akkumulations-Fenster ("Lag"), in dem die Bodenumwelt die mikrobielle Enzym-Produktion geprägt hat. Die robuste PCA (PC1) zeigt, dass die allgemeine mikrobielle Aktivität sehr deutlich vom **14-Tage-Fenster** gesteuert wird.

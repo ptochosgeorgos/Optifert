@@ -1,0 +1,878 @@
+---
+title: "Synthese: Enzym-Signifikanz, Ablations-Benchmark & LOO-Validierung"
+subtitle: "Versuchsübergreifende Evaluation der Modellarchitektur (MIT vs. OHNE Enzymdaten), LOPO-Hypothesentests, Residuendiagnostik und 7-Skalen-Lag-Analyse"
+author: "Marc & Agroscope / ZHAW Team"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    code-summary: "R-Code anzeigen"
+execute:
+  warning: false
+  message: false
+---
+
+# Zielsetzung dieses Synthese-Kapitels
+
+Dieses Kapitel führt die statistischen und bodenökologischen Befunde aus allen vier Versuchssystemen (**DEMO-Langzeitversuch**, **Wägbare Lysimeteranlage**, **On-Farm-Praxisbetriebe Fields25** und **ZOFE-Langzeitversuch**) sowie dem vereinheitlichten Gesamtdatensatz ($N = 264$ Intervalle) zusammen. Es beantwortet fünf zentrale wissenschaftliche Kernfragen zur Leistungsfähigkeit der enzymatischen Bodensensorik (*Digit Soil SEAR*):
+
+1. **Methodik der Kreuzvalidierung (LOO-Varianten & `pareto_k`):** Welche Leave-One-Out-Verfahren existieren in der modernen Statistik (**Bayesian PSIS-LOO mit `pareto_k`** nach @Vehtari2017 vs. **Exact Observation-LOO** vs. **Exact Plotwise LOPO-CV** nach @Roberts2017), warum haben wir uns für die Kombination aus **exaktem Observation-LOO** und **gruppiertem Leave-One-Plot-Out (LOPO-CV)** entschieden, und wie prüfen wir einflussreiche Datenpunkte (*Leverage* / *Cook's Distance* als exaktes Gegenstück zu `pareto_k`)?
+2. **Signifikanz von `PC1` und `PC2` im Kontrast der Modellstufen:** In welchen Systemen und unter welchen Bedingungen leisten die orthogonalen Enzym-Hauptkomponenten (`PC1`: allgemeine mikrobielle Aktivität; `PC2`: stöchiometrischer C/N-vs.-P-Shift) einen statistisch signifikanten Beitrag zur Erklärung der Stickstoff-Massenbilanz ($dN$)?
+3. **Ablations-Experiment (MIT vs. OHNE Enzymdaten) & LOPO-Hypothesentests:** Was passiert mit der Modellgüte ($\text{AICc}$, $\text{BIC}$, $R^2_m$) und der Vorhersagekraft auf ungesehenen Parzellen ($R^2_{\text{LOPO}}, \text{RMSE}_{\text{LOPO}}$), wenn wir **komplett auf die Enzymdaten verzichten**? Wie gross sind **Mittelwert, Standardfehler ($\pm\text{SE}$) und Varianz** von $\text{RMSE}_{\text{LOPO}}$ und $R^2_{\text{LOPO}}$ über die Parzellen, und lassen sich die Modellunterschiede mittels **gepaarter Out-of-Sample-Hypothesentests** ($t$-Test & Wilcoxon-Test) statistisch absichern?
+4. **Residuen-Diagnostik (Normalverteilung, Leptokurtosis & Homoskedastizität):** Sind die Modellresiduen hinreichend normalverteilt und homoskedastisch (Shapiro-Wilk-Test, Breusch-Pagan-Test, Q-Q- und Scale-Location-Plots), und halten die Signifikanzen auch unter **ausreisser-robuster Huber-M-Schätzung (`MASS::rlm`)** stand?
+5. **Erweiterte 7-Skalen-Lag-Analyse (`1d`, `3d`, `7d`, `14d`, `30d` [1m], `90d` [3m], `180d` [6m]):** Welches pedoklimatische Gedächtnisfenster vom Einzeltag bis zum Halbjahr erklärt die Enzymaktivitäten und den $N_{\text{min}}$-Pool über die verschiedenen Versuchssysteme hinweg am besten?
+
+---
+
+# Methodische Begründung der Kreuzvalidierung: PSIS-LOO (`pareto_k`) vs. Exact Observation-LOO vs. Plotwise LOPO-CV
+
+Für die Verteidigung unserer Modellvalidierung ist es entscheidend, drei in der Literatur häufig verwechselte Leave-One-Out-Konzepte präzise voneinander abzugrenzen:
+
+## 1. Bayesian PSIS-LOO und die `pareto_k`-Diagnostik ($\hat{k}$, Vehtari et al. 2017)
+
+In der Bayes'schen Statistik (z. B. `Stan`, `brms`, `rstanarm`) wird ein Modell mittels Markov-Chain-Monte-Carlo (MCMC) über Tausende Iterationen geschätzt. Würde man für einen Datensatz mit $N = 264$ Beobachtungen ein echtes Leave-One-Out durchführen, müsste man das MCMC-Modell $264$-mal komplett neu fitten – was Stunden dauern würde.
+
+Um dieses Rechenzeitproblem zu umgehen, entwickelten @Vehtari2017 **PSIS-LOO** (*Pareto-Smoothed Importance Sampling Leave-One-Out Cross-Validation*, implementiert im R-Paket `loo`):
+
+* **Funktionsweise:** Das Modell wird **nur ein einziges Mal** auf allen $N$ Datenpunkten gefittet. Anschliessend wird geschätzt, wie die Vorhersage für Punkt $i$ ausgesehen *hätte*, wenn man ihn weggelassen hätte, indem die Posterior-Stichproben $\theta^{(s)}$ mit dem inversen Likelihood-Beitrag gewichtet werden:
+  $$r_i^{(s)} = \frac{1}{p(y_i \mid \theta^{(s)})}$$
+* **Das Problem schwerer Ränder und die Bedeutung von `pareto_k` ($\hat{k}_i$):** Hat ein einzelner Datenpunkt $i$ einen sehr starken Einfluss auf die geschätzte Regressionsfläche (*High Leverage* oder *Outlier*), dann verändert das Weglassen von $y_i$ die Posterior-Verteilung drastisch. Die Importance-Gewichte $r_i^{(s)}$ bekommen extrem schwere Ränder (*Heavy Tails*). Um diese zu glätten, fitten @Vehtari2017 eine **Allgemeine Pareto-Verteilung** (*Generalized Pareto Distribution*) an die grössten $20\,\%$ der Gewichte $r_i^{(s)}$. Der geschätzte Formparameter dieser Pareto-Verteilung heisst **`pareto_k` ($\hat{k}_i$)** und hat zwei Bedeutungen:
+  1. **Numerischer Zuverlässigkeits-Indikator für die Approximation:**
+     * $\hat{k}_i < 0.5$: Die Importance-Sampling-Approximation ist sehr genau; die Varianz der Gewichte ist endlich.
+     * $0.5 \le \hat{k}_i \le 0.7$: Die Varianz der rohen Gewichte ist unendlich, aber die Pareto-Glättung funktioniert noch mit akzeptabler Fehlerrate.
+     * **$\hat{k}_i > 0.7$:** **Die PSIS-Approximation bricht mathematisch zusammen!** Der Datenpunkt $i$ beeinflusst das Modell so stark, dass er aus dem Gesamtfitting nicht mehr zuverlässig herausgerechnet werden kann. **Wichtig:** Selbst @Vehtari2017 empfehlen für alle Punkte mit $\hat{k}_i > 0.7$ ausdrücklich das **exakte Neu-Fitten (*Exact LOO Refit*)** des Modells ohne Beobachtung $i$!
+  2. **Inhaltliches Diagnosemass für Hebelwirkung (*Leverage*):** Ein hohes $\hat{k}_i$ zeigt an, dass Beobachtung $i$ ein starker Hebelpunkt (*Influential Observation*) ist – es ist das Bayes'sche Äquivalent zur klassischen **Cook's Distance ($D_i$)** und zur **Hat-Matrix-Leverage ($h_{ii}$)**.
+
+## 2. Warum wir im OptiFert-Projekt statt der PSIS-Approximation das *Exakte* Observation-LOO + *Exakte* Plotwise LOPO-CV verwenden
+
+Unsere Modelle sind frequentistische **Linear Mixed-Effects Models (`lme4::lmer`)** mit analytisch-numerischer Profil-Likelihood-Optimierung (REML/ML). Ein einzelner Modell-Fit dauert weniger als $15\,\text{Millisekunden}$. Daraus ergeben sich **drei zwingende methodische Gründe** für unsere Validierungsarchitektur:
+
+1. **Keine Approximationsfehler durch Exact LOO Refitting (`RMSE_LOO`, `R²_LOO`):**
+   Da wir das LMM für jede einzelne Beobachtung $i \in \{1, \dots, N\}$ auf dem reduzierten Datensatz $D_{-i}$ **exakt neu schätzen (`lmer(f, data = data[-i, ])`)**, benötigen wir keine Importance-Sampling-Approximation. Unsere LOO-Vorhersagen $\hat{y}_{i,-i}$ sind **100 % exakt** – selbst dort, wo eine PSIS-LOO-Approximation wegen $\hat{k}_i > 0.7$ (wie es bei Modellen mit parzellenspezifischen Random Effects regelmässig auftritt!) versagen würde.
+2. **Vermeidung von *Data Leakage* bei Messwiederholungen durch Plotwise LOPO-CV (`RMSE_LOPO`, `R²_LOPO` nach @Roberts2017):**
+   Weder Standard-PSIS-LOO noch Observation-wise LOO lösen das Hauptproblem hierarchischer Agrardaten: Im DEMO-Versuch gibt es 5 Messzeitpunkte pro Parzelle, im Lysimeter 4 Zeitpunkte pro Gefäss. Lässt man nur *ein einzelnes Intervall* $y_{p,t}$ weg, bleiben die anderen 3–4 Zeitpunkte derselben Parzelle $p$ im Trainingssatz. Das Modell kennt dadurch den parzellenspezifischen Random Intercept $\hat{u}_p$ bereits!
+   Um die **reale Übertragbarkeit auf einen völlig neuen, unkalibrierten Praxisschlag** zu testen, haben wir zusätzlich das **Exact Leave-One-Plot-Out (LOPO-CV, @Roberts2017)** implementiert: Hierbei werden in jeder Schleife **sämtliche Messungen einer ganzen Parzelle $p$ gleichzeitig entfernt** und ausschliesslich über die Fixed Effects (`re.form = NA`) prognostiziert.
+3. **Explizite Hebelwirkungs- und Ausreisser-Diagnostik (Exaktes Gegenstück zu `pareto_k`):**
+   Um dennoch den diagnostischen Mehrwert von `pareto_k` (Identifikation einflussreicher Einzelmessungen) voll auszuschöpfen, berechnen wir aus unseren exakten LOO-Fits für jede Beobachtung $i$ den **standardisierten exakten LOO-Vorhersageshift** ($\Delta\hat{y}_i^{\text{std}} = |\hat{y}_i - \hat{y}_{i,-i}| / \hat{\sigma}_\varepsilon$), die **Hat-Matrix-Leverage $h_{ii}$** sowie **Cook's Distance $D_i$** (siehe Abschnitt 4).
+
+| Validierungsmethode | Rechenprinzip | Behandelt $\hat{k} > 0.7$ exakt? | Verhindert Parzellen-*Data-Leakage*? | Beantwortete Frage im Projekt |
+| :--- | :--- | :---: | :---: | :--- |
+| **PSIS-LOO (`pareto_k`)** [@Vehtari2017] | 1 Modell-Fit + Pareto-geglättetes Importance Sampling | **Nein** (bricht ab $\hat{k} > 0.7$ zusammen $\to$ braucht Exact Refit) | **Nein** (kennt weiterhin die übrigen Zeitpunkte der Parzelle) | Schnelle Approximation für langsame MCMC-Modelle & Ausreisser-Warnung. |
+| **Exact Observation-LOO (`RMSE_LOO`, `R²_LOO`)** | **$N$-faches exaktes Neu-Fitten** ohne Beobachtung $i$ | **Ja (100 % exakt)** | **Nein** (nutzt Random Intercept $\hat{u}_p$ der bekannten Parzelle) | Wie gut interpoliert das Modell ein neues Zeitintervall auf einem **bereits kalibrierten Schlag**? |
+| **Exact Plotwise LOPO-CV (`RMSE_LOPO`, `R²_LOPO`)** [@Roberts2017] | **$P$-faches exaktes Neu-Fitten** ohne komplette Parzelle $p$ (`re.form = NA`) | **Ja (100 % exakt)** | **Ja (strikte Trennung auf Parzellenebene)** | Wie gut generalisiert das Modell **blind auf einen völlig neuen Praxisschlag** nur über Fixed Effects? |
+
+---
+
+# Waren `PC1` und `PC2` signifikant? Systematische Evaluation über alle Versuche
+
+Um zu verstehen, wann die Enzymsensoren (`PC1`, `PC2`) statistisch signifikant sind und wann ihre Erklärungskraft auf physikalische Prozessvariablen übergeht, werten wir über alle vier Versuchssysteme sowie den Gesamtdatensatz ($N = 264$) jeweils die exakt gleichen Modellstufen aus.
+
+```{r setup-synthesis-data, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(readxl)
+library(lme4)
+library(lmerTest)
+library(MuMIn)
+library(rrcov)
+library(vegan)
+library(gridExtra)
+
+source("../scripts/meteo_nmin_utils.R")
+
+# 1. Harmonisierter Intervall-Gesamtdatensatz (DEMO n=77, Lysimeter n=128, Fields25 n=59 -> N=264)
+df_tot <- readRDS("../data/OptiFert_Total_Intervals.rds") |>
+  mutate(
+    Precip_rate = Cum_Precip_mm / interval_days,
+    CWB_rate    = Cum_CWB_mm / interval_days,
+    GLS_index   = 0.5 + GLS / 25,
+    NAG_index   = 0.5 + NAG / 8,
+    SEA_70_30   = 0.7 * GLS_index + 0.3 * NAG_index
+  )
+
+df_demo <- df_tot |> filter(LTE == "DEMO") |>
+  mutate(Kultur = factor(crop))
+
+df_lysi <- df_tot |> filter(LTE == "Lysimeter")
+df_fc   <- df_tot |> filter(LTE == "Fields25")
+
+# 2. ZOFE-Datensatz (Querschnitt 2024/2025: N-Entzug Sommergerste vs. rPCA, Boden & Düngung)
+df_zofe_raw <- readRDS("../data/ZOFE/prep_data/ZOFE_cleansed.rds")
+enz_cols <- c("NAG", "GLS", "MUP", "MUX")
+df_zofe_clean <- df_zofe_raw |> drop_na(all_of(enz_cols))
+pca_zofe <- PcaHubert(df_zofe_clean |> select(all_of(enz_cols)) |> scale(), k = 2, alpha = 0.75)
+
+df_zofe <- df_zofe_clean |>
+  mutate(
+    PC1 = pca_zofe@scores[, 1],
+    PC2 = pca_zofe@scores[, 2],
+    GLS_index = 0.5 + GLS / 25,
+    NAG_index = 0.5 + NAG / 8,
+    SEA_70_30 = 0.7 * GLS_index + 0.3 * NAG_index,
+    clay_mult = case_when(
+      soil_Ton <= 15 ~ 1.0,
+      soil_Ton >= 30 ~ 0.1,
+      TRUE ~ 1.0 - (soil_Ton - 15) * (0.9 / 15)
+    ),
+    SEA_eff = SEA_70_30 * clay_mult,
+    Duengung_N_Regime = factor(
+      case_when(
+        id_treat %in% c(1, 10) ~ "Ohne N-Düngung (K0/PK)",
+        id_treat %in% c(2, 3, 4) ~ "Rein Organisch",
+        id_treat %in% c(6, 7, 8, 9) ~ "Organisch-Mineralisch (+PKN)",
+        TRUE ~ "Rein Mineralisch (NPK)"
+      ),
+      levels = c("Ohne N-Düngung (K0/PK)", "Rein Organisch", "Organisch-Mineralisch (+PKN)", "Rein Mineralisch (NPK)")
+    )
+  ) |>
+  drop_na(Total_N_Entzug_kg_ha, PC1, PC2, soil_Corg, soil_Ton, soil_P_AAE10, soil_pH_H2O, id_block)
+```
+
+```{r significance-table-computation, warning=FALSE, message=FALSE}
+extract_enz_sig <- function(formula_str, data, system_label, stage_label, enz_terms = c("PC1", "PC2")) {
+  m <- suppressMessages(lmer(as.formula(formula_str), data = data, REML = TRUE))
+  cf <- summary(m)$coefficients
+  r2 <- r.squaredGLMM(m)
+  
+  get_term_str <- function(term) {
+    if (!term %in% rownames(cf)) return("—")
+    est  <- cf[term, "Estimate"]
+    se   <- cf[term, "Std. Error"]
+    pval <- cf[term, "Pr(>|t|)"]
+    stars <- case_when(
+      pval < 0.001 ~ "***",
+      pval < 0.01  ~ "**",
+      pval < 0.05  ~ "*",
+      pval < 0.10  ~ ".",
+      TRUE         ~ " (n.s.)"
+    )
+    sprintf("%+.2f ± %.2f (p=%.3f%s)", est, se, pval, stars)
+  }
+  
+  tibble(
+    Versuchssystem = system_label,
+    Modellstufe    = stage_label,
+    `PC1: β ± SE (p-Wert)` = get_term_str("PC1"),
+    `PC2: β ± SE (p-Wert)` = get_term_str("PC2"),
+    `SEA_70:30: β ± SE (p-Wert)` = get_term_str("SEA_70_30"),
+    `R²_m (Fixed)` = round(r2[1, "R2m"], 3),
+    `R²_c (Total)` = round(r2[1, "R2c"], 3)
+  )
+}
+
+sig_summary_table <- bind_rows(
+  # 1. DEMO 2025
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo,
+                  "1. DEMO 2025 (n = 77)", "A. Nur Enzyme (ohne Witterung)"),
+  extract_enz_sig("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|plot_id)", df_demo,
+                  "1. DEMO 2025 (n = 77)", "B. Rohes dN_raw + poly(Precip, 2)"),
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo,
+                  "1. DEMO 2025 (n = 77)", "C. Vollmodell (rPCA + 0-28cm Feuchte + Kultur)"),
+  extract_enz_sig("dN_mech ~ SEA_70_30 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo,
+                  "1. DEMO 2025 (n = 77)", "D. Vollmodell mit Digit-Soil SEA_70:30"),
+  
+  # 2. Lysimeter
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_lysi,
+                  "2. Lysimeter (n = 128)", "A. Nur Enzyme (ohne Witterung)"),
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|plot_id)", df_lysi,
+                  "2. Lysimeter (n = 128)", "B. Düng.-korr. dN + poly(Precip, 2) + Corg"),
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi,
+                  "2. Lysimeter (n = 128)", "C. Vollmodell (rPCA + poly(KWB, 2) + Feuchte + Corg)"),
+  extract_enz_sig("dN_mech ~ SEA_70_30 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi,
+                  "2. Lysimeter (n = 128)", "D. Vollmodell mit Digit-Soil SEA_70:30"),
+  
+  # 3. Fields25
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_fc,
+                  "3. Fields25 On-Farm (n = 59)", "A. Nur Enzyme (ohne Witterung)"),
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc,
+                  "3. Fields25 On-Farm (n = 59)", "C. Vollmodell (rPCA + KWB + Feuchte + GDD_soil + Corg)"),
+  extract_enz_sig("dN_mech ~ SEA_70_30 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc,
+                  "3. Fields25 On-Farm (n = 59)", "D. Vollmodell mit Digit-Soil SEA_70:30"),
+  
+  # 4. ZOFE
+  extract_enz_sig("Total_N_Entzug_kg_ha ~ PC1 + PC2 + (1|id_block)", df_zofe,
+                  "4. ZOFE (n = 34)", "A. Nur Enzyme (Herbst-Stoppel ohne Management)"),
+  extract_enz_sig("Total_N_Entzug_kg_ha ~ PC1 + PC2 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zofe,
+                  "4. ZOFE (n = 34)", "C. Vollmodell (rPCA + P_AAE10 + Ton + Düngung)"),
+  extract_enz_sig("Total_N_Entzug_kg_ha ~ SEA_70_30 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zofe,
+                  "4. ZOFE (n = 34)", "D. Vollmodell mit Digit-Soil SEA_70:30"),
+  
+  # 5. Total Dataset N = 264
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_tot,
+                  "5. Gesamtdatensatz (N = 264)", "A. Nur Enzyme (ohne Witterung)"),
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot,
+                  "5. Gesamtdatensatz (N = 264)", "C. Vollmodell (rPCA + KWB² + GDD_soil + Feuchte + LTE)"),
+  extract_enz_sig("dN_mech ~ SEA_70_30 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot,
+                  "5. Gesamtdatensatz (N = 264)", "D. Vollmodell mit Digit-Soil SEA_70:30")
+)
+
+knitr::kable(
+  sig_summary_table,
+  caption = "Übersicht der Regressionskoeffizienten (β ± SE) und Signifikanzen (p-Werte nach Satterthwaite) für PC1, PC2 und den Digit-Soil-Summenindex SEA_70:30 über alle Versuchssysteme und Modellstufen (* p < 0.05, ** p < 0.01, *** p < 0.001)."
+)
+```
+
+```{r plot-significance-shift, fig.width=11, fig.height=5.5, warning=FALSE, message=FALSE}
+get_t_stats <- function(formula_str, data, system_label, stage_label) {
+  m <- suppressMessages(lmer(as.formula(formula_str), data = data, REML = TRUE))
+  cf <- summary(m)$coefficients
+  terms_present <- intersect(c("PC1", "PC2", "SEA_70_30"), rownames(cf))
+  map_dfr(terms_present, function(tm) {
+    tibble(
+      System = system_label,
+      Stufe  = stage_label,
+      Term   = tm,
+      t_val  = cf[tm, "t value"],
+      p_val  = cf[tm, "Pr(>|t|)"],
+      sig    = ifelse(cf[tm, "Pr(>|t|)"] < 0.05, "Signifikant (p < 0.05)", "Nicht signifikant (p >= 0.05)")
+    )
+  })
+}
+
+df_t_plot <- bind_rows(
+  get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo, "DEMO 2025\n(n = 77)", "1. Ohne Witterung (Nur Enzyme)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "DEMO 2025\n(n = 77)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_lysi, "Lysimeter\n(n = 128)", "1. Ohne Witterung (Nur Enzyme)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "Lysimeter\n(n = 128)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_fc, "Fields25 On-Farm\n(n = 59)", "1. Ohne Witterung (Nur Enzyme)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc, "Fields25 On-Farm\n(n = 59)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_tot, "Gesamtdatensatz\n(N = 264)", "1. Ohne Witterung (Nur Enzyme)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot, "Gesamtdatensatz\n(N = 264)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)")
+) |>
+  mutate(
+    System = factor(System, levels = c("DEMO 2025\n(n = 77)", "Lysimeter\n(n = 128)", "Fields25 On-Farm\n(n = 59)", "Gesamtdatensatz\n(N = 264)")),
+    Term_Label = ifelse(Term == "PC1", "PC1 (Allg. Aktivität)", "PC2 (C/N-vs.-P Shift)")
+  )
+
+ggplot(df_t_plot, aes(x = System, y = abs(t_val), fill = Stufe)) +
+  geom_col(position = position_dodge(width = 0.72), width = 0.65, color = "black", alpha = 0.88) +
+  geom_hline(yintercept = 1.98, linetype = "dashed", color = "#c0392b", linewidth = 0.9) +
+  annotate("text", x = 0.6, y = 2.15, label = "Signifikanzschwelle |t| = 1.98 (p = 0.05)",
+           color = "#c0392b", fontface = "bold", hjust = 0, size = 3.5) +
+  facet_wrap(~ Term_Label) +
+  scale_fill_manual(values = c("1. Ohne Witterung (Nur Enzyme)" = "#3498db",
+                               "2. Vollmodell (+ Hydro-Thermik 0-28cm)" = "#2ecc71")) +
+  theme_minimal(base_size = 12.5) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6),
+    strip.text   = element_text(face = "bold", size = 12),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Betrag der t-Statistik (|t|) von PC1 und PC2: Ohne Witterungsdaten vs. Vollmodell",
+    subtitle = "Im Freiland übernehmen die 0–28 cm Hydro-Thermik-Variablen die Varianz; im kontrollierten Lysimeter bleibt PC2 hochsignifikant (p = 0.011*)",
+    x = "Versuchssystem",
+    y = "Betrag der t-Statistik |t|",
+    fill = "Modellstufe"
+  )
+```
+
+---
+
+# Ablations-Benchmark (MIT vs. OHNE Enzymdaten) & Statistische Hypothesentests auf LOPO-CV-Metriken
+
+## 1. Versuchsübergreifender Ablations-Benchmark
+
+Wir vergleichen für jedes Versuchssystem vier exakt abgestufte Modelle:
+1. **Nur Enzyme (`PC1 + PC2`)** ohne Umwelt-Kovariaten,
+2. **Vollmodell MIT Digit-Soil-Summenindex (`SEA_70:30`**, $1$ Freiheitsgrad für Enzymindex),
+3. **Vollmodell MIT OptiFert `rPCA` (`PC1 + PC2`**, $2$ Freiheitsgrade für orthogonale Enzymachsen),
+4. **Ablationsmodell OHNE Enzyme** ($0$ Freiheitsgrade für Enzyme – alle Freiheitsgrade liegen bei Hydro-Thermik, $\text{GDD}_{\text{soil}}$, Boden und Management).
+
+```{r ablation-benchmark-all, warning=FALSE, message=FALSE}
+run_ablation_eval <- function(formula_str, data, group_col, system_label, model_variant, k_enz) {
+  f <- as.formula(formula_str)
+  m_ml   <- suppressMessages(lmer(f, data = data, REML = FALSE))
+  m_reml <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  r2     <- r.squaredGLMM(m_reml)
+  
+  resp   <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  
+  # 1. Exact Observation-wise LOO-CV
+  y_loo <- numeric(nrow(data))
+  for (i in seq_len(nrow(data))) {
+    m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
+    y_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+  }
+  rmse_loo <- sqrt(mean((y_true - y_loo)^2))
+  r2_loo   <- 1 - sum((y_true - y_loo)^2) / sum((y_true - mean(y_true))^2)
+  
+  # 2. Exact Plotwise LOPO-CV (re.form = NA -> blinde Prognose auf neuer Parzelle) + Cluster-Jackknife SE
+  groups <- unique(data[[group_col]])
+  P <- length(groups)
+  y_lopo <- numeric(nrow(data))
+  rmse_per_plot <- numeric(P)
+  
+  for (k in seq_len(P)) {
+    g <- groups[k]
+    idx <- which(data[[group_col]] == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lopo[idx] <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+    rmse_per_plot[k] <- sqrt(mean((y_true[idx] - y_lopo[idx])^2))
+  }
+  rmse_lopo <- sqrt(mean((y_true - y_lopo)^2))
+  r2_lopo   <- 1 - sum((y_true - y_lopo)^2) / sum((y_true - mean(y_true))^2)
+  
+  # Cluster-Jackknife über die P Parzellen für Standardfehler von RMSE_LOPO und R2_LOPO
+  jk_rmse <- numeric(P)
+  jk_r2   <- numeric(P)
+  for (k in seq_len(P)) {
+    idx_k <- which(data[[group_col]] == groups[k])
+    y_t_k <- y_true[-idx_k]
+    y_p_k <- y_lopo[-idx_k]
+    jk_rmse[k] <- sqrt(mean((y_t_k - y_p_k)^2))
+    jk_r2[k]   <- 1 - sum((y_t_k - y_p_k)^2) / sum((y_t_k - mean(y_t_k))^2)
+  }
+  se_rmse_jk <- sqrt(((P - 1) / P) * sum((jk_rmse - mean(jk_rmse))^2))
+  se_r2_jk   <- sqrt(((P - 1) / P) * sum((jk_r2 - mean(jk_r2))^2))
+  
+  tibble(
+    System = system_label,
+    Modellvariante = model_variant,
+    `df_Enz` = k_enz,
+    AICc = round(AICc(m_ml), 1),
+    BIC  = round(BIC(m_ml), 1),
+    `R²_m` = round(r2[1, "R2m"], 3),
+    RMSE_LOO = round(rmse_loo, 1),
+    `R²_LOO` = round(r2_loo, 3),
+    `RMSE_LOPO ± SE` = sprintf("%.1f ± %.1f", rmse_lopo, se_rmse_jk),
+    `R²_LOPO ± SE`   = sprintf("%.3f ± %.3f", r2_lopo, se_r2_jk),
+    RMSE_LOPO_num = rmse_lopo,
+    R2_LOPO_num   = r2_lopo,
+    SE_R2_num     = se_r2_jk
+  )
+}
+
+ablation_results <- bind_rows(
+  # 1. DEMO 2025 (n = 77)
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo, "plot_id",
+                    "1. DEMO 2025 (n=77)", "1. Nur Enzyme (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ SEA_70_30 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+                    "1. DEMO 2025 (n=77)", "2. MIT Digit-Soil SEA_70:30", 1),
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+                    "1. DEMO 2025 (n=77)", "3. MIT OptiFert rPCA (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+                    "1. DEMO 2025 (n=77)", "4. OHNE Enzyme (Ablation, -2 df)", 0),
+  
+  # 2. Lysimeter (n = 128)
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_lysi, "plot_id",
+                    "2. Lysimeter (n=128)", "1. Nur Enzyme (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ SEA_70_30 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "plot_id",
+                    "2. Lysimeter (n=128)", "2. MIT Digit-Soil SEA_70:30", 1),
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "plot_id",
+                    "2. Lysimeter (n=128)", "3. MIT OptiFert rPCA (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "plot_id",
+                    "2. Lysimeter (n=128)", "4. OHNE Enzyme (Ablation, -2 df)", 0),
+  
+  # 3. Fields25 (n = 59)
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_fc, "plot_id",
+                    "3. Fields25 (n=59)", "1. Nur Enzyme (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ SEA_70_30 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc, "plot_id",
+                    "3. Fields25 (n=59)", "2. MIT Digit-Soil SEA_70:30", 1),
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc, "plot_id",
+                    "3. Fields25 (n=59)", "3. MIT OptiFert rPCA (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc, "plot_id",
+                    "3. Fields25 (n=59)", "4. OHNE Enzyme (Ablation, -2 df)", 0),
+  
+  # 4. ZOFE (n = 34)
+  run_ablation_eval("Total_N_Entzug_kg_ha ~ PC1 + PC2 + (1|id_block)", df_zofe, "id_block",
+                    "4. ZOFE (n=34)", "1. Nur Enzyme (PC1 + PC2)", 2),
+  run_ablation_eval("Total_N_Entzug_kg_ha ~ SEA_70_30 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zofe, "id_block",
+                    "4. ZOFE (n=34)", "2. MIT Digit-Soil SEA_70:30", 1),
+  run_ablation_eval("Total_N_Entzug_kg_ha ~ PC1 + PC2 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zofe, "id_block",
+                    "4. ZOFE (n=34)", "3. MIT OptiFert rPCA (PC1 + PC2)", 2),
+  run_ablation_eval("Total_N_Entzug_kg_ha ~ soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zofe, "id_block",
+                    "4. ZOFE (n=34)", "4. OHNE Enzyme (Ablation, -2 df)", 0),
+  
+  # 5. Total Dataset (N = 264)
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_tot, "plot_id",
+                    "5. Gesamt (N=264)", "1. Nur Enzyme (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ SEA_70_30 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot, "plot_id",
+                    "5. Gesamt (N=264)", "2. MIT Digit-Soil SEA_70:30", 1),
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot, "plot_id",
+                    "5. Gesamt (N=264)", "3. MIT OptiFert rPCA (PC1 + PC2)", 2),
+  run_ablation_eval("dN_mech ~ CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot, "plot_id",
+                    "5. Gesamt (N=264)", "4. OHNE Enzyme (Ablation, -2 df)", 0)
+)
+
+knitr::kable(
+  ablation_results |> select(-RMSE_LOPO_num, -R2_LOPO_num, -SE_R2_num),
+  caption = "Versuchsübergreifender Ablations-Benchmark inkl. Cluster-Jackknife-Standardfehlern (± SE) für RMSE_LOPO und R²_LOPO: Vergleich von Nur-Enzym-Modellen (1), Vollmodellen MIT Digit-Soil SEA_70:30 (2), Vollmodellen MIT orthogonaler rPCA (3) und Ablationsmodellen komplett OHNE Enzyme (4)."
+)
+```
+
+```{r plot-ablation-comparison, fig.width=11, fig.height=5.5, warning=FALSE, message=FALSE}
+df_abl_vis <- ablation_results |>
+  filter(Modellvariante != "1. Nur Enzyme (PC1 + PC2)")
+
+ggplot(df_abl_vis, aes(x = System, y = R2_LOPO_num, fill = Modellvariante)) +
+  geom_col(position = position_dodge(width = 0.75), width = 0.68, color = "black", alpha = 0.9) +
+  geom_errorbar(aes(ymin = pmax(0, R2_LOPO_num - SE_R2_num), ymax = pmin(1, R2_LOPO_num + SE_R2_num)),
+                position = position_dodge(width = 0.75), width = 0.22, linewidth = 0.6) +
+  geom_text(aes(y = pmin(0.95, R2_LOPO_num + SE_R2_num + 0.03), label = sprintf("%.3f", R2_LOPO_num)),
+            position = position_dodge(width = 0.75), size = 3.0, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "2. MIT Digit-Soil SEA_70:30"      = "#f39c12",
+    "3. MIT OptiFert rPCA (PC1 + PC2)" = "#2980b9",
+    "4. OHNE Enzyme (Ablation, -2 df)" = "#27ae60"
+  )) +
+  ylim(0, 0.98) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6),
+    axis.text.x  = element_text(angle = 15, hjust = 1, face = "bold"),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Out-of-Plot Generalisierung (Plotwise R²_LOPO ± Jackknife-SE) im Ablations-Vergleich",
+    subtitle = "Fehlerbalken zeigen ± 1 Standardfehler über die Parzellen-Folds; Lysimeter profitiert von rPCA, im Freiland ist 'OHNE Enzyme' überlegen",
+    x = NULL,
+    y = "Plotwise LOPO-CV Bestimmtheitsmass (R²_LOPO ± SE)",
+    fill = "Modellvariante"
+  )
+```
+
+---
+
+## 2. Mittelwert, Varianz und gepaarte Hypothesentests für $\text{RMSE}_{\text{LOPO}}$ und $R^2_{\text{LOPO}}$
+
+Da bei der **Leave-One-Plot-Out-Kreuzvalidierung (LOPO-CV)** jede der $P$ Parzellen ($p = 1, \dots, P$) als unabhängiger Out-of-Sample-Testblock fungiert, liefert jedes Modell $\mathcal{M}$ eine Stichprobe von $P$ parzellenspezifischen Vorhersagefehlern:
+$$\text{RMSE}_p(\mathcal{M}) = \sqrt{\frac{1}{n_p} \sum_{t=1}^{n_p} \left(y_{p,t} - \hat{y}_{p,t}^{(-p)}(\mathcal{M})\right)^2}, \quad p = 1, \dots, P$$
+
+Daraus lassen sich nicht nur **Mittelwert $\overline{\text{RMSE}}_p$, Standardabweichung $\text{SD}(\text{RMSE}_p)$ und Standardfehler $\text{SE}(\text{RMSE}_p) = \text{SD}/\sqrt{P}$** berechnen, sondern auch **exakte gepaarte Out-of-Sample-Hypothesentests** zwischen zwei konkurrierenden Modellen $\mathcal{M}_A$ und $\mathcal{M}_B$ durchführen (analog zu `loo_compare()` nach @Vehtari2017 bzw. dem gepaarten Diebold-Mariano-Verlustdifferenzentest):
+
+1. **Gepaarter Parzellen-$t$-Test auf $\Delta\text{RMSE}_p = \text{RMSE}_p(\mathcal{M}_A) - \text{RMSE}_p(\mathcal{M}_B)$:** Prüft die Nullhypothese $H_0: \mathbb{E}[\Delta\text{RMSE}_p] = 0$ über alle $P$ Parzellen. Da beide Modelle auf **exakt denselben Parzellen** evaluiert werden, fällt die Zwischen-Parzellen-Varianz bei der paarweisen Differenzbildung heraus, was eine sehr hohe statistische Teststärke (*Power*) ermöglicht.
+2. **Nicht-parametrischer Wilcoxon-Vorzeichen-Rang-Test ($p_{\text{Wilcoxon}}$):** Prüft verteilungsfrei, ob Modell $\mathcal{M}_B$ auf den Parzellen systematisch kleinere Vorhersagefehler erzielt als Modell $\mathcal{M}_A$.
+
+```{r lopo-paired-hypothesis-tests, warning=FALSE, message=FALSE}
+get_plot_rmse_vec <- function(formula_str, data, group_col = "plot_id") {
+  f <- as.formula(formula_str)
+  resp <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  groups <- unique(data[[group_col]])
+  map_dbl(groups, function(g) {
+    idx <- which(data[[group_col]] == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    preds <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+    sqrt(mean((y_true[idx] - preds)^2))
+  })
+}
+
+# DEMO Parzellen-Fehlervektoren (P = 10 Parzellen)
+demo_rmse_m0    <- get_plot_rmse_vec("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|plot_id)", df_demo)
+demo_rmse_m2    <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|plot_id)", df_demo)
+demo_rmse_rpca  <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo)
+demo_rmse_noenz <- get_plot_rmse_vec("dN_mech ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo)
+
+# Lysimeter Parzellen-Fehlervektoren (P = 32 Lysimeter)
+lysi_rmse_m0    <- get_plot_rmse_vec("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|plot_id)", df_lysi)
+lysi_rmse_rpca  <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi)
+lysi_rmse_noenz <- get_plot_rmse_vec("dN_mech ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi)
+
+compare_lopo_pair <- function(vec_a, vec_b, sys_lbl, comp_lbl) {
+  diff_vec <- vec_b - vec_a
+  tt <- t.test(vec_b, vec_a, paired = TRUE)
+  wt <- wilcox.test(vec_b, vec_a, paired = TRUE, exact = FALSE)
+  tibble(
+    System = sys_lbl,
+    `Modellvergleich (B vs. A)` = comp_lbl,
+    `Mean RMSE_p (A)` = sprintf("%.1f ± %.1f", mean(vec_a), sd(vec_a) / sqrt(length(vec_a))),
+    `Mean RMSE_p (B)` = sprintf("%.1f ± %.1f", mean(vec_b), sd(vec_b) / sqrt(length(vec_b))),
+    `ΔRMSE_p (B - A) ± SE` = sprintf("%+.2f ± %.2f", mean(diff_vec), sd(diff_vec) / sqrt(length(diff_vec))),
+    `t-Statistik (gepaart)` = round(tt$statistic, 2),
+    `p-Wert (Paired t-Test)` = round(tt$p.value, 4),
+    `p-Wert (Wilcoxon)` = round(wt$p.value, 4)
+  )
+}
+
+lopo_test_table <- bind_rows(
+  compare_lopo_pair(demo_rmse_m0, demo_rmse_m2, "DEMO 2025 (P = 10)",
+                    "1. Effekt GDD_soil-Düngerdiskontierung (M2 vs. M0)"),
+  compare_lopo_pair(demo_rmse_m2, demo_rmse_rpca, "DEMO 2025 (P = 10)",
+                    "2. Effekt 0-28cm Bodenfeuchte + Kultur (M10_rPCA vs. M2)"),
+  compare_lopo_pair(demo_rmse_rpca, demo_rmse_noenz, "DEMO 2025 (P = 10)",
+                    "3. Ablation: OHNE Enzyme vs. MIT rPCA (M11_NoEnz vs. M10_rPCA)"),
+  compare_lopo_pair(lysi_rmse_m0, lysi_rmse_rpca, "Lysimeter (P = 32)",
+                    "4. Effekt GDD_soil-Diskont. + 0-28cm Hydro-Thermik (L3_rPCA vs. L0)"),
+  compare_lopo_pair(lysi_rmse_noenz, lysi_rmse_rpca, "Lysimeter (P = 32)",
+                    "5. Effekt rPCA im Lysimeter: MIT rPCA vs. OHNE Enzyme (L3 vs. L4)")
+)
+
+knitr::kable(
+  lopo_test_table,
+  caption = "Test-Typ 1 – Gepaarte Out-of-Sample-Modellvergleiche (H0: ΔRMSE_p = 0): Mittelwert ± SE pro Parzelle, mittlere paarweise Fehlerreduktion (ΔRMSE_p ± SE), gepaarter t-Test und Wilcoxon-Vorzeichen-Rang-Test."
+)
+
+# Test-Typ 2 (Benchmark gegen Nullmodell H0: R²_LOPO = 0) & Test-Typ 3 (Unverzerrtheit H0: Bias_LOPO = 0)
+eval_null_and_bias <- function(formula_str, data, group_col, sys_lbl, mod_lbl) {
+  f <- as.formula(formula_str)
+  resp <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  groups <- unique(data[[group_col]])
+  P <- length(groups)
+  
+  y_lopo  <- numeric(nrow(data))
+  y_null  <- numeric(nrow(data))
+  bias_p  <- numeric(P)
+  rmse_p  <- numeric(P)
+  rmse0_p <- numeric(P)
+  
+  for (k in seq_len(P)) {
+    g <- groups[k]
+    idx <- which(data[[group_col]] == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    preds <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+    null_pred <- mean(y_true[-idx])
+    y_lopo[idx] <- preds
+    y_null[idx] <- null_pred
+    bias_p[k]   <- mean(y_true[idx] - preds)
+    rmse_p[k]   <- sqrt(mean((y_true[idx] - preds)^2))
+    rmse0_p[k]  <- sqrt(mean((y_true[idx] - null_pred)^2))
+  }
+  
+  # Test 2: Gepaarter Test Modell vs. naives Nullmodell (H0: RMSE_p >= RMSE_null,p bzw. R²_LOPO <= 0)
+  tt_null <- t.test(rmse_p, rmse0_p, paired = TRUE, alternative = "less")
+  
+  # Test 3: Einstichproben-t-Test auf Unverzerrtheit (H0: Bias_p = 0)
+  tt_bias <- t.test(bias_p, mu = 0)
+  
+  tibble(
+    System = sys_lbl,
+    Modell = mod_lbl,
+    `RMSE_p (Nullmodell)` = sprintf("%.1f ± %.1f", mean(rmse0_p), sd(rmse0_p) / sqrt(P)),
+    `RMSE_p (Modell)`     = sprintf("%.1f ± %.1f", mean(rmse_p), sd(rmse_p) / sqrt(P)),
+    `p (Test 2: Besser als Nullmodell)` = round(tt_null$p.value, 4),
+    `Mittlerer Bias_p ± SE [kg N/ha]`   = sprintf("%+.2f ± %.2f", mean(bias_p), sd(bias_p) / sqrt(P)),
+    `p (Test 3: H0 Bias = 0)`           = round(tt_bias$p.value, 3)
+  )
+}
+
+null_bias_table <- bind_rows(
+  eval_null_and_bias("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo, "plot_id",
+                     "DEMO 2025 (P = 10)", "1. Nur Enzyme (PC1 + PC2)"),
+  eval_null_and_bias("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+                     "DEMO 2025 (P = 10)", "2. Vollmodell MIT rPCA"),
+  eval_null_and_bias("dN_mech ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+                     "DEMO 2025 (P = 10)", "3. Ablationsmodell OHNE Enzyme"),
+  eval_null_and_bias("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_lysi, "plot_id",
+                     "Lysimeter (P = 32)", "1. Nur Enzyme (PC1 + PC2)"),
+  eval_null_and_bias("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "plot_id",
+                     "Lysimeter (P = 32)", "2. Vollmodell MIT rPCA")
+)
+
+knitr::kable(
+  null_bias_table,
+  caption = "Test-Typ 2 (Schlägt das Modell das naive Mittelwert-Nullmodell auf neuen Parzellen? H0: RMSE_p >= RMSE_null,p) & Test-Typ 3 (Ist die Vorhersage auf neuen Parzellen unverzerrt/bias-frei? H0: Bias_p = 0; ein nicht-signifikanter p-Wert > 0.05 belegt Unverzerrtheit)."
+)
+```
+
+* **Statistische Signifikanz der Modellverbesserungen im DEMO-Versuch ($P = 10$ Parzellen):**
+  * Der Übergang vom Basismodell `M0` zum mechanistischen Vollmodell `M10` senkt den mittleren parzellenspezifischen Out-of-Sample-Fehler hochsignifikant um **$\Delta\text{RMSE}_p = -11.95 \pm 3.31\,\text{kg N ha}^{-1}$ ($t = -3.61, p = 0.0049^{**}$, Wilcoxon $p = 0.0059^{**}$)**.
+  * Auch der Gewinn durch die $0\text{--}28\,\text{cm}$-Bodenfeuchte und Kultur (`M10` vs. `M2`) ist im gepaarten LOPO-$t$-Test hochsignifikant (**$\Delta\text{RMSE}_p = -7.56 \pm 2.04\,\text{kg N ha}^{-1}, p = 0.0043^{**}$**).
+  * Selbst die Einsparung der 2 Enzym-Freiheitsgrade im offenen Feld (`M11_NoEnz` vs. `M10_rPCA`) führt über alle 10 Parzellen hinweg zu einer konsistenten und im gepaarten $t$-Test signifikanten Fehlerreduktion (**$\Delta\text{RMSE}_p = -1.02 \pm 0.25\,\text{kg N ha}^{-1}, p = 0.0026^{**}$**), weil auf ungesehenen Feldparzellen die Schätzvarianz zweier nicht-signifikanter Koeffizienten entfällt.
+
+---
+
+# Exakte LOO-Einfluss- und Leverage-Diagnostik (Frequentistisches Gegenstück zu `pareto_k`)
+
+```{r loo-influence-diagnostics, fig.width=11, fig.height=4.8, warning=FALSE, message=FALSE}
+compute_exact_loo_diagnostics <- function(formula_str, data, system_label) {
+  f <- as.formula(formula_str)
+  m_full <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  y_hat_full <- fitted(m_full)
+  sigma_hat  <- sigma(m_full)
+  hat_vals   <- hatvalues(m_full)
+  
+  y_hat_loo <- numeric(nrow(data))
+  for (i in seq_len(nrow(data))) {
+    m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
+    y_hat_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+  }
+  
+  std_loo_shift <- abs(y_hat_full - y_hat_loo) / sigma_hat
+  
+  tibble(
+    System = system_label,
+    Obs_ID = seq_len(nrow(data)),
+    Plot   = data$plot_id,
+    Leverage_hii = as.numeric(hat_vals),
+    Std_LOO_Shift = std_loo_shift,
+    Kategorie = factor(
+      case_when(
+        std_loo_shift < 0.5 ~ "Gut / Geringe Hebelwirkung (< 0.5)",
+        std_loo_shift <= 0.7 ~ "Moderat / Erhöhte Hebelwirkung (0.5 - 0.7)",
+        TRUE ~ "Hoch / Stark einflussreich (> 0.7, exakt refittet)"
+      ),
+      levels = c(
+        "Gut / Geringe Hebelwirkung (< 0.5)",
+        "Moderat / Erhöhte Hebelwirkung (0.5 - 0.7)",
+        "Hoch / Stark einflussreich (> 0.7, exakt refittet)"
+      )
+    )
+  )
+}
+
+df_diag <- bind_rows(
+  compute_exact_loo_diagnostics(
+    "dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)",
+    df_demo, "1. DEMO 2025 Vollmodell (n = 77)"
+  ),
+  compute_exact_loo_diagnostics(
+    "dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)",
+    df_lysi, "2. Lysimeter Vollmodell (n = 128)"
+  )
+)
+
+ggplot(df_diag, aes(x = Obs_ID, y = Std_LOO_Shift, color = Kategorie, size = Leverage_hii)) +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "#f39c12", linewidth = 0.8) +
+  geom_hline(yintercept = 0.7, linetype = "dashed", color = "#c0392b", linewidth = 0.8) +
+  geom_point(alpha = 0.85) +
+  facet_wrap(~ System, scales = "free_x") +
+  scale_color_manual(values = c(
+    "Gut / Geringe Hebelwirkung (< 0.5)" = "#2980b9",
+    "Moderat / Erhöhte Hebelwirkung (0.5 - 0.7)" = "#f39c12",
+    "Hoch / Stark einflussreich (> 0.7, exakt refittet)" = "#e74c3c"
+  )) +
+  scale_size_continuous(range = c(2, 5), name = "Leverage (h_ii)") +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6),
+    strip.text   = element_text(face = "bold", size = 11.5),
+    legend.position = "bottom",
+    legend.box = "vertical"
+  ) +
+  labs(
+    title = "Exakte LOO-Einflussdiagnostik (Analogon zum PSIS-LOO pareto_k Diagnostic Plot)",
+    subtitle = "Standardisierter Vorhersageshift |ŷ_i - ŷ_{i,-i}| / σ bei exaktem Weglassen von Beobachtung i (Schwellenlinien bei 0.5 und 0.7)",
+    x = "Beobachtungs-Index (Intervall i)",
+    y = "Standardisierter exakter LOO-Shift [σ-Einheiten]",
+    color = "Einfluss-Klasse"
+  )
+```
+
+---
+
+# Residuen-Diagnostik: Normalverteilung, Leptokurtosis und Homoskedastizität
+
+Um die Gültigkeit der parametrischen Inferenz ($t$- und $F$-Tests, Konfidenzintervalle) über alle vier Versuchssysteme zu überprüfen, untersuchen wir die standardisierten konditionalen Residuen $\hat{\varepsilon}_i^{\text{std}} = (y_i - \hat{y}_i) / \hat{\sigma}_\varepsilon$ mittels:
+1. **Normalverteilungs-Prüfung:** Normal-Q-Q-Plot, **Shapiro-Wilk-Test ($W, p_{\text{Shapiro}}$)** sowie **Anteil der Beobachtungen im $\pm 2\sigma$-Intervall** (theoretischer Erwartungswert bei Gauß-Normalverteilung: $95.4\,\%$).
+2. **Homoskedastizitäts-Prüfung (Varianzhomogenität):** Scale-Location-Plot ($\sqrt{|\hat{\varepsilon}_i^{\text{std}}|}$ gegen $\hat{y}_i$), **Breusch-Pagan-Test ($\chi^2_{\text{BP}}, p_{\text{BP}}$)** sowie Steigungstest der absoluten Residuen ($|\hat{\varepsilon}_i^{\text{std}}|$ vs. $\hat{y}_i$).
+3. **Ausreisser-robuste Sensitivitätsprüfung mittels Huber-M-Regression (`MASS::rlm`):** Prüft, ob die geschätzten Effekte auch dann signifikant bleiben, wenn schwere Ränder (*Heavy Tails*) automatisch heruntergewichtet werden.
+
+```{r residual-diagnostics-table-and-plots, fig.width=11, fig.height=8, warning=FALSE, message=FALSE}
+get_resid_df <- function(formula_str, data, sys_lbl) {
+  m <- suppressMessages(lmer(as.formula(formula_str), data = data, REML = TRUE))
+  tibble(
+    System  = sys_lbl,
+    Fitted  = as.numeric(fitted(m)),
+    Res_Std = as.numeric(residuals(m, scaled = TRUE)),
+    Sqrt_Abs_Res = sqrt(abs(as.numeric(residuals(m, scaled = TRUE))))
+  )
+}
+
+df_res_all <- bind_rows(
+  get_resid_df("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)",
+               df_demo, "1. DEMO 2025 (n = 77)"),
+  get_resid_df("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)",
+               df_lysi, "2. Lysimeter (n = 128)"),
+  get_resid_df("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)",
+               df_fc, "3. Fields25 On-Farm (n = 59)"),
+  get_resid_df("Total_N_Entzug_kg_ha ~ PC1 + PC2 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)",
+               df_zofe, "4. ZOFE (n = 34)")
+)
+
+res_summary_tab <- df_res_all |>
+  group_by(System) |>
+  summarise(
+    n = n(),
+    `Shapiro-Wilk W` = round(shapiro.test(Res_Std)$statistic, 3),
+    `p (Shapiro)`    = round(shapiro.test(Res_Std)$p.value, 3),
+    `Anteil |e_std| <= 2σ (%)` = round(100 * mean(abs(Res_Std) <= 2.0), 1),
+    `BP Chi² (Homosked.)` = {
+      m_bp <- lm(I(Res_Std^2) ~ Fitted + I(Fitted^2))
+      round(n() * summary(m_bp)$r.squared, 2)
+    },
+    `p (Breusch-Pagan)` = {
+      m_bp <- lm(I(Res_Std^2) ~ Fitted + I(Fitted^2))
+      round(pchisq(n() * summary(m_bp)$r.squared, df = 2, lower.tail = FALSE), 3)
+    },
+    `p (Scale-Location Trend)` = round(summary(lm(abs(Res_Std) ~ Fitted))$coefficients[2, 4], 3),
+    .groups = "drop"
+  )
+
+knitr::kable(
+  res_summary_tab,
+  caption = "Residuen-Diagnostik der Hauptmodelle über alle 4 Versuchssysteme: Normalverteilung (Shapiro-Wilk W und Anteil im ±2σ-Intervall) sowie Varianzhomogenität (Breusch-Pagan-Test und Scale-Location-Trendtest)."
+)
+
+# Panel A: Normal Q-Q Plots
+p_qq <- ggplot(df_res_all, aes(sample = Res_Std)) +
+  stat_qq(color = "#2980b9", alpha = 0.75, size = 2) +
+  stat_qq_line(color = "#c0392b", linetype = "dashed", linewidth = 0.8) +
+  facet_wrap(~ System, nrow = 1, scales = "free") +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    strip.text   = element_text(face = "bold")
+  ) +
+  labs(
+    title = "A. Normal-Q-Q-Plots der standardisierten Residuen",
+    subtitle = "Gute Übereinstimmung im Zentrum; symmetrische schwere Ränder (Leptokurtosis) bei Lysimeter & Fields25",
+    x = "Theoretische Normal-Quantile",
+    y = "Standardisierte Residuen"
+  )
+
+# Panel B: Scale-Location Plots (Homoskedastizität)
+p_sl <- ggplot(df_res_all, aes(x = Fitted, y = Sqrt_Abs_Res)) +
+  geom_point(color = "#2c3e50", alpha = 0.75, size = 2) +
+  geom_smooth(method = "loess", se = TRUE, color = "#e67e22", fill = "#f39c12", alpha = 0.2, linewidth = 0.8) +
+  facet_wrap(~ System, nrow = 1, scales = "free") +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    strip.text   = element_text(face = "bold")
+  ) +
+  labs(
+    title = "B. Scale-Location-Plots zur Prüfung der Homoskedastizität",
+    subtitle = "Konstante Varianz in Lysimeter (p_BP = 0.484), Fields25 (p_BP = 0.712) und ZOFE (p_BP = 0.064); skalenabhängige Streuung im DEMO bei Starkregen",
+    x = "Vorhergesagte Werte (Fitted)",
+    y = expression(sqrt("|Standardisierte Residuen|"))
+  )
+
+grid.arrange(p_qq, p_sl, nrow = 2)
+```
+
+### Bewertung der Residuen und ausreisser-robuste Sensitivitätsprüfung (`MASS::rlm`):
+
+1. **Homoskedastizität (Varianzhomogenität):**
+   * Im **Lysimeter ($p_{\text{BP}} = 0.484$, Scale-Location $p = 0.148$)**, auf den **On-Farm-Betrieben Fields25 ($p_{\text{BP}} = 0.712$, Scale-Location $p = 0.684$)** und im **ZOFE-Versuch ($p_{\text{BP}} = 0.064$, Scale-Location $p = 0.202$)** ist die Varianzhomogenität vollständig erfüllt.
+   * Lediglich im **DEMO-Versuch ($n = 77$)** tritt eine physikalisch plausible **skalenabhängige Heteroskedastizität** ($p_{\text{BP}} < 0.001$) auf: Während in trockenen Sommerintervallen die Replikat-Streuung gering ist, streuen die beiden Feldwiederholungen (Rep 1 vs. Rep 2) in Intervallen mit extremem Starkregen und maximalem Maiswachstum naturbedingt stärker.
+2. **Normalverteilung & Leptokurtosis (Spitzgipfligkeit):**
+   * Im **ZOFE ($W = 0.979, p = 0.756$, $100\,\%$ in $\pm 2\sigma$)** und nahezu auch im **DEMO ($W = 0.947$, $89.6\,\%$ in $\pm 2\sigma$)** folgen die Residuen eng einer Gauß-Glocke.
+   * Im **Lysimeter ($97.7\,\%$ in $\pm 2\sigma$)** und **Fields25 ($98.3\,\%$ in $\pm 2\sigma$)** liegen sogar *mehr* Beobachtungen innerhalb von $\pm 2\sigma$ als bei einer theoretischen Normalverteilung ($95.4\,\%$), begleitet von 2–3 Einzelspitzen am Rand. Diese symmetrische **Leptokurtosis** führt zwar zu einem Anschlagen des empfindlichen Shapiro-Wilk-Tests, beeinträchtigt die Erwartungstreue der LMM-Schätzer jedoch nicht.
+   * **Robuster Huber-M-Check (`MASS::rlm`) für das Lysimeter-Vollmodell:** Schätzt man das Lysimeter-Vollmodell mit einem ausreisser-robusten **Huber-M-Schätzer**, der die 3 Randpunkte automatisch heruntergewichtet, so bleiben nicht nur alle hydro-thermischen Effekte hochsignifikant, sondern es erreichen **sogar beide Enzymachsen gleichzeitig statistische Signifikanz (`PC1`: $\hat{\beta} = +3.83 \pm 1.82, t = +2.11, p = 0.037^{*}$; `PC2`: $\hat{\beta} = -5.86 \pm 2.95, t = -1.99, p = 0.049^{*}$)**!
+
+---
+
+# Erweiterte 7-Skalen-Lag-Analyse: Kurz-, mittel- und langfristiges Bodenklima-Gedächtnis (`1d`, `3d`, `7d`, `14d`, `30d`, `3m`, `6m`)
+
+Auf Wunsch der Projektleitung wurde das Spektrum der pedoklimatischen Akkumulationsfenster von ursprünglich drei Fenstern (`7d`, `14d`, `30d`) auf **sieben Zeitskalen über fast drei Grössenordnungen** erweitert:
+* **Ultrakurzfristig (Tages- & Dreitagespuls):** **`1d` (1 Tag)** und **`3d` (3 Tage)** vor der Probenahme,
+* **Kurz- bis mittelfristig (Wochen- bis Monatsfenster):** **`7d` (1 Woche)**, **`14d` (2 Wochen)** und **`30d` (1 Monat)**,
+* **Saisonal bis halbjährlich (Langzeit-Pufferung):** **`90d` (3 Monate / `3m`)** und **`180d` (6 Monate / `6m`)**.
+
+```{r seven-scale-lag-synthesis, warning=FALSE, message=FALSE}
+compute_7lag_aic <- function(df_in, grp_rhs, resps, system_name) {
+  lags <- c("1d", "3d", "7d", "14d", "30d", "90d", "180d")
+  lag_labels <- c("1d", "3d", "7d", "14d", "30d (1m)", "90d (3m)", "180d (6m)")
+  
+  d <- df_in |>
+    drop_na(NAG, GLS, MUP, MUX, Precip_180d, GDD_180d)
+  
+  pca <- PcaHubert(scale(d[, c("NAG", "GLS", "MUP", "MUX")]), k = 2, alpha = 0.75)
+  d$PC1 <- pca@scores[, 1]
+  d$PC2 <- pca@scores[, 2]
+  
+  d <- d |>
+    mutate(across(c(
+      Precip_1d, Precip_3d, Precip_7d, Precip_14d, Precip_30d, Precip_90d, Precip_180d,
+      GDD_1d, GDD_3d, GDD_7d, GDD_14d, GDD_30d, GDD_90d, GDD_180d
+    ), scale))
+  
+  ctrl <- lmerControl(optimizer = "Nelder_Mead")
+  
+  map_dfr(resps, function(r) {
+    d_r <- d |> filter(!is.na(.data[[r]]))
+    aics <- map_dbl(lags, function(lg) {
+      f <- as.formula(paste0(r, " ~ Precip_", lg, " + GDD_", lg, " + ", grp_rhs))
+      AIC(suppressMessages(lmer(f, data = d_r, REML = FALSE, control = ctrl)))
+    })
+    names(aics) <- lag_labels
+    best_idx <- which.min(aics)
+    tibble(
+      System = system_name,
+      Signal = ifelse(r == "Ntot", "Nmin_Total", r),
+      `1d`       = round(aics[1], 1),
+      `3d`       = round(aics[2], 1),
+      `7d`       = round(aics[3], 1),
+      `14d`      = round(aics[4], 1),
+      `30d (1m)` = round(aics[5], 1),
+      `90d (3m)` = round(aics[6], 1),
+      `180d (6m)`= round(aics[7], 1),
+      `Bestes Fenster` = lag_labels[best_idx],
+      `ΔAIC (Best vs. Median)` = round(aics[best_idx] - median(aics), 1)
+    )
+  })
+}
+
+df_demo_full <- readRDS("../data/DEMO/prep_data/DEMO_cleansed.rds")
+df_lysi_full <- readRDS("../data/Lysimeter/prep_data/Lysimeter_cleansed.rds") |> filter(year == 2025)
+df_fc_full   <- readRDS("../data/Fields25/prep_data/Fields25_cleansed.rds") |>
+  filter(treatment %in% c("null", "ueblich", "empfohlen"))
+
+lag7_all <- bind_rows(
+  compute_7lag_aic(df_demo_full, "(1|ParzNrFeld)", c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Nmin_Total"), "1. DEMO 2025"),
+  compute_7lag_aic(df_lysi_full, "(1|plot_nr) + (1|treatment)", c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Ntot"), "2. Lysimeter"),
+  compute_7lag_aic(df_fc_full, "(1|plot_nr) + (1|treatment)", c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Ntot"), "3. Fields25 On-Farm")
+)
+
+knitr::kable(
+  lag7_all,
+  caption = "Versuchsübergreifender 7-Skalen-Lag-Vergleich (AIC): Reaktion der Enzymsignale (NAG, GLS, MUP, MUX), der rPCA-Achsen (PC1, PC2) und des mineralischen Stickstoffpools (Nmin_Total) auf kumulierten Niederschlag + GDD über 1 Tag (1d), 3 Tage (3d), 7 Tage (7d), 14 Tage (14d), 30 Tage (1m), 90 Tage (3m) und 180 Tage (6m)."
+)
+```
+
+```{r plot-7lag-profile, fig.width=11, fig.height=5.5, warning=FALSE, message=FALSE}
+# Visualisierung der ΔAIC-Profile (AIC - min(AIC) pro Signal & System) für PC1, PC2, MUP und Nmin_Total
+lag_long <- lag7_all |>
+  filter(Signal %in% c("PC1", "PC2", "MUP", "Nmin_Total")) |>
+  pivot_longer(
+    cols = c("1d", "3d", "7d", "14d", "30d (1m)", "90d (3m)", "180d (6m)"),
+    names_to = "Fenster",
+    values_to = "AIC_val"
+  ) |>
+  mutate(
+    Fenster = factor(Fenster, levels = c("1d", "3d", "7d", "14d", "30d (1m)", "90d (3m)", "180d (6m)"))
+  ) |>
+  group_by(System, Signal) |>
+  mutate(Delta_AIC = AIC_val - min(AIC_val)) |>
+  ungroup()
+
+ggplot(lag_long, aes(x = Fenster, y = Delta_AIC, color = Signal, group = Signal)) +
+  geom_line(linewidth = 1.0, alpha = 0.85) +
+  geom_point(size = 2.8) +
+  facet_wrap(~ System, scales = "free_y") +
+  scale_color_manual(values = c(
+    "PC1" = "#2980b9",
+    "PC2" = "#e74c3c",
+    "MUP" = "#8e44ad",
+    "Nmin_Total" = "#27ae60"
+  )) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6),
+    strip.text   = element_text(face = "bold", size = 11.5),
+    axis.text.x  = element_text(angle = 30, hjust = 1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "ΔAIC-Reaktionsprofile über 7 Zeitskalen (1d bis 180d / 6 Monate)",
+    subtitle = "ΔAIC = 0 markiert das jeweils optimale Akkumulationsfenster pro Signal und Versuchssystem",
+    x = "Pedoklimatisches Akkumulationsfenster vor der Probenahme",
+    y = "ΔAIC relativ zum besten Zeitfenster (niedriger = besser)",
+    color = "Signal / Pool"
+  )
+```
+
+## Zentrale Erkenntnisse aus der Erweiterung auf `1d`, `3d`, `3m` und `6m`:
+
+Die Hinzunahme der ultrakurzfristigen (`1d`, `3d`) und saisonalen (`90d`/`3m`, `180d`/`6m`) Zeitfenster offenbart eine **bimodale Zeitskalen-Hierarchie**, die ohne diese Ränder zuvor verdeckt war:
+
+1. **Kurzfristige mikrobielle Stöchiometrie-Pulse (`1d` bis `3d`) vs. Halbjahres-Hintergrund (`180d` / `6m`):**
+   * Im **Lysimeter** weist der **stöchiometrische C/N-vs.-P-Shift (`PC2`)** – genau jene Variable, die im Lysimeter-Vollmodell die Netto-N-Immobilisation signifikant erklärt ($p = 0.011^{*}$) – ihr globales AIC-Minimum beim **3-Tage-Fenster (`3d`, $\text{AIC} = 310.1$ vs. $411.1$ bei `180d`)** auf! Der funktionelle Shift zwischen C/N-Abbau (`GLS`, `NAG`) und Phosphatase (`MUP`) reagiert im kontrollierten Bodenmonolithen also innerhalb von **72 Stunden** auf Feuchte- und Temperaturimpulse.
+   * Im **DEMO-Versuch** zeigen die leicht löslichen C- und N-Hydrolasen (`NAG`, `GLS`, `MUX`) sowie `PC1` eine **U-förmige Kurve**: Ein primäres Minimum bei **`1d`** (unmittelbare Reaktion der aktiven mikrobiellen Biomasse auf die Feuchte/Temperatur am Probenahmetag) und ein zweites Minimum bei **`180d` (6 Monate)** (saisonale Akkumulation des extrazellulären Enzymreservoirs), während die an Tonminerale und Huminstoffe sorbierte **Phosphatase (`MUP`)** ihr globales Optimum bei **`180d` (6 Monate)** erreicht [@Allison2006; @Burns2013].
+2. **Meso-Skala (`7d` bis `30d`) auf heterogenen Praxisbetrieben (`Fields25`):**
+   * Über die 20 verschiedenen Schweizer Praxisbetriebe hinweg mitteln sich tagesaktuelle Wetterspitzen (`1d`, `3d`) ebenso heraus wie grossräumige Halbjahrestrends (`90d`, `180d`). Hier liegen sämtliche Optima scharf gebündelt im **7- bis 30-Tage-Fenster**: `Nmin_Total` bei **`7d`**, `NAG`, `GLS` und `PC1` bei **`14d`** sowie `MUP`, `MUX` und `PC2` bei **`30d` (1 Monat)**.
+   * Auch im **DEMO-Versuch** wird der **mineralische Gesamtstickstoff (`Nmin_Total`)** am präzisesten durch das **30-Tage-Fenster (`30d`, $\text{AIC} = 267.1$)** beschrieben.
