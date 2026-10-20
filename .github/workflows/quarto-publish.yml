@@ -1,10 +1,7 @@
 name: Quarto CI/CD (R & Render)
 
 on:
-  push:
-    branches:
-      - main
-      - master
+  workflow_dispatch:
 
 jobs:
   build-deploy:
@@ -37,6 +34,10 @@ jobs:
             any::httr2
             any::jsonlite
             any::this.path
+            any::openssl
+            any::ggrepel
+            any::GGally
+            any::corrplot
 
       - name: 4. Quarto installieren
         uses: quarto-dev/quarto-actions/setup@v2
@@ -47,3 +48,4 @@ jobs:
           target: gh-pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPTIFERT_SITE_PASSWORD: ${{ secrets.OPTIFERT_SITE_PASSWORD }}

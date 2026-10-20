@@ -8,3 +8,5 @@
 /docs/
 reports/*.html
 reports/*_files/
+.site_password
+data/SEAR-paper_*.docx

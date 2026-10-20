@@ -87,3 +87,73 @@ Die von Open-Meteo bereitgestellten historischen Daten basieren auf dem **ERA5-L
 ERA5 ist der absolute wissenschaftliche Goldstandard in der Klimatologie und Agrarmeteorologie. Es handelt sich dabei nicht um grobe Interpolationen zwischen weit entfernten Wetterstationen, sondern um ein globales, physikalisch-thermodynamisches Klimamodell, das kontinuierlich durch Satellitendaten, Radar und Wetterstationen kalibriert wird. Dadurch kann ERA5 hochpräzise mikroklimatische Schätzungen für jeden beliebigen GPS-Punkt der Welt (in einem 9x9 km Raster) abgeben. 
 
 Für unsere Zwecke (z.B. *Soil Moisture* oder *GDD*) sind diese ERA5-basierten Variablen oft sogar zuverlässiger und lückenloser als physische Wetterstationen, da Messausfälle oder Mikroklima-Artefakte einzelner Stationen entfallen. Die Enzym-Modelle in diesem Bericht (siehe z.B. *Pedoclimatic Proxy & Lag Analysis*) nutzen kumulative Fenster dieser Daten (z.B. 7-Tage, 14-Tage Summen), um das "Umwelt-Gedächtnis" des Bodens abzubilden.
+
+---
+
+## Mechanistische Modell-Architektur: Zwei-Skalen-Wärmesummen ($\text{GDD}_{\text{crop}}$ vs. $\text{GDD}_{\text{soil}}$), Düngerdiskontierung, Kovariaten-Selektion & Generalisierung
+
+Um die aus den Beprobungsintervallen ($t_1 \to t_2$) abgeleitete Netto-Stickstoffnachlieferung ($dN$ in $\text{kg N ha}^{-1}$) mechanistisch sauber zu isolieren und versuchsübergreifend (`DEMO`, `Lysimeter`, `Fields25`, `ZOFE`) nach identischen Kriterien zu modellieren, wurde in [`scripts/meteo_nmin_utils.R`](file:///home/f80875740/Documents/Agroscope/Optifert/scripts/meteo_nmin_utils.R) und [`scripts/build_total_dataset.R`](file:///home/f80875740/Documents/Agroscope/Optifert/scripts/build_total_dataset.R) eine vierstufige Modellarchitektur implementiert:
+
+### 1. Zwei-Skalen-Wärmesummen: Pflanzen-GDD ($\text{GDD}_{\text{crop}}$) vs. schichtweise Boden-Gradtage ($\text{SDD} / \text{GDD}_{\text{soil}}$ in $0\text{--}28\,\text{cm}$)
+
+Pflanzenwachstum im Sprossraum und mikrobielle Depolymerisation/Nitrifikation im Boden folgen unterschiedlichen thermischen Gesetzmässigkeiten und Schwellenwerten. Wir trennen daher strikt zwischen zwei thermischen Zeitskalen:
+
+1. **Kulturspezifische Pflanzen-Wärmesumme ($\text{GDD}_{\text{crop}}$ aus $2\,\text{m}$-Lufttemperatur):**
+   Steuert den logistischen pflanzlichen Stickstoffentzug $N_{\text{up}}(\text{GDD}_{\text{crop}})$ [@archontoulisNonlinearRegressionModels2015; @overmanMathematicalModelsCrop2002; @benderNutrientUptakePartitioning2013] über kulturspezifische physiologische Basistemperaturen ($T_{\text{base, crop}}$; @mcmasterGrowingDegreedaysOne1997):
+   * **Silomais / Körnermais (`MA`, `SM`, `KM`):** $T_{\text{base, crop}} = 6.0\,^\circ\text{C}$ (adaptiert an kühl-gemässigte mitteleuropäische Anbaulagen nach @bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014; @freiImpactClimatePotassium2024).
+   * **Winterweizen, Wintergerste & Sommergerste (`WW`, `WG`, `SG`):** $T_{\text{base, crop}} = 0.0\,^\circ\text{C}$ [@porterTemperaturesGrowthDevelopment1999; @bonhommeBasesLimitsUsing2000].
+   * **Kunstwiese & Zuckerrübe (`KW`, `ZR`):** $T_{\text{base, crop}} = 4.0\,^\circ\text{C}$ [@mcmasterGrowingDegreedaysOne1997; @bonhommeBasesLimitsUsing2000].
+
+2. **Tiefengewichtete, schichtweise Boden-Gradtage ($\text{SDD} / \text{GDD}_{\text{soil}}$ in $0\text{--}28\,\text{cm}$):**
+   Mikrobielle Ammonifikation, Nitrifikation und enzymatische Hydrolyse im Boden setzen bereits oberhalb des Gefrierpunkts ein ($T_{\text{base, soil}} = 0.0\,^\circ\text{C}$) und skalieren in erster Näherung linear mit den kumulierten **Soil Degree Days** ($\text{GDD}_{\text{soil}}$; @honeycuttPredictingCropResidue1988; @griffinUsingGrowingDegree2000).
+   Da sämtliche $N_{\text{min}}$- und Enzymproben aus dem Oberbodenhorizont **$0\text{--}30\,\text{cm}$** stammen und ERA5-Land Bodentemperaturen sowie volumetrische Bodenfeuchten für die Schichten **$0\text{--}7\,\text{cm}$** ($25\,\%$ des Horizonts) und **$7\text{--}28\,\text{cm}$** ($75\,\%$ des Horizonts) bereitstellt, berechnen wir die tägliche Boden-Wärmesumme **schichtweise vor der Tiefengewichtung**:
+   $$\text{GDD}_{\text{soil}, d} = 0.25 \cdot \max\left(0,\, T_{\text{soil}, 0\text{--}7, d} - 0\,^\circ\text{C}\right) + 0.75 \cdot \max\left(0,\, T_{\text{soil}, 7\text{--}28, d} - 0\,^\circ\text{C}\right)$$
+   *Methodische Begründung:* Durch das schichtweise Abschneiden bei $0\,^\circ\text{C}$ ($\max(0, T)$ je Horizont) wird verhindert, dass kurzzeitiger Oberflächenfrost in den obersten $0\text{--}7\,\text{cm}$ ($T_{\text{soil}, 0\text{--}7} < 0\,^\circ\text{C}$) die weiterlaufende mikrobielle Aktivität im wärmeren, frostfreien Unterboden ($7\text{--}28\,\text{cm} > 0\,^\circ\text{C}$) rechnerisch kompensiert. Analog wird die volumetrische Bodenfeuchte im Wurzelraum als $0.25 \cdot \theta_{0\text{--}7} + 0.75 \cdot \theta_{7\text{--}28}$ (`Mean_Soil_Moist_0_28_Interval`) integriert.
+
+---
+
+### 2. Zwei-Pool-Düngerdiskontierung über $\text{GDD}_{\text{soil}}$ (`dN_fert_adj` / `dN_mech`)
+
+In einer ungefilterten Feld-Massenbilanz ($dN_{\text{raw}} = \Delta N_{\text{min}} \cdot 4.5 + N_{\text{up}}$) führt jede mineralische oder flüssige organische Düngergabe zu einer massiven Verzerrung: Unmittelbar nach der Applikation erscheint der Dünger-Stickstoff im Boden als scheinbare „Netto-Mineralisation“, während sein anschliessender Abbau/Entzug im Folgeintervall als scheinbarer „Immobilisations- oder Auswaschungsverlust“ fehlinterpretiert wird.
+
+Um die **bodenbürtige** Netto-N-Nachlieferung ($dN_{\text{fert\_adj}}$) sauber vom exogenen Düngungsimpuls zu trennen, diskontieren wir jede reale Düngergabe ab ihrem exakten Applikationsdatum $t_{\text{app}}$ über eine Kinetik 1. Ordnung entlang der kumulierten thermischen Bodenzeit $\Delta\text{GDD}_{\text{soil}}(t) = \max\big(0,\, \sum_{t_{\text{app}}}^{t} \text{GDD}_{\text{soil}, d}\big)$ [@honeycuttPredictingCropResidue1988; @griffinUsingGrowingDegree2000]:
+
+* **Pool 1 – Schnell verfügbarer Dünger-N ($\Delta F_{\text{fast}}$, Abzug in der Massenbilanz):**
+  Umfasst Mineraldünger ($100\,\%$) sowie den direkt löslichen Ammonium-Anteil ($\text{NH}_4\text{-N}$) aus Gülle und Mist (abzüglich $15\,\%$ gasförmiger $\text{NH}_3$-Ausbringungsverluste gemäss GRUD; @sinaj8DuengungAckerkulturen) mit einer Nitrifikations-/Transformationsrate von $k_{\text{fast}} = 0.008\,\text{GDD}_{\text{soil}}^{-1}$ (entspricht einer Halbwertszeit von $\approx 87\,\text{GDD}_{\text{soil}}$ bzw. $5\text{--}6$ Sommertagen):
+  $$\Delta F_{\text{fast}}(t_1 \to t_2) = \sum_{m} N_{\text{fast}, m} \cdot \left[\exp\Big(-k_{\text{fast}} \cdot \Delta\text{GDD}_{\text{soil}, m}(t_1)\Big) - \exp\Big(-k_{\text{fast}} \cdot \Delta\text{GDD}_{\text{soil}, m}(t_2)\Big)\right]$$
+  Da dieser Pool ohne vorherige Spaltung durch extrazelluläre Bodenenzyme direkt in den gemessenen $N_{\text{min}}$-Pool übergeht, wird er von der rohen Massenbilanz abgezogen:
+  $$dN_{\text{fert\_adj}} = \Delta N_{\text{min}} \cdot 4.5 + N_{\text{up}}(t_1 \to t_2) - \Delta F_{\text{fast}}(t_1 \to t_2)$$
+* **Pool 2 – Langsam mineralisierender organischer Dünger-N ($\Delta F_{\text{slow}}$, Substrat-Kovariate):**
+  Umfasst den organisch gebundenen Stickstoff aus Stallmist und Gülle (`Mist_OrgN`, `Guelle_OrgN`, $k_{\text{slow}} = 0.00012\,\text{GDD}_{\text{soil}}^{-1}$). Da dieser Pool erst durch genau jene mikrobiellen Hydrolasen (`NAG`, `GLS`, `MUX`) depolymerisiert werden muss, die das Digit-Soil-System misst, wird er **nicht** von $dN$ subtrahiert, sondern als erklärende Substrat-Kovariate (`Fert_N_slow_Interval`) getestet.
+
+---
+
+### 3. Konstruktion und Biplot-gestützte Selektion der Kovariaten (`rPCA` + `envfit` statt kollinearer Summenindizes)
+
+Die Auswahl zusätzlicher erklärender Kovariaten folgt in allen Berichten einem strikten zweistufigen Protokoll, das **Multikollinearität (Variance Inflation, $\text{VIF}$)** und **Target Leakage** ausschliesst:
+
+1. **Robuste Hauptkomponentenanalyse (`PcaHubert`) exklusiv auf den Enzymen:**
+   Da die extrazellulären C- und N-Hydrolasen (`GLS`, `NAG`, `MUX`) biologisch stark interkorrelieren ($r \approx 0.55\text{--}0.72$), würde ihre direkte Aufnahme als Einzelprädiktoren zu überhöhten Variance Inflation Factors ($\text{VIF} > 3.3$) führen. Eine blosse 1D-Linearkombination zweier fast paralleler Enzyme (wie $\text{SEA}_{70:30} = 0.7\,\text{GLS}_{\text{idx}} + 0.3\,\text{NAG}_{\text{idx}}$ im SEAR-Inkubationsmanuskript) vermeidet zwar das numerische VIF-Problem, verwirft aber die Phosphatase (`MUP`) und gewinnt gegenüber `GLS` allein keine zweite unabhängige Dimension hinzu.
+   Unsere robuste PCA nach @Hubert2005 extrahiert dagegen **zwei exakt orthogonale Achsen ($r = 0.00, \text{VIF} = 1.00$)**:
+   * **`PC1` (Index der biologischen Gesamtaktivität):** Bündelt die gemeinsame Grössenordnung aller vier Enzyme.
+   * **`PC2` (Stöchiometrischer Shift C/N vs. P):** Kontrastiert die C/N-Erwerbsenzyme (`GLS`, `NAG`) gegen die Phosphatase (`MUP`) im Sinne der *Ecoenzymatic Stoichiometry* [@Sinsabaugh2008; @Burns2013].
+2. **Geometrische Kovariaten-Selektion über Vektorprojektion (`envfit`) & Multi-Domain-PCA:**
+   Anstatt die Zielgrösse $dN$ und die Umweltvariablen gemeinsam mit den Enzymen in eine einzige PCA zu werfen (was die Achsen durch die Zielgrösse selbst verzerren würde), projizieren wir die Kandidaten-Kovariaten aus drei physikalisch begründeten Domänen **nachträglich** als Korrelationsvektoren auf den ungestörten biologischen `PC1`/`PC2`-Raum:
+   * **Domäne A – Hydro-Thermik im Wurzelraum ($0\text{--}28\,\text{cm}$):** Kumulierter Niederschlag (`Cum_Precip_mm`), klimatische Wasserbilanz ($\text{KWB} = P - ET_0$, `Cum_CWB_mm`), tiefengewichtete Bodenfeuchte (`Mean_Soil_Moist_0_28_Interval`) und Boden-Wärmesumme (`Cum_GDD_Soil_Interval`).
+   * **Domäne B – Edaphische Standort-Trophie & Textur ($0\text{--}30\,\text{cm}$):** Organischer Kohlenstoff (`soil_Corg`), $\text{pH}(\text{H}_2\text{O})$, Tongehalt (`soil_Ton`), KAK und pflanzenverfügbares Phosphat (`soil_P_AAE10`).
+   * **Domäne C – Bewirtschaftung & Historie:** Langjährige kumulierte N-Bilanz (`NBilanz_cum_kg_ha`), langsamer organischer Dünger-Pool (`Fert_N_slow_Interval`) und angebaute Kultur (`Kultur`).
+   * **Selektionskriterium:** Ausgewählt werden jene Kovariaten, die eine hohe Korrelation mit der Zielgrösse $dN_{\text{fert\_adj}}$ aufweisen, im Biplot aber **orthogonal oder komplementär** zu `PC1` und `PC2` stehen und somit echte, nicht-redundante Zusatzvarianz erklären.
+
+---
+
+### 4. Validierungs-Hierarchie hinsichtlich Generalisierung ($\text{AICc}$, Marginales $R^2_m$, Observation-LOO vs. Plotwise LOPO-CV)
+
+Da in allen Feldversuchen wiederholte Messungen auf denselben Parzellen vorliegen ($y_{ij} = \mathbf{x}_{ij}^\top \boldsymbol{\beta} + u_j + \varepsilon_{ij}$ mit Parzellen-Random-Intercept $u_j \sim \mathcal{N}(0, \sigma_u^2)$), unterscheiden wir bei der Modellevaluation strikt zwischen In-Sample-Anpassung und echter **Out-of-Plot-Generalisierung**:
+
+1. **Informationskriterien für kleine Stichproben ($\text{AICc}$ & $\text{BIC}$):** Bestrafen zusätzliche Parameter überproportional und verhindern Überanpassung (*Overfitting*).
+2. **Marginales ($R^2_m$) vs. Konditionales Bestimmtheitsmass ($R^2_c$) nach @Nakagawa2013:**
+   * $R^2_m$ quantifiziert den Varianzanteil, der **allein durch die festen Effekte ($\mathbf{x}_{ij}^\top \boldsymbol{\beta}$)** erklärt wird.
+   * $R^2_c$ beinhaltet zusätzlich den Parzellen-Random-Effect $u_j$. Ein Modell ist für die Praxis nur dann wertvoll, wenn die Hinzunahme mechanistischer Kovariaten das **marginale $R^2_m$** erhöht und gleichzeitig die Lücke $R^2_c - R^2_m$ verkleinert (d. h. ungerichtete Parzellen-Heterogenität durch messbare Prozesse ersetzt).
+3. **Zweistufige Leave-One-Out-Kreuzvalidierung (Observation-LOO vs. Plotwise LOPO-CV):**
+   * **Observation-wise LOO-CV ($\text{RMSE}_{\text{LOO}}, R^2_{\text{LOO}}$):** Entfernt jeweils eine einzelne Intervallbeobachtung $y_{ij}$, nutzt bei der Vorhersage aber weiterhin den aus den übrigen Zeitpunkten derselben Parzelle $j$ geschätzten Random Intercept $\hat{u}_j$. Dies beantwortet die Frage: *Wie gut können wir ein fehlendes Zeitintervall auf einem bereits kalibrierten Schlag interpolieren?*
+   * **Plotwise Leave-One-Plot-Out Cross-Validation (LOPO-CV, $\text{RMSE}_{\text{LOPO}}, R^2_{\text{LOPO}}$ mit `re.form = NA`):** Entfernt **sämtliche Messzeitpunkte einer kompletten Parzelle $j$** aus dem Training und prognostiziert den gesamten Saisonverlauf dieser ungesehenen Parzelle **blind und ausschliesslich über die Fixed Effects** ($\hat{y}_{ij}^{\text{LOPO}} = \mathbf{x}_{ij}^\top \hat{\boldsymbol{\beta}}_{(-j)}$, d. h. $u_j = 0$). Dies ist der entscheidende Massstab für die **Generalisierbarkeit auf neue, unkalibrierte Praxisschläge**.

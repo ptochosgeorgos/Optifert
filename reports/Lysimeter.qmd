@@ -347,6 +347,135 @@ plot_ly() |>
   )
 ```
 
+### 6.2 Erweiterte Biplot-Evidenz & Mechanistischer Modellvergleich (`dN_mech`, LOPO-CV & `SEA_70:30` vs. `rPCA`)
+
+Analog zum DEMO-Versuch prüfen wir auf den harmonisierten Lysimeter-Intervallen ($n = 128$ Intervalle über 32 Lysimeter, Winterweizen 2025 aus `OptiFert_Total_Intervals.rds`), wie sich die Zwei-Pool-$\text{GDD}_{\text{soil}}$-Düngerdiskontierung (`dN_mech`), die hydro-thermischen Kovariaten im $0\text{--}28\,\text{cm}$-Horizont (`Cum_CWB_mm`, `Mean_Soil_Moist_0_28_Interval`, `Cum_GDD_Soil_Interval`, `soil_Corg`) sowie der Vergleich zwischen dem Digit-Soil-Summenindex ($\text{SEA}_{70:30}$) und unserer orthogonalen `rPCA` (`PC1 + PC2`) auf $\text{AICc}$, marginales $R^2_m$ und die blinde **Plotwise LOPO-CV (`re.form = NA`)** auswirken:
+
+```{r lysi-harmonized-biplot-and-lopo, fig.width=10.5, fig.height=5.5, warning=FALSE, message=FALSE}
+library(ggrepel)
+
+df_lysi_harm <- readRDS("../data/OptiFert_Total_Intervals.rds") |>
+  filter(LTE == "Lysimeter") |>
+  mutate(
+    GLS_index = 0.5 + GLS / 25,
+    NAG_index = 0.5 + NAG / 8,
+    SEA_70_30 = 0.7 * GLS_index + 0.3 * NAG_index
+  )
+
+# 1. Vektorprojektion (envfit) im Lysimeter-Enzymraum
+lysi_vecs <- c(
+  "dN_mech"                       = "dN (Düng.-korr.)",
+  "Cum_Precip_mm"                 = "Niederschlag (mm)",
+  "Cum_CWB_mm"                    = "KWB (P - ET0)",
+  "Mean_Soil_Moist_0_28_Interval" = "Bodenfeuchte (0-28cm)",
+  "Cum_GDD_Soil_Interval"         = "Boden-GDD (0-28cm)",
+  "soil_Corg"                     = "Corg (%)"
+)
+
+lysi_cors <- map_dfr(names(lysi_vecs), function(v) {
+  x <- df_lysi_harm[[v]]
+  tibble(
+    var_code = v,
+    Label    = lysi_vecs[[v]],
+    r_PC1    = cor(x, df_lysi_harm$PC1, use = "complete.obs"),
+    r_PC2    = cor(x, df_lysi_harm$PC2, use = "complete.obs"),
+    r_dN     = cor(x, df_lysi_harm$dN_mech, use = "complete.obs")
+  )
+}) |>
+  mutate(
+    Gruppe = ifelse(var_code == "dN_mech", "Zielgrösse (dN)", "Hydro-Thermik & Boden"),
+    x_end  = r_PC1 * 3.8,
+    y_end  = r_PC2 * 3.8
+  )
+
+ggplot(df_lysi_harm, aes(x = PC1, y = PC2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_point(aes(color = treatment), size = 3, alpha = 0.75) +
+  geom_segment(
+    data = lysi_cors,
+    aes(x = 0, y = 0, xend = x_end, yend = y_end, linetype = Gruppe),
+    arrow = arrow(length = unit(0.24, "cm"), type = "closed"),
+    color = ifelse(lysi_cors$var_code == "dN_mech", "#c0392b", "#1f4e78"),
+    linewidth = ifelse(lysi_cors$var_code == "dN_mech", 1.2, 0.85)
+  ) +
+  geom_label_repel(
+    data = lysi_cors,
+    aes(x = x_end, y = y_end, label = paste0(Label, " (r_dN=", sprintf("%+.2f", r_dN), ")")),
+    size = 3.2,
+    fill = alpha("white", 0.85),
+    color = ifelse(lysi_cors$var_code == "dN_mech", "#c0392b", "#1f4e78"),
+    box.padding = 0.3
+  ) +
+  theme_minimal(base_size = 12.5) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(
+    title = "Biplot-Evidenz (Lysimeter, n = 128): Projektion der Hydro-Thermik- & Bodenvektoren auf den Enzym-Raum",
+    subtitle = "Robuste PCA der Lysimeter-Enzymdaten mit Korrelationen (r_dN) zur düngerkorrigierten N-Nachlieferung",
+    x = "PC1 – Index der biol. Gesamtaktivität",
+    y = "PC2 – Enzymatischer Shift (C/N vs. P)",
+    color = "Düngung",
+    linetype = "Domäne"
+  )
+```
+
+```{r lysi-model-benchmark-table, warning=FALSE, message=FALSE}
+eval_lysi_lmm <- function(formula_str, data, label) {
+  f <- as.formula(formula_str)
+  m_ml   <- suppressMessages(lmer(f, data = data, REML = FALSE))
+  m_reml <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  r2     <- r.squaredGLMM(m_reml)
+  resp   <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  
+  # Obs-wise LOO
+  y_loo <- numeric(nrow(data))
+  for (i in seq_len(nrow(data))) {
+    m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
+    y_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+  }
+  rmse_loo <- sqrt(mean((y_true - y_loo)^2))
+  
+  # Plotwise LOPO (re.form = NA)
+  groups <- unique(data$plot_id)
+  y_lopo <- numeric(nrow(data))
+  for (g in groups) {
+    idx <- which(data$plot_id == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lopo[idx] <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+  }
+  rmse_lopo <- sqrt(mean((y_true - y_lopo)^2))
+  r2_lopo   <- 1 - sum((y_true - y_lopo)^2) / sum((y_true - mean(y_true))^2)
+  
+  tibble(
+    Modell = label,
+    AICc = round(AICc(m_ml), 1),
+    BIC  = round(BIC(m_ml), 1),
+    `R²_m (Fixed)` = round(r2[1, "R2m"], 3),
+    `R²_c (Total)` = round(r2[1, "R2c"], 3),
+    RMSE_LOO = round(rmse_loo, 1),
+    `RMSE_LOPO (Plot)` = round(rmse_lopo, 1),
+    `R²_LOPO (Plot)`   = round(r2_lopo, 3)
+  )
+}
+
+lysi_bench <- bind_rows(
+  eval_lysi_lmm("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|plot_id)", df_lysi_harm,
+                "L0: Rohes dN_raw (ohne Düngerdiskont.) | PC1 + PC2 + poly(Precip, 2) + Corg"),
+  eval_lysi_lmm("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|plot_id)", df_lysi_harm,
+                "L1: Düng.-korr. dN_mech | PC1 + PC2 + poly(Precip, 2) + Corg"),
+  eval_lysi_lmm("dN_mech ~ SEA_70_30 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi_harm,
+                "L2: Digit-Soil SEA_70:30 | + poly(KWB, 2) + Bodenfeuchte (0-28cm) + Corg"),
+  eval_lysi_lmm("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi_harm,
+                "L3: OptiFert rPCA (PC1+PC2) | + poly(KWB, 2) + Bodenfeuchte (0-28cm) + Corg")
+)
+
+knitr::kable(
+  lysi_bench,
+  caption = "Harmonisierter Modellvergleich auf den Lysimeter-Intervallen (n = 128 über 32 Lysimeter): Effekt der GDD_soil-Düngerdiskontierung (L0 -> L1), der 0–28 cm Hydro-Thermik sowie Vergleich zwischen SEA_70:30 (L2) und orthogonaler rPCA (L3)."
+)
+```
+
 # 7. Saisonaler Ansatz: Erste vs. Letzte Messung & Auswaschungsbilanz
 
 Abschliessend betrachten wir die Nettoveränderung über die gesamte Vegetationsperiode (März bis Juli 2025). Wir prüfen, ob die saisonale Verschiebung im mikrobiellen Enzymprofil ($\Delta$PC1 und $\Delta$PC2) mit der Netto-N-Bilanz und der im Herbst gemessenen Sickerwasserauswaschung korreliert.
@@ -400,7 +529,7 @@ ggplot(df_season, aes(x = Delta_PC2, y = Delta_Ntot, color = treatment, shape = 
 
 Die synoptische Analyse der Lysimeterdaten bestätigt den Befund aus dem DEMO-Versuch: Während die Sensoren signifikante Unterschiede zwischen grundlegenden Bodentypen (C-arm vs. C-reich) abbilden, wird die kurzfristige Dynamik der Stickstoffbilanz im Bodenprofil primär durch Witterungs- und physikalische Wasserflüsse dominiert.
 
-# 5. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
+# 8. Pedoclimatic Proxy & Lag Analysis (LMM + AIC)
 
 Soil enzymes are stabilized by organo-mineral complexes, functioning as a "reservoir" that integrates pedoclimatic drivers (soil moisture, temperature) over time. Therefore, effective enzymatic abundance and activity are often better predicted by cumulative environmental windows (e.g., 7-day, 14-day, 30-day proxies) rather than instantaneous measurements. 
 
@@ -421,7 +550,7 @@ lmm_data <- lmm_data |>
 
 ## Vergleich der Akkumulations-Fenster für alle Signale
 
-Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für das Lysimeter (`plot_nr`) und die Behandlung (`treatment`).
+Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und kulturspezifischer Wärmesumme ($\text{GDD} = \sum \max(0, T_{\text{mean}} - T_{\text{base}})$ mit $T_{\text{base}} = 6.0\,^\circ\text{C}$ für Mais; @mcmasterGrowingDegreedaysOne1997; @bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014), mit zufälligen Effekten für das Lysimeter (`plot_nr`) und die Behandlung (`treatment`).
 
 ```{r lmm-all-aic, warning=FALSE, message=FALSE}
 library(purrr)

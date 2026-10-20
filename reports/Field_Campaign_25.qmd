@@ -311,6 +311,127 @@ plot_ly() |>
   )
 ```
 
+### 6.2 Erweiterte Biplot-Evidenz & Mechanistischer Intervall-Modellvergleich (`dN_mech`, LOPO-CV & `SEA_70:30` vs. `rPCA`)
+
+Analog zu den Versuchen DEMO und Lysimeter betrachten wir nun die auf $0\text{--}30\,\text{cm}$ harmonisierten Intervalle der On-Farm-Praxisbetriebe ($n = 59$ Intervalle aus `OptiFert_Total_Intervals.rds`) inklusive der Zwei-Pool-$\text{GDD}_{\text{soil}}$-Düngerdiskontierung (`dN_mech`), der täglichen klimatischen Wasserbilanz (`CWB_rate`), der Bodenfeuchte ($0\text{--}28\,\text{cm}$) sowie des Vergleichs zwischen dem Digit-Soil-Summenindex ($\text{SEA}_{70:30}$) und unserer orthogonalen `rPCA` (`PC1 + PC2`):
+
+```{r fc-harmonized-biplot-and-lopo, fig.width=10.5, fig.height=5.5, warning=FALSE, message=FALSE}
+library(ggrepel)
+
+df_fc_harm <- readRDS("../data/OptiFert_Total_Intervals.rds") |>
+  filter(LTE == "Fields25") |>
+  mutate(
+    Precip_rate = Cum_Precip_mm / interval_days,
+    CWB_rate    = Cum_CWB_mm / interval_days,
+    GLS_index   = 0.5 + GLS / 25,
+    NAG_index   = 0.5 + NAG / 8,
+    SEA_70_30   = 0.7 * GLS_index + 0.3 * NAG_index
+  )
+
+fc_vecs <- c(
+  "dN_mech"                       = "dN (Düng.-korr.)",
+  "Precip_rate"                   = "Niederschlag/Tag",
+  "CWB_rate"                      = "KWB/Tag (P - ET0)",
+  "Mean_Soil_Moist_0_28_Interval" = "Bodenfeuchte (0-28cm)",
+  "Cum_GDD_Soil_Interval"         = "Boden-GDD (0-28cm)",
+  "soil_Corg"                     = "Corg (%)"
+)
+
+fc_cors <- map_dfr(names(fc_vecs), function(v) {
+  x <- df_fc_harm[[v]]
+  tibble(
+    var_code = v,
+    Label    = fc_vecs[[v]],
+    r_PC1    = cor(x, df_fc_harm$PC1, use = "complete.obs"),
+    r_PC2    = cor(x, df_fc_harm$PC2, use = "complete.obs"),
+    r_dN     = cor(x, df_fc_harm$dN_mech, use = "complete.obs")
+  )
+}) |>
+  mutate(
+    Gruppe = ifelse(var_code == "dN_mech", "Zielgrösse (dN)", "Hydro-Thermik & Boden"),
+    x_end  = r_PC1 * 3.8,
+    y_end  = r_PC2 * 3.8
+  )
+
+ggplot(df_fc_harm, aes(x = PC1, y = PC2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_point(aes(color = treatment, shape = crop), size = 3.2, alpha = 0.8) +
+  geom_segment(
+    data = fc_cors,
+    aes(x = 0, y = 0, xend = x_end, yend = y_end, linetype = Gruppe),
+    arrow = arrow(length = unit(0.24, "cm"), type = "closed"),
+    color = ifelse(fc_cors$var_code == "dN_mech", "#c0392b", "#1f4e78"),
+    linewidth = ifelse(fc_cors$var_code == "dN_mech", 1.2, 0.85)
+  ) +
+  geom_label_repel(
+    data = fc_cors,
+    aes(x = x_end, y = y_end, label = paste0(Label, " (r_dN=", sprintf("%+.2f", r_dN), ")")),
+    size = 3.2,
+    fill = alpha("white", 0.85),
+    color = ifelse(fc_cors$var_code == "dN_mech", "#c0392b", "#1f4e78"),
+    box.padding = 0.3
+  ) +
+  theme_minimal(base_size = 12.5) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)) +
+  labs(
+    title = "Biplot-Evidenz (On-Farm Fields25, n = 59): Projektion der Hydro-Thermik- & Bodenvektoren",
+    subtitle = "Robuste PCA der Oberboden-Intervalle (0–30 cm) mit Korrelationen (r_dN) zur düngerkorrigierten N-Nachlieferung",
+    x = "PC1 – Index der biol. Gesamtaktivität",
+    y = "PC2 – Enzymatischer Shift (C/N vs. P)",
+    color = "Düngung",
+    shape = "Kultur",
+    linetype = "Domäne"
+  )
+```
+
+```{r fc-model-benchmark-table, warning=FALSE, message=FALSE}
+eval_fc_lmm <- function(formula_str, data, label) {
+  f <- as.formula(formula_str)
+  m_ml   <- suppressMessages(lmer(f, data = data, REML = FALSE))
+  m_reml <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  r2     <- r.squaredGLMM(m_reml)
+  resp   <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  
+  groups <- unique(data$plot_id)
+  y_lopo <- numeric(nrow(data))
+  for (g in groups) {
+    idx <- which(data$plot_id == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lopo[idx] <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+  }
+  rmse_lopo <- sqrt(mean((y_true - y_lopo)^2))
+  r2_lopo   <- 1 - sum((y_true - y_lopo)^2) / sum((y_true - mean(y_true))^2)
+  
+  tibble(
+    Modell = label,
+    AICc = round(AICc(m_ml), 1),
+    BIC  = round(BIC(m_ml), 1),
+    `R²_m (Fixed)` = round(r2[1, "R2m"], 3),
+    `R²_c (Total)` = round(r2[1, "R2c"], 3),
+    `RMSE_LOPO (Betrieb)` = round(rmse_lopo, 1),
+    `R²_LOPO (Betrieb)`   = round(r2_lopo, 3)
+  )
+}
+
+fc_bench <- bind_rows(
+  eval_fc_lmm("dN_raw ~ PC1 + PC2 + Precip_rate + I(Precip_rate^2) + (1|plot_id)", df_fc_harm,
+              "F0: Rohes dN_raw (ohne Düngerdiskont.) | PC1 + PC2 + poly(Precip/Tag, 2)"),
+  eval_fc_lmm("dN_mech ~ PC1 + PC2 + Precip_rate + I(Precip_rate^2) + (1|plot_id)", df_fc_harm,
+              "F1: Düng.-korr. dN_mech | PC1 + PC2 + poly(Precip/Tag, 2)"),
+  eval_fc_lmm("dN_mech ~ SEA_70_30 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc_harm,
+              "F2: Digit-Soil SEA_70:30 | + KWB/Tag + Bodenfeuchte + Boden-GDD + Corg"),
+  eval_fc_lmm("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc_harm,
+              "F3: OptiFert rPCA (PC1+PC2) | + KWB/Tag + Bodenfeuchte + Boden-GDD + Corg")
+)
+
+knitr::kable(
+  fc_bench,
+  caption = "Harmonisierter Intervall-Modellvergleich auf den On-Farm-Praxisbetrieben (Fields25, n = 59 Intervalle über 20 Betriebe): Vergleich zwischen SEA_70:30 (F2) und orthogonaler rPCA (F3) inklusive Hydro-Thermik (0–28 cm) und Corg."
+)
+```
+
 # 7. Saisonaler Ansatz: Erste vs. Letzte Messung & Ertragskopplung
 
 Als Ergänzung zur zeitpunktbezogenen Modellierung betrachten wir die saisonale Netto-Dynamik zwischen der ersten Beprobung (**T1**) vor dem Hauptwachstumsschub und der späten Beprobung (**T3**) vor der Ernte.
@@ -418,7 +539,7 @@ lmm_data <- lmm_data |>
 
 ## Vergleich der Akkumulations-Fenster für alle Signale
 
-Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und Wärmesumme, mit zufälligen Effekten für Standort (`plot_nr`) und Behandlung (`treatment`).
+Wir modellieren verschiedene Biomarker und Hauptkomponenten als Funktion von kumulativem Niederschlag und kulturspezifischer Wärmesumme ($\text{GDD} = \sum \max(0, T_{\text{mean}} - T_{\text{base}})$, wobei $T_{\text{base}}$ dynamisch je Kultur zugewiesen wird: $0.0\,^\circ\text{C}$ für Winterweizen [@porterTemperaturesGrowthDevelopment1999] bzw. $6.0\,^\circ\text{C}$ für Mais [@bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014; @mcmasterGrowingDegreedaysOne1997]), mit zufälligen Effekten für Standort (`plot_nr`) und Behandlung (`treatment`).
 
 ```{r lmm-all-aic, warning=FALSE, message=FALSE}
 library(purrr)

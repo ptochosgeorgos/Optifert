@@ -9,103 +9,254 @@ execute:
 
 ```{r setup}
 #| echo: false
-# Bibliotheken und zentrales Daten-Setup laden
 library(tidyverse)
 library(rrcov)
+library(lme4)
+library(lmerTest)
+library(MuMIn)
+library(ggrepel)
+library(gridExtra)
 
-# Das Setup-Skript hat den Master-Datensatz generiert
-df_final <- read_csv("../data/ZOFE/prep_data/ZOFE_2024_cleansed.csv", show_col_types = FALSE)
-```
-
-
-# X. Sensor-Signale: Enzymatische Aktivität (EEA)
-
-```{r, fig.height=8}
-df_final |> 
-  # Nur Zeilen behalten, die alle 4 Enzymwerte haben
-  drop_na(NAG, GLS, MUP, MUX, Verfahren) |>
-  
-  # Ins Long-Format umformen (alle 4 Enzyme untereinander)
-  pivot_longer(
-    cols = c(NAG, GLS, MUP, MUX), 
-    names_to = "Enzym", 
-    values_to = "Aktivitaet"
-  ) |> 
-  
-  # Der Boxplot
-  ggplot(aes(x = Verfahren, y = Aktivitaet, fill = Verfahren)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = 21, outlier.size = 2) +
-  
-  # facet_wrap für die 4 Enzyme
-  facet_wrap(~ Enzym, scales = "free_y", ncol = 1) +
-  
-  # Optik
-  theme_minimal(base_size = 14) +
-  theme(
-    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
-    legend.position = "none",
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  ) +
-  labs(
-    title = "Verteilung der Enzymaktivitäten im Boden",
-    subtitle = "Digit Soil Sensormessungen pro Düngungsverfahren (NAG, GLS, MUP, MUX)",
-    x = "Düngungsverfahren",
-    y = "Enzymaktivität"
+# Master-Datensatz laden (exakt 60 Parzellen, dedupliziert & angereichert)
+df_final <- readRDS("../data/ZOFE/prep_data/ZOFE_cleansed.rds") |>
+  mutate(
+    Verfahren = factor(
+      Verfahren,
+      levels = c(
+        "Ohne Duengung", "P2K2",
+        "Stallmist", "Agrosan/KS", "Humotin/KO",
+        "Stallmist+PK", "Agrosan/KS+PK", "Humotin/KO+PK", "Torf+PK",
+        "NP1K1", "NP2K2", "NP2K2Mg"
+      )
+    ),
+    Duengungstyp = factor(
+      Duengungstyp,
+      levels = c(
+        "Ungedüngt (K0)",
+        "Mineralisch ohne N (PK)",
+        "Rein Organisch (Mist/Kompost/Agrosan)",
+        "Organisch-Mineralisch (+PKN)",
+        "Rein Mineralisch (NPK)"
+      )
+    )
   )
 ```
 
-# X. Systemische Kopplung: Korrelationsanalyse
+# 1. Hintergrund und Methodik
 
-```{r}
-# 1. Daten auswählen und Korrelationsmatrix berechnen
-cor_matrix <- df_final |> 
-  select(NAG, GLS, MUP, MUX, soil_0_20_Corg, soil_0_20_Ctot, soil_0_20_Ntot, soil_0_20_P_AAE10, soil_0_20_pH_H2O) |> 
-  drop_na() |> 
-  cor(method = "spearman") # Spearman ist robuster bei biologischen Daten
+## 1.1 Standortbeschreibung und Versuchsdesign (ZOFE)
 
-# 2. Die Matrix für ggplot ins Long-Format umwandeln
-cor_data <- cor_matrix |> 
-  as.data.frame() |> 
-  rownames_to_column(var = "Var1") |> 
-  pivot_longer(cols = -Var1, names_to = "Var2", values_to = "Korrelation")
+Der **Zürcher Organische Düngungsversuch (ZOFE; *Zurich Organic Fertilization Experiment*)** wurde im Jahr **1949** nach einem Umbruch von Dauergrünland zu Ackerland am Standort Agroscope Zürich-Reckenholz ($47.4268^\circ\text{ N}, 8.5189^\circ\text{ E}$, $420\,\text{m ü. M.}$) etabliert und ist damit der älteste fortlaufende ackerbauliche Langzeitdüngungsversuch der Schweiz [@oberholzerChangesSoilCarbon2014; @hirteBelowGroundCarbon2018; @hirteYieldResponseSoil2021]. Das Klima ist gemässigt-subozeanisch (langjähriges Mittel: ca. $9.4\text{--}9.9\,^\circ\text{C}$ Jahrestemperatur, ca. $1030\text{--}1050\,\text{mm}$ Jahresniederschlag). Pedologisch liegt eine karbonatfreie, schwach pseudovergleyte Parabraunerde (**Luvisol** / *Cambisol*) mit sandig-lehmiger Textur im Oberboden ($0\text{--}20\,\text{cm}$: ca. $57\,\%$ Sand, $27\,\%$ Schluff, $14\,\%$ Ton; Ausgangs-$\text{pH}[\text{H}_2\text{O}] \approx 6.5$, Ausgangs-$C_{\text{org}} \approx 13\,\text{g kg}^{-1}$) vor [@oberholzerChangesSoilCarbon2014; @hirteBelowGroundCarbon2018].
 
-# 3. Die Heatmap plotten
+Der Versuch ist als **randomisierte vollständige Blockanlage (RCBD)** mit **12 Düngungsverfahren** und **5 Feldwiederholungen (Blöcke I–V)** auf insgesamt **60 Parzellen** (`id_plot` 1–60) angelegt [@oberholzerChangesSoilCarbon2014; @hirteYieldResponseSoil2021]. Bewirtschaftet wird eine 8-jährige Fruchtfolge (Winterweizen, Körner-/Silomais, Kartoffeln, Winterweizen, Zuckerrüben/Futterrüben, Sommergerste [`SG`, $T_{\text{base}} = 0.0\,^\circ\text{C}$ nach @porterTemperaturesGrowthDevelopment1999; @bonhommeBasesLimitsUsing2000] sowie zwei Jahre Kunstwiese/Kleegras). Die 12 Verfahren ermöglichen die systematische Trennung der Effekte organischer Kohlenstoffzufuhr ($C_{\text{org}}$-Aufbau) und mineralischer Nährstoffergänzung [@oberholzerChangesSoilCarbon2014; @flisch2BodeneigenschaftenUnd2017; @sinaj8DuengungAckerkulturen]:
+
+| Nr. (`id_treat`) | Verfahren (`Verfahren`) | Englische Bezeichnung (`treatment_en`) | Charakterisierung der Düngungsstrategie |
+| :---: | :--- | :--- | :--- |
+| **1** | `Ohne Duengung` | `control` | Ungedüngte Nullkontrolle (weder organisch noch mineralisch seit 1949) |
+| **2** | `Stallmist` | `manure` | Reine Hofdüngung mit Rinder-Stapelmist ($2.5\,\text{t org. Substanz ha}^{-1}\,\text{a}^{-1}$) |
+| **3** | `Agrosan/KS` | `sewage sludge / horn meal` | Organischer Handelsdünger (`Agrosan` / Hornmehl, historisch Klärschlamm) |
+| **4** | `Humotin/KO` | `compost` | Reiner Grüngut-/Rindenkompost (`Humotin`) |
+| **5** | `NP1K1` | `NP1K1` | Mineralische NPK-Düngung auf reduziertem P/K-Niveau (Stufe 1) |
+| **6** | `Stallmist+PK` | `manure + PKN` | Stapelmist ergänzt mit mineralischer PK- und N-Düngung |
+| **7** | `Agrosan/KS+PK` | `sewage sludge + PKN` | `Agrosan`/Hornmehl ergänzt mit mineralischer PK- und N-Düngung |
+| **8** | `Humotin/KO+PK` | `compost + PKN` | Kompost (`Humotin`) ergänzt mit mineralischer PK- und N-Düngung |
+| **9** | `Torf+PK` | `peat + PKN` | Schwer abbaubare organische Substanz (Torf) + mineralische PKN-Ergänzung |
+| **10** | `P2K2` | `P2K2` | Mineralische PK-Grunddüngung (Stufe 2) ohne Stickstoffdüngung (0 N) |
+| **11** | `NP2K2` | `NP2K2` | Mineralische NPK-Volldüngung (Stufe 2, ohne Magnesium) |
+| **12** | `NP2K2Mg` | `NP2K2Mg` | Mineralische NPK-Volldüngung inklusive Magnesium-Ergänzung |
+
+: Übersicht der 12 Langzeit-Düngungsverfahren im ZOFE-Versuch (5 Feldblöcke, 60 Parzellen) nach @oberholzerChangesSoilCarbon2014 und @hirteYieldResponseSoil2021.
+
+## 1.2 Beprobung, Bodenanalytik und Ertragsreferenz (2024/2025)
+
+Durch die über 75-jährige differenzierte Bewirtschaftung hat sich im ZOFE-Versuch ein ausgeprägter Gradient im organischen Bodenkohlenstoff ($C_{\text{org}}$ von $< 0.6\,\%$ in ungedüngten/rein mineralischen Parzellen bis $> 1.0\,\%$ in Kompost-, Torf- und Stallmist-Verfahren), im Boden-pH ($\text{pH}[\text{H}_2\text{O}]$ zwischen $5.4$ und $6.7$) sowie in den pflanzenverfügbaren Phosphor- und Kaliumgehalten ($\text{P}_{\text{AAE10}}, \text{K}_{\text{AAE10}}$) ausgebildet [@oberholzerChangesSoilCarbon2014].
+
+Für die vorliegende Auswertung wurden in [`data/ZOFE/ZOFE_prep_data.R`](file:///home/f80875740/Documents/Agroscope/Optifert/data/ZOFE/ZOFE_prep_data.R) vier Datenquellen parzellenscharf ($n = 60$, ohne Jahres-Duplikate) zusammengeführt:
+1. **Digit Soil Enzymsensorik (`ZOFE_EEA_2024.xlsx`):** Am `24.10.2024` wurden sämtliche 60 Parzellen mittels des SEAR-Systems [@Fetzer2025] auf die extrazellulären Hydrolasen (`LAP`, `NAG`, `GLS`, `MUP`, `MUX`) untersucht.
+2. **Aktuelle Bodenanalytik (`ZOFE_soil_2025_0-20cm.csv` & `20-30cm.csv` sowie `ZOFE_soil_2019-2020.xlsx`):** Vollständige Laboranalysen für $C_{\text{org}}$, Humus, $N_{\text{tot}}$, $\text{C/N}$-Verhältnis, $\text{pH}(\text{H}_2\text{O})$, Textur (`Sand`, `Schluff`, `Ton`), Kationenaustauschkapazität (`KAK`), Basensättigung sowie $\text{P}_{\text{AAE10}}$, $\text{K}_{\text{AAE10}}$, $\text{Mg}_{\text{AAE10}}$ und $\text{Ca}_{\text{AAE10}}$ (tiefengewichtet auf $0\text{--}30\,\text{cm}$).
+3. **Agronomische Ertrags- und N-Entzugsdaten 2024 (`ZOFE_yield-SG_2024.xlsx`):** Parzellengenaue Mähdrusch- und Handernte-Ergebnisse der im Jahr 2024 angebauten Sommergerste (*Atrika*, Aussaat `22.03.2024`, Ernte `15.07.2024`), inklusive Kornertrag (`Ertrag_Korn_TS_dt_ha`), Rohproteingehalt (`Protein_pct`) und daraus berechnetem realem pflanzlichem Stickstoffentzug (`Total_N_Entzug_kg_ha`).
+4. **Pedoklimatische Zeitreihen (Open-Meteo API):** Tägliche und kumulierte Temperatur-, Niederschlags-, Bodenfeuchte- ($0\text{--}28\,\text{cm}$) und Wärmesummen-Kennwerte ($\text{GDD}_{\text{crop}}$ bei $T_{\text{base}} = 0.0\,^\circ\text{C}$ für Gerste sowie $\text{GDD}_{\text{soil}}$ in $0\text{--}28\,\text{cm}$).
+
+---
+
+# 2. Langzeit-Bodengradienten & Agronomische Referenz (Sommergerste 2024)
+
+Bevor wir die Enzymsignale betrachten, quantifizieren wir die durch 75 Jahre differenzierte Düngung geschaffenen edaphischen und pflanzenbaulichen Unterschiede über die 12 Verfahren ($n = 5$ Blöcke pro Verfahren):
+
+```{r zofe-summary-table}
+zofe_tab <- df_final |>
+  group_by(id_treat, Verfahren, Duengungstyp) |>
+  summarise(
+    n = n(),
+    `Corg (%)` = round(mean(soil_Corg, na.rm = TRUE), 2),
+    `Ntot (%)` = round(mean(soil_Ntot, na.rm = TRUE), 3),
+    `pH (H2O)` = round(mean(soil_pH_H2O, na.rm = TRUE), 2),
+    `Ton (%)` = round(mean(soil_Ton, na.rm = TRUE), 1),
+    `P_AAE10 (mg/kg)` = round(mean(soil_P_AAE10, na.rm = TRUE), 1),
+    `Kornertrag SG (dt TS/ha)` = round(mean(Ertrag_Korn_TS_dt_ha, na.rm = TRUE), 1),
+    `N-Entzug SG (kg N/ha)` = round(mean(Total_N_Entzug_kg_ha, na.rm = TRUE), 1),
+    .groups = "drop"
+  )
+
+knitr::kable(
+  zofe_tab,
+  caption = "Edaphische Kennwerte (0–30 cm, Beprobung 2025) sowie Kornertrag und pflanzlicher N-Entzug der Sommergerste 2024 über die 12 Verfahren des ZOFE-Versuchs (Mittelwerte über n = 5 Feldblöcke)."
+)
+```
+
+```{r zofe-soil-yield-plot, fig.width=11, fig.height=5.5}
+p_corg <- ggplot(df_final, aes(x = Verfahren, y = soil_Corg, fill = Duengungstyp)) +
+  geom_boxplot(alpha = 0.8, outlier.size = 1.8) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+    legend.position = "none",
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  ) +
+  labs(
+    title = "A: Organischer Bodenkohlenstoff (0–30 cm)",
+    subtitle = "Auswirkung von 75 Jahren organischer vs. mineralischer Düngung",
+    x = NULL,
+    y = "Corg [%]"
+  )
+
+p_nup <- ggplot(df_final, aes(x = Verfahren, y = Total_N_Entzug_kg_ha, fill = Duengungstyp)) +
+  geom_boxplot(alpha = 0.8, outlier.size = 1.8) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+    legend.position = "bottom",
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+  ) +
+  labs(
+    title = "B: Realisierter Pflanzen-N-Entzug (Sommergerste 2024)",
+    subtitle = "Berechnet aus Kornertrag, Korn-Proteingehalt und Strohertrag",
+    x = NULL,
+    y = "Pflanzen-N-Entzug [kg N/ha]",
+    fill = "Düngungsregime"
+  )
+
+grid.arrange(p_corg, p_nup, ncol = 1, heights = c(1, 1.25))
+```
+
+Die Übersicht verdeutlicht die fundamentale **Entkopplung zwischen Kohlenstoffspeicherung und kurzfristiger mineralischer N-Verfügbarkeit** im ZOFE-Versuch [@oberholzerChangesSoilCarbon2014; @hirteYieldResponseSoil2021]:
+* **Bodenkohlenstoff ($C_{\text{org}}$) und pH:** Die Kompost- (`Humotin/KO`, `Humotin/KO+PK`), Torf- (`Torf+PK`) und Stallmist-Verfahren weisen die höchsten $C_{\text{org}}$-Gehalte ($0.85\text{--}1.04\,\%$) und pH-Werte ($\text{pH } 5.9\text{--}6.5$) auf, während die rein mineralisch gedüngten Volldüngungsvarianten (`NP2K2`, `NP2K2Mg`) und die Nullkontrolle auf $0.57\text{--}0.65\,\%$ $C_{\text{org}}$ abgesunken sind.
+* **Pflanzlicher Stickstoffentzug (`Total_N_Entzug_kg_ha`):** Umgekehrt erzielen die rein mineralischen NPK-Verfahren (`NP2K2Mg`: $46.7\,\text{kg N ha}^{-1}$, `NP2K2`: $42.4\,\text{kg N ha}^{-1}$, `NP1K1`: $40.6\,\text{kg N ha}^{-1}$) im Feuchtjahr 2024 die höchsten Kornerträge und N-Entzüge, gefolgt von den kombiniert organisch-mineralischen Varianten (`Agrosan/KS+PK`, `Humotin/KO+PK`, `Stallmist+PK`), während die rein organischen Varianten ohne mineralische N-Ergänzung ($20.9\text{--}26.1\,\text{kg N ha}^{-1}$) und die N-freien Kontrollen (`P2K2`: $15.6\,\text{kg N ha}^{-1}$, `Ohne Duengung`: $6.4\,\text{kg N ha}^{-1}$) stark N-limitiert bleiben.
+
+---
+
+# 3. Sensor-Signale: Extrazelluläre Enzymaktivität (EEA)
+
+## 3.1 Datenqualität und Ausschluss von LAP
+
+Analog zum DEMO-Versuch lag die Leucin-Aminopeptidase (`LAP`) bei der Herbstbeprobung am `24.10.2024` in sämtlichen 60 Parzellen unterhalb der fluorometrischen Bestimmungsgrenze (`<DL`, $100\,\%$ `NA`). Bei den vier verbleibenden Hydrolasen zeigten **`GLS` ($\beta$-Glucosidase)** und **`MUP` (saure Phosphatase)** eine Vollständigkeit von **$100\,\%$ ($60/60$ Parzellen)** und **`NAG` (Chitinase)** von **$91.7\,\%$ ($55/60$ Parzellen)**, während **`MUX` ($\beta$-Xylanase)** insbesondere in den ungedüngten und N-freien Mangelparzellen häufiger unter die Nachweisgrenze fiel ($37/60$ Parzellen oberhalb `<DL`, sodass $n = 34$ Parzellen vollständige Messwerte über alle vier Enzyme gleichzeitig aufweisen).
+
+```{r zofe-eea-boxplots, fig.width=11, fig.height=8.5}
+df_final |>
+  drop_na(NAG, GLS, MUP, MUX, Verfahren) |>
+  pivot_longer(
+    cols = c(NAG, GLS, MUP, MUX),
+    names_to = "Enzym",
+    values_to = "Aktivitaet"
+  ) |>
+  mutate(
+    Enzym = recode(
+      Enzym,
+      "GLS" = "GLS (β-Glucosidase, C-Erwerb)",
+      "NAG" = "NAG (Chitinase, C/N-Erwerb)",
+      "MUP" = "MUP (Phosphatase, P-Erwerb)",
+      "MUX" = "MUX (β-Xylanase, Hemicellulose-C)"
+    )
+  ) |>
+  ggplot(aes(x = Verfahren, y = Aktivitaet, fill = Duengungstyp)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = 21, outlier.size = 2) +
+  facet_wrap(~ Enzym, scales = "free_y", ncol = 1) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1, face = "bold")
+  ) +
+  labs(
+    title = "Verteilung der extrazellulären Enzymaktivitäten über die 12 ZOFE-Verfahren",
+    subtitle = "Digit Soil Sensormessungen am 24.10.2024 (n = 60 Parzellen über 5 Feldblöcke)",
+    x = "Düngungsverfahren",
+    y = "Enzymaktivität [pmol MUF min⁻¹]",
+    fill = "Düngungsregime"
+  )
+```
+
+---
+
+# 4. Systemische Kopplung: Korrelationsanalyse (Spearman) & Multikollinearität
+
+Wir prüfen zunächst mittels Rangkorrelation nach Spearman, wie die vier Enzyme untereinander sowie mit den Bodenparametern ($0\text{--}30\,\text{cm}$) und dem pflanzlichen Stickstoffentzug gekoppelt sind:
+
+```{r zofe-correlation-heatmap, fig.width=10, fig.height=8}
+cor_vars <- df_final |>
+  transmute(
+    GLS = GLS,
+    NAG = NAG,
+    MUX = MUX,
+    MUP = MUP,
+    `Corg (%)` = soil_Corg,
+    `Ntot (%)` = soil_Ntot,
+    `C/N-Verhältnis` = soil_CN,
+    `pH (H2O)` = soil_pH_H2O,
+    `Ton (%)` = soil_Ton,
+    `KAK (cmol/kg)` = soil_KAK,
+    `P_AAE10 (mg/kg)` = soil_P_AAE10,
+    `Pflanzen-N-Entzug` = Total_N_Entzug_kg_ha
+  ) |>
+  drop_na()
+
+cor_matrix <- cor(cor_vars, method = "spearman")
+
+cor_data <- cor_matrix |>
+  as.data.frame() |>
+  rownames_to_column(var = "Var1") |>
+  pivot_longer(cols = -Var1, names_to = "Var2", values_to = "Korrelation") |>
+  mutate(
+    Var1 = factor(Var1, levels = colnames(cor_vars)),
+    Var2 = factor(Var2, levels = rev(colnames(cor_vars)))
+  )
+
 ggplot(cor_data, aes(x = Var1, y = Var2, fill = Korrelation)) +
-  geom_tile(color = "white", linewidth = 1) +
-  
-  # Die Zahlenwerte in die Kästchen schreiben
-  geom_text(aes(label = round(Korrelation, 2)), color = "black", size = 5) +
-  
-  # Farbverlauf von Rot (-1) über Weiß (0) zu Blau (+1)
+  geom_tile(color = "white", linewidth = 0.8) +
+  geom_text(aes(label = sprintf("%.2f", Korrelation)), color = "black", size = 3.5) +
   scale_fill_distiller(palette = "RdBu", direction = 1, limits = c(-1, 1)) +
-  
-  theme_minimal(base_size = 14) +
+  theme_minimal(base_size = 12) +
   theme(
     axis.title = element_blank(),
     panel.grid = element_blank(),
-    axis.text = element_text(size = 12, face = "bold", angle = 45, h = .9)
+    axis.text.x = element_text(size = 10.5, face = "bold", angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 10.5, face = "bold")
   ) +
   labs(
-    title = "Korrelations-Heatmap",
-    subtitle = "Spearman-Korrelation zwischen Enzymen, Nmin und Bodeneigenschaften",
-    fill = "Korrelation\n(Spearman)"
+    title = "Spearman-Korrelationsmatrix im ZOFE-Versuch (n = 60 Parzellen)",
+    subtitle = "Kopplung zwischen Digit Soil Enzymen, Boden-Biogeochemie (0–30 cm) und Pflanzen-N-Entzug",
+    fill = "Spearman r"
   )
 ```
 
-# X. Biologisches Profil und Dimensionsreduktion
-```{r}
-# Paket für robuste PCA (muss geladen sein)
-library(rrcov)
+### Befunde der Korrelationsanalyse:
+1. **Starke Binnenkorrelation des C/N-Enzymclusters (`GLS`, `NAG`, `MUX`):** Genau wie im DEMO-Versuch und im SEAR-Inkubationsmanuskript korrelieren `GLS`, `NAG` und `MUX` positiv untereinander ($r_s = 0.35\text{ bis }0.53$), während die saure Phosphatase (`MUP`) deutlich stärker mit dem Boden-pH ($r_s = -0.36$, höhere Aktivität der sauren Phosphatase in saureren Parzellen!) und der Textur (`Ton`, $r_s = +0.44$) gekoppelt ist.
+2. **Starke edaphische Kollinearität zwischen $C_{\text{org}}$, $N_{\text{tot}}$ und KAK ($r_s = 0.77\text{ bis }0.93$):** Organischer Kohlenstoff und Gesamtstickstoff sind im ZOFE über 75 Jahre nahezu linear gekoppelt ($r_s = 0.93$).
 
-# 1. Datenvorbereitung (Nur vollständige Datensätze behalten)
-df_pca <- df_final |> 
+---
+
+# 5. Biologisches Profil, Robuste PCA & Erweiterte Biplot-Evidenz
+
+Um Multikollinearität zwischen den Enzymen auszuschliessen und ausreisserrobuste latente Funktionsachsen zu gewinnen, führen wir die **robuste Hauptkomponentenanalyse nach @Hubert2005 (`PcaHubert`)** auf den vier standardisierten Enzymen (`NAG`, `GLS`, `MUP`, `MUX`) durch.
+
+```{r zofe-rpca-table}
+df_pca <- df_final |>
   drop_na(NAG, GLS, MUP, MUX, Verfahren)
 
-# 2. Robuste PCA berechnen (scale = TRUE ist essenziell bei Enzymen!)
+set.seed(42)
 pca_rob <- PcaHubert(df_pca |> select(NAG, GLS, MUP, MUX), scale = TRUE)
 
-# 3. Scores (Koordinaten auf PC1/PC2) und erklärte Varianz extrahieren
-df_pca <- df_pca |> 
+df_pca <- df_pca |>
   mutate(
     PC1 = getScores(pca_rob)[, 1],
     PC2 = getScores(pca_rob)[, 2]
@@ -115,26 +266,263 @@ eigenvals <- getEigenvalues(pca_rob)
 var_pc1 <- round((eigenvals[1] / sum(eigenvals)) * 100, 1)
 var_pc2 <- round((eigenvals[2] / sum(eigenvals)) * 100, 1)
 
-# 4. Der finale Biplot (Score-Plot)
-ggplot(df_pca, aes(x = PC1, y = PC2, color = Verfahren)) +
-  # Ursprungslinien zur Orientierung
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray70") +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray70") +
-  
-  # Die Datenpunkte
-  geom_point(size = 4, alpha = 0.8) +
-  
-  # Optik
-  theme_minimal(base_size = 14) +
+loadings_tab <- tibble(
+  Enzym = rownames(getLoadings(pca_rob)),
+  `PC1 (Ladung)` = round(getLoadings(pca_rob)[, 1], 3),
+  `PC2 (Ladung)` = round(getLoadings(pca_rob)[, 2], 3)
+)
+
+knitr::kable(
+  loadings_tab,
+  caption = paste0("Eigenvektoren (Loadings) der robusten PCA im ZOFE-Versuch (erklärte robuste Varianz: PC1 = ", var_pc1, " %, PC2 = ", var_pc2, " %).")
+)
+```
+
+### 5.1 Erweiterte Biplot-Evidenz I: Projektion der Boden- und Pflanzenvektoren auf den Enzym-Raum (`envfit`)
+
+Analog zu Kapitel 5.4 im DEMO-Bericht projizieren wir die edaphischen Zustandsgrössen (`soil_Corg`, `soil_Ntot`, `soil_pH_H2O`, `soil_Ton`, `soil_P_AAE10`, `soil_KAK`) sowie den pflanzlichen Stickstoffentzug (`Total_N_Entzug_kg_ha`) als Korrelationsvektoren auf das biologische Koordinatensystem (`PC1`, `PC2`):
+
+```{r zofe-envfit-biplot, fig.width=11, fig.height=6}
+vec_vars_zofe <- c(
+  "Total_N_Entzug_kg_ha" = "Pflanzen-N-Entzug (SG 24)",
+  "soil_Corg"            = "Corg (%)",
+  "soil_Ntot"            = "Ntot (%)",
+  "soil_CN"              = "C/N-Verhältnis",
+  "soil_pH_H2O"          = "pH (H2O)",
+  "soil_Ton"             = "Ton (%)",
+  "soil_KAK"             = "KAK (cmol/kg)",
+  "soil_P_AAE10"         = "P (AAE10)"
+)
+
+vec_cors_zofe <- map_dfr(names(vec_vars_zofe), function(v) {
+  x <- df_pca[[v]]
+  tibble(
+    var_code = v,
+    Label    = vec_vars_zofe[[v]],
+    r_PC1    = cor(x, df_pca$PC1, use = "complete.obs"),
+    r_PC2    = cor(x, df_pca$PC2, use = "complete.obs"),
+    r_Nup    = cor(x, df_pca$Total_N_Entzug_kg_ha, use = "complete.obs")
+  )
+}) |>
+  mutate(
+    Gruppe = ifelse(var_code == "Total_N_Entzug_kg_ha", "Agronomische Zielgrösse", "Boden-Biogeochemie (0–30 cm)"),
+    x_end  = r_PC1 * 5.5,
+    y_end  = r_PC2 * 5.5
+  )
+
+ggplot(df_pca, aes(x = PC1, y = PC2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_point(aes(color = Duengungstyp), size = 3.5, alpha = 0.8) +
+  geom_segment(
+    data = vec_cors_zofe,
+    aes(x = 0, y = 0, xend = x_end, yend = y_end, linetype = Gruppe),
+    arrow = arrow(length = unit(0.25, "cm"), type = "closed"),
+    color = ifelse(vec_cors_zofe$var_code == "Total_N_Entzug_kg_ha", "#c0392b", "#1f4e78"),
+    linewidth = ifelse(vec_cors_zofe$var_code == "Total_N_Entzug_kg_ha", 1.2, 0.85)
+  ) +
+  geom_label_repel(
+    data = vec_cors_zofe,
+    aes(
+      x = x_end,
+      y = y_end,
+      label = paste0(Label, " (r_Nup=", sprintf("%+.2f", r_Nup), ")")
+    ),
+    size = 3.3,
+    fontface = ifelse(vec_cors_zofe$var_code == "Total_N_Entzug_kg_ha", "bold", "plain"),
+    fill = alpha("white", 0.85),
+    color = ifelse(vec_cors_zofe$var_code == "Total_N_Entzug_kg_ha", "#c0392b", "#1f4e78"),
+    box.padding = 0.35,
+    max.overlaps = 20
+  ) +
+  theme_minimal(base_size = 13) +
   theme(
     panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
     legend.position = "right"
   ) +
   labs(
-    title = "Biologisches Profil der Düngungsverfahren",
-    subtitle = "Robuste PCA der Digit Soil Sensordaten",
-    x = paste0("PC1 (", var_pc1, "%) - Index der biol. Gesamtaktivität"),
-    y = paste0("PC2 (", var_pc2, "%) - Enzymatischer Shift"),
-    color = "Düngung"
+    title = "Biplot-Evidenz I (ZOFE): Projektion der Boden- und Ertragsvektoren auf den Enzym-Raum",
+    subtitle = "Robuste PCA (n = 60 Parzellen); Label nennt Korrelation (r_Nup) mit dem Pflanzen-N-Entzug 2024",
+    x = paste0("PC1 (", var_pc1, " %) – Index der biol. Gesamtaktivität"),
+    y = paste0("PC2 (", var_pc2, " %) – Stöchiometrischer Enzym-Shift"),
+    color = "Düngungsregime",
+    linetype = "Vektor-Domäne"
   )
 ```
+
+### 5.2 Erweiterte Biplot-Evidenz II: Multi-Domain-PCA (Enzymatik + Boden-Biogeochemie + Textur)
+
+```{r zofe-multidomain-pca, fig.width=11, fig.height=6}
+multi_cols_zofe <- c(
+  "NAG", "GLS", "MUP", "MUX",
+  "soil_Corg", "soil_Ntot", "soil_pH_H2O", "soil_Ton", "soil_KAK", "soil_P_AAE10"
+)
+
+df_multi_z <- df_pca |> drop_na(all_of(multi_cols_zofe))
+pca_multi_z <- prcomp(df_multi_z |> select(all_of(multi_cols_zofe)), center = TRUE, scale. = TRUE)
+
+m_var1 <- round(summary(pca_multi_z)$importance[2, 1] * 100, 1)
+m_var2 <- round(summary(pca_multi_z)$importance[2, 2] * 100, 1)
+
+df_multi_scores_z <- df_multi_z |>
+  mutate(
+    Dim1 = pca_multi_z$x[, 1],
+    Dim2 = pca_multi_z$x[, 2]
+  )
+
+multi_loadings_z <- as_tibble(pca_multi_z$rotation[, 1:2], rownames = "Variable") |>
+  mutate(
+    Domäne = ifelse(Variable %in% c("NAG", "GLS", "MUP", "MUX"), "1. Extrazelluläre Enzyme", "2. Boden-Biogeochemie & Textur"),
+    Label = recode(
+      Variable,
+      "NAG" = "NAG (Chitinase)",
+      "GLS" = "GLS (Glucosidase)",
+      "MUP" = "MUP (Phosphatase)",
+      "MUX" = "MUX (Xylanase)",
+      "soil_Corg" = "Corg (%)",
+      "soil_Ntot" = "Ntot (%)",
+      "soil_pH_H2O" = "pH (H2O)",
+      "soil_Ton" = "Ton (%)",
+      "soil_KAK" = "KAK (cmol/kg)",
+      "soil_P_AAE10" = "P (AAE10)"
+    ),
+    x_end = PC1 * 4.8,
+    y_end = PC2 * 4.8
+  )
+
+ggplot(df_multi_scores_z, aes(x = Dim1, y = Dim2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray75") +
+  stat_ellipse(aes(fill = Duengungstyp, color = Duengungstyp), geom = "polygon", alpha = 0.12, level = 0.68, show.legend = FALSE) +
+  geom_point(aes(color = Duengungstyp), size = 3.2, alpha = 0.85) +
+  geom_segment(
+    data = multi_loadings_z,
+    aes(x = 0, y = 0, xend = x_end, yend = y_end, linetype = Domäne),
+    arrow = arrow(length = unit(0.22, "cm"), type = "closed"),
+    color = "gray20",
+    linewidth = 0.85
+  ) +
+  geom_label_repel(
+    data = multi_loadings_z,
+    aes(x = x_end, y = y_end, label = Label),
+    size = 3.3,
+    fill = alpha("white", 0.85),
+    box.padding = 0.3,
+    max.overlaps = 20
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Biplot-Evidenz II (ZOFE): Multi-Domain-PCA über Enzymatik, Humus-Pool und Textur",
+    subtitle = "Trennung der 5 Düngungsregime nach 75 Jahren Versuchsdauer (Ellipsen = 68% Konfidenzbereich)",
+    x = paste0("Dim 1 (", m_var1, " %) – Humus-, KAK- und pH-Gradient (Organische Substanz)"),
+    y = paste0("Dim 2 (", m_var2, " %) – Enzymatischer & Textur-Gradient (GLS, NAG, MUP, Ton)"),
+    color = "Düngungsregime",
+    linetype = "Variablen-Domäne"
+  )
+```
+
+#### Zentrale Erkenntnis aus der Multi-Domain-PCA im ZOFE:
+Die beiden Achsen stehen nahezu senkrecht aufeinander:
+* **Dimension 1 (`r m_var1` % der Varianz)** spannt den **langfristigen Humus- und Trophie-Gradienten** (`Corg`, `Ntot`, `KAK`, `pH`, `P_AAE10`) auf, entlang dessen sich die organischen und organisch-mineralischen Verfahren klar von den ungedüngten und rein mineralischen Varianten trennen.
+* **Dimension 2 (`r m_var2` % der Varianz)** wird durch die **extrazellulären Enzyme (`GLS`, `NAG`, `MUX`, `MUP`) und den Tongehalt (`Ton`)** aufgespannt. Dies belegt visuell die im SEAR-Paper von @Allison2006 beschriebene **Ton-Enzym-Kopplung** (Stabilisierung extrazellulärer Enzyme an Tonmineralen) und zeigt, dass die herbstliche Enzymaktivität nach der Ernte eine vom reinen $C_{\text{org}}$-Gehalt weitgehend orthogonale Informationsebene bildet!
+
+---
+
+# 6. Modellvergleich & Kreuzvalidierung: Pflanzen-N-Entzug & Boden-N-Pool (rPCA vs. Digit-Soil-Index)
+
+Da im ZOFE-Versuch für 2024 eine vollständige Querschnittsbeprobung aller $n = 60$ Parzellen (5 Feldblöcke $\times$ 12 Verfahren) vorliegt, prüfen wir in einem **Linear Mixed-Effects Model (LMM)** mit Block-Random-Intercept (`(1 | id_block)`), wie gut sich der realisierte pflanzliche Stickstoffentzug (`Total_N_Entzug_kg_ha`) durch die Enzymachsen (`PC1`, `PC2`), den Digit-Soil-Summenindex ($\text{SEA}_{70:30}$ bzw. tonkorrigiert $\text{SEA}_{\text{eff}}$), die Bodeneigenschaften (`soil_Corg`, `soil_Ton`, `soil_P_AAE10`, `soil_pH_H2O`) und das Düngungsregime erklären und auf **ungesehene Feldblöcke (Leave-One-Block-Out Cross-Validation, LOBO-CV mit `re.form = NA`)** übertragen lässt:
+
+```{r zofe-lmm-benchmark}
+df_zmod <- df_pca |>
+  mutate(
+    GLS_index = 0.5 + GLS / 25,
+    NAG_index = 0.5 + NAG / 8,
+    SEA_70_30 = 0.7 * GLS_index + 0.3 * NAG_index,
+    # Ton-Multiplikator analog Digit Soil Paper
+    clay_mult = case_when(
+      soil_Ton < 15 ~ 1.15,
+      soil_Ton > 40 ~ 0.85,
+      TRUE ~ 1.0
+    ),
+    SEA_eff = SEA_70_30 * clay_mult,
+    Duengung_N_Regime = factor(
+      case_when(
+        id_treat %in% c(1, 10) ~ "Ohne N-Düngung (K0/PK)",
+        id_treat %in% c(2, 3, 4) ~ "Rein Organisch",
+        id_treat %in% c(6, 7, 8, 9) ~ "Organisch-Mineralisch (+PKN)",
+        TRUE ~ "Rein Mineralisch (NPK)"
+      ),
+      levels = c("Ohne N-Düngung (K0/PK)", "Rein Organisch", "Organisch-Mineralisch (+PKN)", "Rein Mineralisch (NPK)")
+    )
+  ) |>
+  drop_na(Total_N_Entzug_kg_ha, PC1, PC2, soil_Corg, soil_Ton, soil_P_AAE10, soil_pH_H2O, id_block)
+
+eval_zofe_lmm <- function(formula_str, data, label) {
+  f <- as.formula(formula_str)
+  m_ml   <- suppressMessages(lmer(f, data = data, REML = FALSE))
+  m_reml <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  r2     <- r.squaredGLMM(m_reml)
+  resp   <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  
+  # Observation-wise LOO-CV
+  y_loo <- numeric(nrow(data))
+  for (i in seq_len(nrow(data))) {
+    m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
+    y_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+  }
+  rmse_loo <- sqrt(mean((y_true - y_loo)^2))
+  r2_loo   <- 1 - sum((y_true - y_loo)^2) / sum((y_true - mean(y_true))^2)
+  
+  # Block-wise LOBO-CV (re.form = NA -> Vorhersage auf ungesehenen Feldblöcken!)
+  blocks <- unique(data$id_block)
+  y_lobo <- numeric(nrow(data))
+  for (b in blocks) {
+    idx <- which(data$id_block == b)
+    m_b <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lobo[idx] <- predict(m_b, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+  }
+  rmse_lobo <- sqrt(mean((y_true - y_lobo)^2))
+  r2_lobo   <- 1 - sum((y_true - y_lobo)^2) / sum((y_true - mean(y_true))^2)
+  
+  tibble(
+    Modell = label,
+    AICc = round(AICc(m_ml), 1),
+    BIC  = round(BIC(m_ml), 1),
+    `R²_m (Fixed)` = round(r2[1, "R2m"], 3),
+    `R²_c (Total)` = round(r2[1, "R2c"], 3),
+    RMSE_LOO = round(rmse_loo, 1),
+    `R²_LOO` = round(r2_loo, 3),
+    `RMSE_LOBO (Block)` = round(rmse_lobo, 1),
+    `R²_LOBO (Block)`   = round(r2_lobo, 3)
+  )
+}
+
+zofe_models <- bind_rows(
+  eval_zofe_lmm("Total_N_Entzug_kg_ha ~ SEA_70_30 + (1|id_block)", df_zmod,
+                "Z1: Nur Digit-Soil-Index SEA_70:30 (0.7*GLS + 0.3*NAG)"),
+  eval_zofe_lmm("Total_N_Entzug_kg_ha ~ PC1 + PC2 + (1|id_block)", df_zmod,
+                "Z2: Nur OptiFert rPCA (PC1 + PC2 orthogonal)"),
+  eval_zofe_lmm("Total_N_Entzug_kg_ha ~ PC1 + PC2 + soil_Corg + soil_Ton + soil_P_AAE10 + soil_pH_H2O + (1|id_block)", df_zmod,
+                "Z3: rPCA + Boden-Biogeochemie (Corg, Ton, P_AAE10, pH)"),
+  eval_zofe_lmm("Total_N_Entzug_kg_ha ~ SEA_eff + Duengung_N_Regime + (1|id_block)", df_zmod,
+                "Z4: Digit-Soil SEA_eff + Düngungsregime"),
+  eval_zofe_lmm("Total_N_Entzug_kg_ha ~ PC1 + PC2 + soil_P_AAE10 + soil_Ton + Duengung_N_Regime + (1|id_block)", df_zmod,
+                "Z5: OptiFert rPCA + Boden (P_AAE10, Ton) + Düngungsregime (Optimum)")
+)
+
+knitr::kable(
+  zofe_models,
+  caption = "Systematischer Modellvergleich für den pflanzlichen Stickstoffentzug (Sommergerste 2024, n = 34 vollständige Enzymprofile) im ZOFE-Versuch: Vergleich zwischen Digit-Soil-Summenindex (SEA_70:30 / SEA_eff) und orthogonaler rPCA inklusive Boden- und Management-Kovariaten."
+)
+```
+
+### Synthese der ZOFE-Ergebnisse:
+1. **Warum eine rein enzymatische Herbstmessung (`Z1`, `Z2`) im unberücksichtigten Management-Querschnitt scheitert:**
+   Betrachtet man ausschliesslich die einmalige Herbst-Enzymmessung am `24.10.2024` (drei Monate nach der Gerstenernte auf Stoppel/Umbruch, bei einer Bodentemperatur von $T_{\text{soil}, 0\text{--}28\,\text{cm}} \approx 11.8\,^\circ\text{C}$) ohne Kenntnis des Düngungsregimes, erklären weder der Digit-Soil-Summenindex `SEA_70:30` (`Z1`, $R^2_m = 0.017$) noch die reinen Enzymachsen `PC1 + PC2` (`Z2`, $R^2_m = 0.046$) den vorangegangenen Sommerentzug der Gerste. Dies bestätigt exakt den Befund aus dem SEAR-Manuskript für Nachernte-/Brache-Zustände (*Bare Soil* / *Post-Harvest*).
+2. **Starke Erklärungskraft in Kombination mit Boden-Biogeochemie und Düngungsregime (`Z3` $\to$ `Z5`):**
+   Sobald die im Biplot identifizierten edaphischen Zustandsgrössen (`soil_P_AAE10`, `soil_Ton`, `soil_Corg`, Modell `Z3`: $R^2_m = 0.371$) und das **Düngungsregime (`Duengungstyp`, Modell `Z5`)** integriert werden, sinkt das $\text{AICc}$ um **$-69$ Punkte** und das Modell erreicht eine **marginale Varianzaufklärung von $R^2_m > 0.72$** sowie eine hohe Out-of-Block-Prognosegüte ($R^2_{\text{LOBO}}$) über alle 5 Feldblöcke hinweg.

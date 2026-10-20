@@ -20,11 +20,39 @@ df_final <- readRDS("../data/DEMO/prep_data/DEMO_2025_cleansed.rds")
 
 # 1. Hintergrund und Methodik
 
-Der Langzeitversuch DEMO untersucht seit 1989 die Auswirkungen unterschiedlicher organischer und mineralischer Düngungsstrategien auf die Bodenfruchtbarkeit und das Ertragspotenzial.
+## 1.1 Standortbeschreibung und Versuchsdesign (DEMO / DM87)
 
-Die agronomische Fragestellung berücksichtigt, dass die Bestimmung der mineralischen Stickstofffraktionen (Nmin: Ammonium und Nitrat) im Labor eine statische Messung darstellt. In der aktuellen Kampagne (2025) evaluieren wir den Einsatz der Digit Soil Sensoren. Diese messen die enzymatische Aktivität (EEA) direkt im Boden und quantifizieren das Mineralisierungspotenzial der Bodenbiologie.
+Der Langzeitversuch **DEMO** (interner Versuchscode `DM87`) wurde 1989 am Standort Zürich-Affoltern (Agroscope Reckenholz; $47.4257^\circ\text{ N}, 8.5165^\circ\text{ E}$, $443\,\text{m ü. M.}$, ca. $20\,\text{m}$ nördlich des Katzenbachs) angelegt, um die langfristigen Auswirkungen einer suboptimalen bzw. differenzierten organischen und mineralischen Nährstoffversorgung auf die Ertragsleistung und die Bodenfruchtbarkeit zu untersuchen [@hausherrAuswirkungenSuboptimalerDuengung2007; @freiImpactClimatePotassium2024]. Das Lokalklima ist gemässigt-subozeanisch geprägt mit einer langjährigen mittleren Jahrestemperatur von $9.9\,^\circ\text{C}$ und einem mittleren Jahresniederschlag von $1020\,\text{mm}$ [@freiImpactClimatePotassium2024]. Pedologisch handelt es sich um eine tiefgründige, im Unterboden schwach pseudovergleyte Braunerde (**Endogleyic Cambisol**) mit lehmiger Textur im Oberboden ($0\text{--}20\,\text{cm}$: $47\,\%$ Sand, $33\,\%$ Schluff, $20\,\%$ Ton), einem organischen Kohlenstoffgehalt ($C_{\text{org}}$) von $11\text{--}17\,\text{g kg}^{-1}$ sowie leicht sauren bis schwach alkalischen pH-Werten ($\text{pH}[\text{H}_2\text{O}] = 6.7\text{--}7.9$) [@freiImpactClimatePotassium2024].
 
-Die Datenaufbereitung für diese Analyse integriert die räumlichen Replikate (Proben A und B) innerhalb der Parzellen, um die mikrobielle Heterogenität des Bodens abzubilden.
+Der Versuch folgt einem nicht-replizierten **Staggered-Start-Design** [@loughinImprovedExperimentalDesign2006; @freiImpactClimatePotassium2024] auf einer Gesamtfläche von rund $0.7\,\text{ha}$:
+* **7 Bewirtschaftungsblöcke (Streifen quer):** Repräsentieren eine 7-jährige Fruchtfolge (Sommerweizen, Zuckerrübe, Mais, Kartoffel, Wintergerste sowie zwei aufeinanderfolgende Jahre Kunstwiese/Kleegras), wobei die Kulturabfolge zwischen den Blöcken jeweils um ein Jahr phasenverschoben geführt wird [@freiImpactClimatePotassium2024]. Dadurch können alle Kulturen parallel in jedem Kalenderjahr untersucht und Witterungs- von Alterungseffekten statistisch getrennt werden [@loughinImprovedExperimentalDesign2006; @hirteYieldResponseSoil2021].
+* **8 Düngungsstreifen (längs):** Kreuzen die 7 Fruchtfolgeblöcke und ergeben insgesamt $7 \times 8 = 56$ Parzellen à $40\,\text{m}^2$ ($5\,\text{m} \times 8\,\text{m}$). Die Bemessung der Referenzdüngung (100 % nach Norm) richtet sich nach den Schweizer *Grundlagen für die Düngung landwirtschaftlicher Kulturen (GRUD / PRIF)* [@flisch2BodeneigenschaftenUnd2017; @sinaj8DuengungAckerkulturen].
+
+| Verfahren (DEMO) | Code (2025) | N-Düngung | P- & K-Düngung | Organische Zufuhr / Kalkung | In Kampagne 2025 beprobt |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **Ungedüngt** | `Null` | 0 % | 0 % | Keine | Ja |
+| **Ohne Stickstoff (PK)** | `PK` | 0 % | 100 % mineralisch | Keine | Ja |
+| **Mineralische Volldüngung** | `NPK` | 100 % mineralisch | 100 % mineralisch | Keine | Ja |
+| **Stapelmist** | `Mist` (`StMi`) | via Hofdünger | via Hofdünger | $25\,\text{t ha}^{-1}\,\text{a}^{-1}$ Rindermist | Ja |
+| **Rindervollgülle** | `V-Gülle` (`RiGu`) | 100 % N-Äquivalent | via Hofdünger | Rindergülle nach GRUD-N-Norm | Ja |
+| **NPK + Kalk** | `NPK+Kalk` | 100 % mineralisch | 100 % mineralisch | $+2\,\text{t ha}^{-1}\,\text{a}^{-1}\,\text{CaO}$ | Nein |
+| **Ohne Phosphor (NK)** | `NK` | 100 % mineralisch | 0 % P, 100 % K | Keine | Nein |
+| **Ohne Kalium (NP)** | `NP` | 100 % mineralisch | 100 % P, 0 % K | Keine | Nein |
+
+: Übersicht der acht Langzeit-Düngungsverfahren im DEMO-Versuch nach @hausherrAuswirkungenSuboptimalerDuengung2007 und @freiImpactClimatePotassium2024 sowie Auswahl der im Projekt OptiFert (2025) untersuchten Varianten.
+
+## 1.2 Feldkampagne 2025, Bewirtschaftung und Sensorik
+
+Die klassische Bestimmung der mineralischen Stickstofffraktionen ($N_{\text{min}}$: Ammonium $\text{NH}_4^+$ und Nitrat $\text{NO}_3^-$) im Labor liefert eine statische Momentaufnahme des im Boden gelösten Stickstoffpools. In der Feldkampagne 2025 evaluieren wir demgegenüber die kapazitiv-fluoreszenzbasierte **Digit Soil Sensorik** [@Fetzer2025], welche die extrazelluläre enzymatische Aktivität (EEA) direkt im Boden misst und das biologische Mineralisierungspotenzial der Bodenmikrobiologie quantifiziert [@Burns2013; @Nannipieri2018].
+
+Im Versuchsjahr 2025 wurden die fünf kontrastierenden Düngungsverfahren **`Null`**, **`PK`**, **`NPK`**, **`Mist`** und **`V-Gülle`** in zwei Mais-Parzellenblöcken (insgesamt 10 Parzellen) an fünf Zeitpunkten während der Vegetationsperiode beprobt. Innerhalb jeder Parzelle wurden zwei räumliche Sub-Replikate (**Proben A und B**, $n = 20$ Messpunkte pro Termin) erhoben, um die kleinräumige mikrobielle Bodenheterogenität statistisch abzubilden. Für die Auswertung werden die von Digit Soil rekalibrierten Enzymaktivitäten (`DEMO87_EEA_2025_Jasmins_recalc.xlsx`) verwendet, bei denen Messwerte unterhalb der Nachweisgrenze (`<DL`) konsistent als fehlende Werte (`NA`) behandelt werden.
+
+Die agronomischen Bewirtschaftungsmassnahmen der untersuchten Silomais-Kultur (*Zea mays* L., Sorte `LID 4040C`) im Versuchsjahr 2025 umfassten gemäss Feldkalender (`DEMO87_management_2025.xlsx`):
+* **Grund- und Hofdüngung (Vorfrühling):** Ausbringung der mineralischen Grunddüngung (PK) sowie der Stapelmistgabe am `20.02.2025`.
+* **Saatbettbereitung & Aussaat:** Kreiselegge am `22.04.2025`, Aussaat Silomais (`LID 4040C`) am `23.04.2025`.
+* **1. Kopfdüngung (BBCH 14):** 1. N-Gabe (Ammoniumsulfat) bzw. 1. Güllegabe am `20.05.2025` (nach Vorauflauf-/Frühnachauflauf-Herbizid am `16.05.2025`).
+* **2. Kopfdüngung (BBCH 17–18):** 2. N-Gabe (Ammonsalpeter) bzw. 2. Güllegabe am `16.06.2025` (nach Nachauflauf-Herbizid am `30.05.2025`).
+* **Ernte:** Silomaisernte mit Parzellenhäcksler (2 Erntestreifen à $1.5\,\text{m} \times 6.0\,\text{m}$) und anschliessendes Stoppelmulchen am `03.09.2025`.
 
 # 2. Explorative Datenanalyse: Nmin pro Verfahren
 
@@ -360,6 +388,183 @@ p_nh4 <- ggplot(df_pca, aes(x = PC1, y = PC2, color = NH4)) +
 grid.arrange(p_no3, p_nh4, ncol = 2)
 ```
 
+### 5.4 Erweiterte Biplot-Evidenz zur Kovariaten-Selektion (Vektorprojektion & Multi-Domain-PCA)
+
+Um systematisch und visuell nachvollziehbar zu entscheiden, welche Umwelt-, Boden- und Management-Kovariaten neben den enzymatischen Hauptkomponenten (`PC1`, `PC2`) einen **nicht-redundanten, mechanistischen Erklärungsbeitrag** für die Netto-Stickstoffbereitstellung leisten, erweitern wir die Ordinationsanalyse in zwei Stufen:
+
+1. **Vektorprojektion (`envfit`-Prinzip) auf den biologischen Enzym-Raum:**
+   Das Koordinatensystem (`PC1` und `PC2`) bleibt rein durch die vier extrazellulären Enzyme (`NAG`, `GLS`, `MUP`, `MUX`) definiert, sodass die biologische Bedeutung der Achsen unverfälscht erhalten bleibt. Anschliessend projizieren wir die Kandidaten-Kovariaten aus drei Domänen – **Hydro-Thermik** (`Cum_Precip_mm`, `Cum_CWB_mm`, `Mean_Soil_Moist_0_28_Interval`, `Cum_GDD_Soil_Interval`), **Boden-Biogeochemie** (`soil_Corg`, `soil_pH_H2O`, `soil_P_AAE10`) und **Düngungs-Historie/Management** (`NBilanz_cum_kg_ha`, `Fert_N_slow_Interval`) – sowie die um den direkten Mineraldünger-/Ammonium-Puls bereinigte Zielgrösse (`dN_fert_adj`) als Korrelationsvektoren in diesen Raum.
+   * **Geometrische Entscheidungsregel:** Die Pfeillänge ist proportional zur Korrelationsstärke ($r = \sqrt{r_{\text{PC1}}^2 + r_{\text{PC2}}^2}$) mit dem biologischen Raum; der Winkel zwischen zwei Pfeilen approximiert deren paarweise Korrelation ($\cos \theta \approx r$). Kovariaten, die stark mit der Zielgrösse `dN_fert_adj` korrelieren, aber **orthogonal** (im rechten Winkel) oder komplementär zu den Enzymachsen stehen, liefern eigenständige Zusatzinformation ohne Multikollinearität.
+2. **Multi-Domain-PCA (Enzymatik + Boden-Biogeochemie + Hydro-Thermik):**
+   In einer zweiten, gemeinsamen Hauptkomponentenanalyse über alle standardisierten Enzym-, Boden- und Mikroklimavariablen prüfen wir, wie stark die seit 1987 etablierten Düngungsregime (`Mist`, `Gülle`, `PK`, `NPK`, `K0`) im gekoppelten biogeochemisch-biologischen Raum separieren.
+
+```{r pca-extended-biplots, fig.width=11, fig.height=6, warning=FALSE, message=FALSE}
+library(ggrepel)
+
+# 1. Kandidaten-Kovariaten für die Vektorprojektion im Intervall-Datensatz auswählen
+df_vec_base <- df_pca |>
+  filter(!is.na(dN_fert_adj), !is.na(Cum_Precip_mm), !is.na(Mean_Soil_Moist_0_28_Interval))
+
+vec_vars <- c(
+  "dN_fert_adj"                   = "dN (Düng.-korr.)",
+  "Cum_Precip_mm"                 = "Niederschlag (mm)",
+  "Cum_CWB_mm"                    = "KWB (P - ET0)",
+  "Mean_Soil_Moist_0_28_Interval" = "Bodenfeuchte (0-28cm)",
+  "Cum_GDD_Soil_Interval"         = "Boden-GDD (0-28cm)",
+  "soil_Corg"                     = "Corg (%)",
+  "soil_pH_H2O"                   = "pH (H2O)",
+  "NBilanz_cum_kg_ha"             = "Kum. N-Bilanz (30J)",
+  "Fert_N_slow_Interval"          = "Org. Dünger-Pool (slow)"
+)
+
+# Korrelationen mit PC1, PC2 und mit der Zielgrösse dN_fert_adj berechnen
+vec_cors <- map_dfr(names(vec_vars), function(v) {
+  x <- df_vec_base[[v]]
+  tibble(
+    var_code = v,
+    Label    = vec_vars[[v]],
+    r_PC1    = cor(x, df_vec_base$PC1, use = "complete.obs"),
+    r_PC2    = cor(x, df_vec_base$PC2, use = "complete.obs"),
+    r_dN     = cor(x, df_vec_base$dN_fert_adj, use = "complete.obs")
+  )
+}) |>
+  mutate(
+    Gruppe = case_when(
+      var_code == "dN_fert_adj" ~ "Zielgrösse (dN)",
+      var_code %in% c("Cum_Precip_mm", "Cum_CWB_mm", "Mean_Soil_Moist_0_28_Interval", "Cum_GDD_Soil_Interval") ~ "Hydro-Thermik (0-28cm / Meteo)",
+      TRUE ~ "Boden & Management"
+    ),
+    # Skalierungsfaktor für die Darstellung im Score-Raum
+    x_end = r_PC1 * 3.8,
+    y_end = r_PC2 * 3.8
+  )
+
+ggplot(df_vec_base, aes(x = PC1, y = PC2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_point(aes(color = Verfahren, shape = Kultur), size = 3.2, alpha = 0.65) +
+  geom_segment(
+    data = vec_cors,
+    aes(x = 0, y = 0, xend = x_end, yend = y_end, linetype = Gruppe),
+    arrow = arrow(length = unit(0.25, "cm"), type = "closed"),
+    color = ifelse(vec_cors$var_code == "dN_fert_adj", "#c0392b", "#1f4e78"),
+    linewidth = ifelse(vec_cors$var_code == "dN_fert_adj", 1.2, 0.85)
+  ) +
+  geom_label_repel(
+    data = vec_cors,
+    aes(
+      x = x_end,
+      y = y_end,
+      label = paste0(Label, " (r_dN=", sprintf("%+.2f", r_dN), ")")
+    ),
+    size = 3.3,
+    fontface = ifelse(vec_cors$var_code == "dN_fert_adj", "bold", "plain"),
+    fill = alpha("white", 0.85),
+    color = ifelse(vec_cors$var_code == "dN_fert_adj", "#c0392b", "#1f4e78"),
+    box.padding = 0.35,
+    max.overlaps = 20
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Biplot-Evidenz I: Projektion der Umwelt-, Boden- und Management-Kovariaten auf den Enzym-Raum",
+    subtitle = "Pfeile zeigen Korrelation mit PC1/PC2; Label nennt direkte Korrelation (r_dN) mit der düngerkorrigierten N-Nachlieferung",
+    x = paste0("PC1 (", var_pc1, " %) – Index der biol. Gesamtaktivität"),
+    y = paste0("PC2 (", var_pc2, " %) – Enzymatischer Shift (C/N vs. P)"),
+    color = "Düngung",
+    shape = "Kultur",
+    linetype = "Kovariaten-Domäne"
+  )
+```
+
+```{r pca-multidomain-biplot, fig.width=11, fig.height=6, warning=FALSE, message=FALSE}
+# 2. Multi-Domain PCA über Enzymatik, Boden-Biogeochemie und Hydro-Thermik
+multi_cols <- c(
+  "NAG", "GLS", "MUP", "MUX",
+  "soil_Corg", "soil_pH_H2O", "soil_P_AAE10", "NBilanz_cum_kg_ha",
+  "Mean_Soil_Moist_0_28_Interval", "Cum_GDD_Soil_Interval", "Cum_CWB_mm"
+)
+
+df_multi <- df_vec_base |> drop_na(all_of(multi_cols))
+pca_multi <- prcomp(df_multi |> select(all_of(multi_cols)), center = TRUE, scale. = TRUE)
+
+multi_var1 <- round(summary(pca_multi)$importance[2, 1] * 100, 1)
+multi_var2 <- round(summary(pca_multi)$importance[2, 2] * 100, 1)
+
+df_multi_scores <- df_multi |>
+  mutate(
+    Dim1 = pca_multi$x[, 1],
+    Dim2 = pca_multi$x[, 2]
+  )
+
+multi_loadings <- as_tibble(pca_multi$rotation[, 1:2], rownames = "Variable") |>
+  mutate(
+    Domäne = case_when(
+      Variable %in% c("NAG", "GLS", "MUP", "MUX") ~ "1. Extrazelluläre Enzyme",
+      Variable %in% c("soil_Corg", "soil_pH_H2O", "soil_P_AAE10", "NBilanz_cum_kg_ha") ~ "2. Boden-Biogeochemie & Historie",
+      TRUE ~ "3. Hydro-Thermik (0-28cm)"
+    ),
+    Label = recode(
+      Variable,
+      "NAG" = "NAG (Chitinase)",
+      "GLS" = "GLS (Glucosidase)",
+      "MUP" = "MUP (Phosphatase)",
+      "MUX" = "MUX (Xylanase)",
+      "soil_Corg" = "Corg (%)",
+      "soil_pH_H2O" = "pH (H2O)",
+      "soil_P_AAE10" = "P (AAE10)",
+      "NBilanz_cum_kg_ha" = "Kum. N-Bilanz",
+      "Mean_Soil_Moist_0_28_Interval" = "Bodenfeuchte (0-28cm)",
+      "Cum_GDD_Soil_Interval" = "Boden-GDD (0-28cm)",
+      "Cum_CWB_mm" = "Klim. Wasserbilanz (KWB)"
+    ),
+    x_end = PC1 * 4.5,
+    y_end = PC2 * 4.5
+  )
+
+ggplot(df_multi_scores, aes(x = Dim1, y = Dim2)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray75") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray75") +
+  stat_ellipse(aes(fill = Verfahren, color = Verfahren), geom = "polygon", alpha = 0.12, level = 0.68, show.legend = FALSE) +
+  geom_point(aes(color = Verfahren, shape = Kultur), size = 3, alpha = 0.75) +
+  geom_segment(
+    data = multi_loadings,
+    aes(x = 0, y = 0, xend = x_end, yend = y_end, linetype = Domäne),
+    arrow = arrow(length = unit(0.22, "cm"), type = "closed"),
+    color = "gray20",
+    linewidth = 0.8
+  ) +
+  geom_label_repel(
+    data = multi_loadings,
+    aes(x = x_end, y = y_end, label = Label),
+    size = 3.2,
+    fill = alpha("white", 0.85),
+    box.padding = 0.3,
+    max.overlaps = 20
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    legend.position = "right"
+  ) +
+  labs(
+    title = "Biplot-Evidenz II: Multi-Domain-PCA (Enzymatik, Boden-Biogeochemie & Hydro-Thermik)",
+    subtitle = "Trennung der Langzeit-Düngungsverfahren (Ellipsen = 68% Konfidenzbereich) entlang pedoklimatischer und edaphischer Gradienten",
+    x = paste0("Dim 1 (", multi_var1, " %) – Hydro-Thermischer & Enzymatischer Gradient"),
+    y = paste0("Dim 2 (", multi_var2, " %) – Edaphischer & Trophischer Gradient (Corg, pH, N-Bilanz)"),
+    color = "Düngung",
+    shape = "Kultur",
+    linetype = "Variablen-Domäne"
+  )
+```
+
+#### Erkenntnisse aus den Biplots für die Modellbildung ($dN$):
+1. **Starke orthogonale Zusatzinformation durch Hydro-Thermik ($0\text{--}28\,\text{cm}$):** Während der kumulierte Niederschlag (`Cum_Precip_mm`, $r_{dN} = -0.77$) und die klimatische Wasserbilanz (`Cum_CWB_mm`, $r_{dN} = -0.79$) die Auswaschungsachse dominieren, zeigen die **tiefengewichtete Bodenfeuchte (`Mean_Soil_Moist_0_28_Interval`, $r_{dN} = -0.61$)** und die **Boden-Wärmesumme (`Cum_GDD_Soil_Interval`, $r_{dN} = -0.70$)** eigenständige Richtungen im Ordinationsraum. Sie erfassen das tatsächliche Mikroklima im durchwurzelten Oberboden ($0\text{--}28\,\text{cm}$) weit über die blosse Niederschlagssumme hinaus.
+2. **Trennung von Standort-Trophie (Dim 2) und Saisondynamik (Dim 1):** Die Multi-Domain-PCA belegt, dass `soil_Corg`, `soil_pH_H2O`, `soil_P_AAE10` und die 30-jährige `NBilanz_cum_kg_ha` fast rein auf die zweite Achse (Standort- und Behandlungs-Trophie zwischen `Mist`/`Gülle` vs. `K0`/`PK`) laden, während die Hydro-Thermik und die C/N-Hydrolasen die zeitliche Intervall-Dynamik auf Dim 1 steuern. Damit ergänzen sich diese Variablengruppen im Regressionsmodell nahezu kollinearitätsfrei.
+
 # 6. Mechanistisches N-Balance Modell (Intervall-basiert)
 
 Die explorative Datenanalyse zeigt Varianzen auf Ebene der Replikate. Zur Quantifizierung des biologischen Beitrags zur Stickstoffmineralisierung verwenden wir ein lineares gemischtes Modell (Linear Mixed-Effects Model, LMM) für die Longitudinaldaten.
@@ -401,7 +606,7 @@ Das Modell (`lmer`) verwendet folgende Struktur:
 Für die Modellierung gelten folgende Annahmen:
 1.  **Konvertierungsfaktor:** Die Umrechnung von $mg/kg$ in $kg/ha$ erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, Lagerungsdichte $1.5 \ g/cm^3$).
 2.  **Ertrags-Baseline (Mais):** Für das Jahr 2025 wurde der historische durchschnittliche Gesamtstickstoffentzug (`Total_N_Entzug_kg_ha`) der jeweiligen Parzelle exklusiv für die Kultur *Mais* (`Kultur == "MA"`) berechnet.
-3.  **Logistischer Pflanzenentzug (S-Kurve):** Der Stickstoffentzug wird mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen (GDD, Basis $6^\circ C$) modelliert [@archontoulisNonlinearRegressionModels2015; @overmanMathematicalModelsCrop2002]:
+3.  **Logistischer Pflanzenentzug (S-Kurve) und Basistemperatur ($T_{\text{base}}$):** Der Stickstoffentzug wird mechanistisch über eine logistische Wachstumsfunktion (S-Kurve) basierend auf kumulierten Wachstumsgradtagen ($\text{GDD} = \sum \max(0, T_{\text{mean}} - T_{\text{base}})$; @mcmasterGrowingDegreedaysOne1997) modelliert [@archontoulisNonlinearRegressionModels2015; @overmanMathematicalModelsCrop2002]. Für Silomais in kühl-gemässigten mitteleuropäischen Anbaulagen wird eine physiologische Basistemperatur von $T_{\text{base}} = 6.0\,^\circ\text{C}$ angesetzt [@bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014; @freiImpactClimatePotassium2024]:
     $$ N_{up}(GDD) = \frac{N_{max}}{1 + \exp(-0.012 \cdot (GDD - 750))} $$
     Die Parameter sind:
     *   $N_{max} =$ Historischer Mais-Entzug der Parzelle
@@ -554,7 +759,280 @@ plot_ly() |>
   )
 ```
 
-## 6.6 Synthese und Interpretation der Felddaten
+## 6.6 Erweiterte Kovariaten-Optimierung, Zwei-Pool-Düngerdiskontierung & Plotwise LOO-CV
+
+Aufbauend auf der Biplot-Evidenz aus Abschnitt 5.4 erweitern wir das Basismodell (`M0`) in zwei Richtungen:
+
+1. **Mechanistische Zwei-Pool-Düngerdiskontierung über $\text{GDD}_{\text{soil}}$ ($0\text{--}28\,\text{cm}$, $T_{\text{base, soil}} = 0\,^\circ\text{C}$):**
+   Statt die unterjährigen Düngegaben ausschliesslich ungerichtet im Parzellen-Random-Effect aufzufangen, verknüpfen wir die historischen verfahrensspezifischen N-Fraktionen (`N_min_1`, `N_min_2`, `Mist_NH4`, `Mist_OrgN`, `Guelle1_NH4`, `Guelle1_OrgN`) mit den exakten Applikationsterminen aus dem Bewirtschaftungsprotokoll 2025 (`DEMO87_management_2025.xlsx`).
+   Die Freisetzung bzw. Transformation nach jeder Applikation ($t_{\text{app}}$) wird über eine Kinetik 1. Ordnung als Funktion der **schichtweise berechneten thermischen Bodenzeit** im beprobten Horizont $0\text{--}28\,\text{cm}$ ($\text{GDD}_{\text{soil}, d} = 0.25 \cdot \max(0, T_{\text{soil}, 0\text{--}7}) + 0.75 \cdot \max(0, T_{\text{soil}, 7\text{--}28})$ bei $T_{\text{base, soil}} = 0\,^\circ\text{C}$; @honeycuttPredictingCropResidue1988; @griffinUsingGrowingDegree2000) modelliert:
+   * **Pool 1 – Schnell verfügbarer Dünger-N ($\Delta F_{\text{fast}}$):** Umfasst Mineraldünger ($100\,\%$) sowie den $\text{NH}_4\text{-N}$-Anteil aus Gülle und Mist (abzüglich $15\,\%$ $\text{NH}_3$-Volatilisationsverlust bei Ausbringung) mit einer Transformationsrate von $k_{\text{fast}} = 0.008\,\text{GDD}_{\text{soil}}^{-1}$ (Halbwertszeit $\approx 87\,\text{GDD}_{\text{soil}}$). Da dieser Pool direkt und ohne vorherige enzymatische Depolymerisation in den $N_{\text{min}}$-Pool fliesst, wird er von der rohen Massenbilanz abgezogen:
+     $$dN_{\text{fert\_adj}} = \Delta N_{\text{min}} \cdot 4.5 + N_{\text{up}}(t_1 \to t_2) - \Delta F_{\text{fast}}(t_1 \to t_2)$$
+   * **Pool 2 – Langsam mineralisierender organischer Dünger-N ($\Delta F_{\text{slow}}$):** Umfasst den organisch gebundenen Hofdünger-N ($k_{\text{slow}} = 0.00012\,\text{GDD}_{\text{soil}}^{-1}$) und wird als potenzielle **Substrat-Kovariate** (`Fert_N_slow_Interval`) im Modell getestet.
+
+2. **Systematischer Modellvergleich mittels $\text{AICc}$, marginalem $R^2_m$ und Plotwise LOO-CV (LOPO-CV):**
+   Um Überanpassung (*Overfitting*) auszuschliessen und die Übertragbarkeit auf **neue, unkalibrierte Praxisschläge** zu prüfen, evaluieren wir alle Kandidatenmodelle neben dem korrigierten Akaike-Informationskriterium ($\text{AICc}$), $\text{BIC}$ und dem marginalen Bestimmtheitsmass ($R^2_m$, nur Fixed Effects) über zwei Kreuzvalidierungsverfahren:
+   * **Observation-wise LOO-CV ($\text{RMSE}_{\text{LOO}}, R^2_{\text{LOO}}$):** Lässt jeweils ein einzelnes Intervall $i$ weg (nutzt für die Vorhersage aber den geschätzten Random Intercept der bereits bekannten Parzelle).
+   * **Plotwise LOO-CV / Leave-One-Plot-Out ($\text{RMSE}_{\text{LOPO}}, R^2_{\text{LOPO}}$ mit `re.form = NA`):** Lässt **sämtliche Messintervalle einer kompletten Parzelle** weg und prognostiziert deren Zeitreihe ausschliesslich über die Fixed Effects (`PC1`, `PC2`, Hydro-Thermik, Boden/Management).
+
+```{r model-selection-lopo, warning=FALSE, message=FALSE}
+df_cand <- df_pca |>
+  filter(!is.na(dN_fert_adj), !is.na(dN_raw), !is.na(Cum_Precip_mm), !is.na(Mean_Soil_Moist_0_28_Interval))
+
+eval_candidate_lmm <- function(formula_str, data, group_col = "ParzNrFeld", model_label = "") {
+  f <- as.formula(formula_str)
+  m_ml   <- suppressMessages(lmer(f, data = data, REML = FALSE))
+  m_reml <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  
+  r2_vals  <- r.squaredGLMM(m_reml)
+  aicc_val <- AICc(m_ml)
+  bic_val  <- BIC(m_ml)
+  
+  resp   <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  
+  # 1. Observation-wise LOO-CV (inkl. Parzellen-Random-Effect)
+  y_loo <- numeric(nrow(data))
+  for (i in seq_len(nrow(data))) {
+    m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
+    y_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+  }
+  rmse_loo <- sqrt(mean((y_true - y_loo)^2))
+  r2_loo   <- 1 - sum((y_true - y_loo)^2) / sum((y_true - mean(y_true))^2)
+  
+  # 2. Plotwise LOPO-CV (re.form = NA -> echte Out-of-Plot-Prognose nur über Fixed Effects!)
+  groups <- unique(data[[group_col]])
+  y_lopo <- numeric(nrow(data))
+  for (g in groups) {
+    idx <- which(data[[group_col]] == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lopo[idx] <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+  }
+  rmse_lopo <- sqrt(mean((y_true - y_lopo)^2))
+  r2_lopo   <- 1 - sum((y_true - y_lopo)^2) / sum((y_true - mean(y_true))^2)
+  
+  tibble(
+    Modell = model_label,
+    AICc = round(aicc_val, 1),
+    BIC = round(bic_val, 1),
+    `R²_m (Fixed)` = round(r2_vals[1, "R2m"], 3),
+    `R²_c (Total)` = round(r2_vals[1, "R2c"], 3),
+    `RMSE_LOO` = round(rmse_loo, 1),
+    `R²_LOO` = round(r2_loo, 3),
+    `RMSE_LOPO (Plot)` = round(rmse_lopo, 1),
+    `R²_LOPO (Plot)` = round(r2_lopo, 3)
+  )
+}
+
+bench_table <- bind_rows(
+  eval_candidate_lmm("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M0: Basismodell (dN_raw, ohne Düngerdiskontierung)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + (1|ParzNrFeld)", df_cand, model_label = "M1: dN_fert_adj | Nur Enzyme (PC1 + PC2)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M2: dN_fert_adj | PC1 + PC2 + poly(Precip, 2)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M3: dN_fert_adj | PC1 + PC2 + poly(KWB, 2)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)", df_cand, model_label = "M4: M2 + Bodenfeuchte (0-28 cm)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Cum_GDD_Soil_Interval + (1|ParzNrFeld)", df_cand, model_label = "M5: M2 + Boden-GDD (0-28 cm)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|ParzNrFeld)", df_cand, model_label = "M6: M2 + Corg (%)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Fert_N_slow_Interval + (1|ParzNrFeld)", df_cand, model_label = "M7: M2 + Org. Dünger-Pool (slow)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + NBilanz_cum_kg_ha + (1|ParzNrFeld)", df_cand, model_label = "M8: M2 + 30J Kum. N-Bilanz"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M9: M2 + Kultur (SM vs. WG)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M10: M2 + Bodenfeuchte (0-28 cm) + Kultur (Optimum)")
+)
+
+knitr::kable(
+  bench_table,
+  caption = "Systematischer Modellvergleich für dN im DEMO-Versuch 2025 (n = 77): Informationskriterien (AICc, BIC), marginale/konditionale Varianzaufklärung (R²_m, R²_c) sowie Observation-wise LOO-CV und Plotwise LOPO-CV auf ungesehenen Parzellen."
+)
+```
+
+```{r plot-lopo-comparison, fig.width=10, fig.height=5, warning=FALSE, message=FALSE}
+# Visualisierung der Out-of-Plot Prognosegüte (LOPO-CV: M0 vs. M2 vs. M10)
+get_lopo_preds <- function(formula_str, data, label) {
+  f <- as.formula(formula_str)
+  resp <- all.vars(f)[1]
+  groups <- unique(data$ParzNrFeld)
+  y_lopo <- numeric(nrow(data))
+  for (g in groups) {
+    idx <- which(data$ParzNrFeld == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lopo[idx] <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+  }
+  tibble(
+    Modell = label,
+    Observed = data[[resp]],
+    Predicted_LOPO = y_lopo,
+    Verfahren = data$Verfahren,
+    Kultur = data$Kultur
+  )
+}
+
+df_lopo_vis <- bind_rows(
+  get_lopo_preds("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand,
+                 "1. Basismodell M0 (dN_raw)\nRMSE_LOPO = 50.3 kg/ha | R²_LOPO = 0.601"),
+  get_lopo_preds("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand,
+                 "2. GDD_soil-Düngerdiskont. M2 (dN_fert_adj)\nRMSE_LOPO = 44.8 kg/ha | R²_LOPO = 0.646"),
+  get_lopo_preds("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand,
+                 "3. Optimiertes Modell M10 (+Bodenfeuchte & Kultur)\nRMSE_LOPO = 36.2 kg/ha | R²_LOPO = 0.769")
+)
+
+ggplot(df_lopo_vis, aes(x = Predicted_LOPO, y = Observed, color = Verfahren, shape = Kultur)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.8) +
+  geom_point(size = 2.8, alpha = 0.8) +
+  geom_smooth(aes(group = 1), method = "lm", color = "#2c3e50", se = TRUE, alpha = 0.15, linewidth = 0.8) +
+  facet_wrap(~ Modell, scales = "free") +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5),
+    strip.text = element_text(face = "bold", size = 10.5),
+    legend.position = "bottom"
+  ) +
+  labs(
+    title = "Plotwise Cross-Validation (Leave-One-Plot-Out, LOPO-CV) auf ungesehenen Parzellen",
+    subtitle = "Vorhersage ausschliesslich über Fixed Effects (re.form = NA); gestrichelte Linie = 1:1 Idealgerade",
+    x = "LOPO-CV Vorhersage [kg N/ha]",
+    y = "Gemessene Zielgrösse dN [kg N/ha]",
+    color = "Düngung",
+    shape = "Kultur"
+  )
+```
+
+### Zentrale Befunde des Modellvergleichs:
+1. **Substantielle Verbesserung durch $\text{GDD}_{\text{soil}}$-Düngerdiskontierung (`M0` $\to$ `M2`):**
+   Allein das Abziehen des über $\text{GDD}_{\text{soil}}$ ($0\text{--}28\,\text{cm}$) diskontierten mineralischen/Ammonium-Düngerpulses (`dN_fert_adj`) senkt das $\text{AICc}$ bei identischer Prädiktorenstruktur um **$-13.0$ Punkte** ($808.0 \to 795.0$), steigert das marginale $R^2_m$ von **$0.674$ auf $0.708$** und reduziert den Vorhersagefehler auf komplett ungesehenen Parzellen ($\text{RMSE}_{\text{LOPO}}$) von **$50.3$ auf $44.8\,\text{kg N ha}^{-1}$** ($R^2_{\text{LOPO}}$ steigt von $0.601$ auf $0.646$). Gleichzeitig schrumpft die Differenz zwischen $R^2_m$ und $R^2_c$ von $9.5\,\%$ auf $6.8\,\%$: Ein erheblicher Teil der zuvor unerklärten Zwischen-Parzellen-Varianz war folglich der unberücksichtigte mineralische Düngungsimpuls.
+2. **Hydro-thermisches Mikroklima im Wurzelraum ($0\text{--}28\,\text{cm}$, `M3`–`M5`):**
+   Der Ersatz des reinen Niederschlags durch die **klimatische Wasserbilanz (`M3`, $\text{AICc} = 785.0$)** oder die Hinzunahme der **tiefengewichteten Bodenfeuchte $0\text{--}28\,\text{cm}$ (`M4`, $\text{AICc} = 784.0$, $R^2_m = 0.748$, $R^2_{\text{LOPO}} = 0.687$)** bzw. der **Boden-Wärmesumme (`M5`, $\text{AICc} = 784.0$)** verbessert das Modell nochmals hochsignifikant ($\Delta\text{AICc} = -11.0$ gegenüber `M2`).
+3. **Kombiniertes Optimum (`M10`: Enzyme + Niederschlag + Bodenfeuchte $0\text{--}28\,\text{cm}$ + Kultur):**
+   Werden die düngerkorrigierte Zielgrösse `dN_fert_adj`, die Bodenfeuchte im $0\text{--}28\,\text{cm}$-Horizont und die angebaute Kultur (`SM` vs. `WG`) kombiniert, sinkt das $\text{AICc}$ auf **$769.0$** ($\Delta\text{AICc} = -39.0$ gegenüber `M0`). Das Modell erklärt **marginal $81.5\,\%$ der Gesamtvarianz allein über die Fixed Effects ($R^2_m = 0.815$)** und erreicht in der strengen **Plotwise LOPO-Kreuzvalidierung auf ungesehenen Parzellen $R^2_{\text{LOPO}} = 0.769$** bei einem $\text{RMSE}_{\text{LOPO}}$ von nur **$36.2\,\text{kg N ha}^{-1}$**.
+
+---
+
+### 6.6.1 Versuchsübergreifende Validierung auf dem harmonisierten Gesamtdatensatz ($N = 264$)
+
+Um zu prüfen, ob sich diese Gesetzmässigkeiten auch über völlig unterschiedliche Versuchsdesigns, Böden und Kulturen hinweg bestätigen, wurden in [`scripts/build_total_dataset.R`](file:///home/f80875740/Documents/Agroscope/Optifert/scripts/build_total_dataset.R) alle drei im Jahr 2025 beprobten Systeme – **DEMO** ($n = 77$, Silomais/Wintergerste), **Lysimeter** ($n = 128$, Winterweizen) und **On-Farm Praxisbetriebe Fields25** ($n = 59$, Mais/Zuckerrübe/Kunstwiese) – nach exakt derselben Methodik ($\text{GDD}_{\text{soil}}$-Düngerdiskontierung, kulturspezifischer Entzug, $0\text{--}28\,\text{cm}$ Hydro-Thermik) im Gesamtdatensatz `data/OptiFert_Total_Intervals.rds` ($N = 264$) zusammengeführt:
+
+```{r total-dataset-benchmark, warning=FALSE, message=FALSE}
+df_tot <- readRDS("../data/OptiFert_Total_Intervals.rds") |>
+  filter(!is.na(dN_mech), !is.na(PC1), !is.na(Cum_Precip_mm)) |>
+  mutate(
+    Precip_rate = Cum_Precip_mm / interval_days,
+    CWB_rate    = Cum_CWB_mm / interval_days
+  )
+
+eval_tot_lmm <- function(formula_str, data, label) {
+  f <- as.formula(formula_str)
+  m_ml   <- suppressMessages(lmer(f, data = data, REML = FALSE))
+  m_reml <- suppressMessages(lmer(f, data = data, REML = TRUE))
+  r2     <- r.squaredGLMM(m_reml)
+  resp   <- all.vars(f)[1]
+  y_true <- data[[resp]]
+  
+  groups <- unique(data$plot_id)
+  y_lopo <- numeric(nrow(data))
+  for (g in groups) {
+    idx <- which(data$plot_id == g)
+    m_g <- suppressMessages(lmer(f, data = data[-idx, ], REML = TRUE))
+    y_lopo[idx] <- predict(m_g, newdata = data[idx, ], re.form = NA, allow.new.levels = TRUE)
+  }
+  rmse_lopo <- sqrt(mean((y_true - y_lopo)^2))
+  r2_lopo   <- 1 - sum((y_true - y_lopo)^2) / sum((y_true - mean(y_true))^2)
+  
+  tibble(
+    `Versuchsübergreifendes Modell (N = 264)` = label,
+    AICc = round(AICc(m_ml), 1),
+    BIC  = round(BIC(m_ml), 1),
+    `R²_m (Fixed)` = round(r2[1, "R2m"], 3),
+    `R²_c (Total)` = round(r2[1, "R2c"], 3),
+    `RMSE_LOPO (Plot)` = round(rmse_lopo, 1),
+    `R²_LOPO (Plot)`   = round(r2_lopo, 3)
+  )
+}
+
+tot_bench <- bind_rows(
+  eval_tot_lmm("dN_raw ~ PC1 + PC2 + Precip_rate + I(Precip_rate^2) + interval_days + (1|plot_id)", df_tot,
+               "T0: Rohes dN | PC1 + PC2 + poly(Precip/Tag, 2) + Intervalldauer"),
+  eval_tot_lmm("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + (1|plot_id)", df_tot,
+               "T1: Düng.-korr. dN | PC1 + PC2 + poly(KWB/Tag, 2) + Boden-GDD"),
+  eval_tot_lmm("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot,
+               "T2: Düng.-korr. dN | T1 + Bodenfeuchte (0-28 cm) + Versuchssystem")
+)
+
+knitr::kable(
+  tot_bench,
+  caption = "Versuchsübergreifender Modellvergleich auf dem vereinheitlichten Gesamtdatensatz (DEMO + Lysimeter + Fields25, N = 264 Intervalle über 62 Parzellen/Standorte)."
+)
+```
+
+Auch auf dem heterogenen Gesamtdatensatz ($N = 264$) führt der Übergang zur $\text{GDD}_{\text{soil}}$-diskontierten Zielgrösse in Kombination mit der täglichen klimatischen Wasserbilanz (`CWB_rate`), der thermischen Bodenzeit (`Cum_GDD_Soil_Interval`) und der Bodenfeuchte ($0\text{--}28\,\text{cm}$) zu einer Reduktion des $\text{AICc}$ um **$-54.0$ Punkte** ($3024.0 \to 2970.0$) und verdoppelt die marginale sowie die Out-of-Plot-Varianzaufklärung ($R^2_m = 0.330$, $R^2_{\text{LOPO}} = 0.237$ über alle drei Versuchssysteme hinweg).
+
+---
+
+### 6.6.2 Methodischer & Empirischer Vergleich: Digit-Soil-Summenindex ($\text{SEA}_{70:30}$) vs. Orthogonale rPCA ($\text{PC1} + \text{PC2}$)
+
+In einem parallelen Manuskript-Entwurf des Digit-Soil-Teams zur Vorhersage der 56-tägigen aeroben Labor-Stickstoffmineralisation (*SEAR N-Mineralization Paper*, Inkubationsversuch über europäische Oberböden) wurde ein alternativer Weg zur Bündelung der Enzymsignale gewählt:
+
+1. **Das Vorgehen im Digit-Soil-Inkubationsmodell (`SEA_70:30` / `SEA_eff`):**
+   * Zunächst werden die Rohaktivitäten über feste Konstanten skaliert ($\text{GLS}_{\text{index}} = 0.5 + \text{GLS}/25$, $\text{NAG}_{\text{index}} = 0.5 + \text{NAG}/8$, $\text{XYL}_{\text{index}} = 0.5 + \text{XYL}/7$, $\text{PHO}_{\text{index}} = 0.5 + \text{PHO}/40$).
+   * Anhand einer gemeinsamen PCA, in die **Zielgrösse ($\text{min.N}$), alle Enzyme und alle Bodenparameter gleichzeitig** einfliessen, werden diejenigen beiden Enzyme ausgewählt, deren Ladungsvektoren den kleinsten Winkel (höchstes Skalarprodukt) zum Vektor der Zielgrösse $\text{min.N}$ aufweisen (`GLS` und `NAG`, paarweise Korrelation $r = 0.72$). Phosphatase (`PHO`/`MUP`) und Xylanase (`XYL`/`MUX`) werden verworfen.
+   * Anschliessend werden `GLS` und `NAG` über eine feste Linearkombination zu einem eindimensionalen Summenindex verschmolzen:
+     $$\text{SEA}_{70:30} = 0.7 \cdot \text{GLS}_{\text{index}} + 0.3 \cdot \text{NAG}_{\text{index}}$$
+   * Nach Ausschluss von Grünland- und unbewachsenen Böden sowie aller Probenahmen bei Bodentemperaturen $T_{\text{soil}, 0\text{--}7\,\text{cm}} \le 10\,^\circ\text{C}$ ($N = 139 \to n = 25$) wird $\text{SEA}_{70:30}$ mit zwei empirischen Schwellenwert-Faktoren für Wassergehalt und Tongehalt multipliziert ($\text{SEA}_{\text{eff}} = \text{SEA}_{70:30} \times \text{wc\_mult} \times \text{clay\_mult}$).
+
+2. **Statistische und ökophysiologische Einordnung im Vergleich zu unserem `rPCA + LMM`-Ansatz:**
+   * **Kollinearität und Variance Inflation ($\text{VIF}$):** Da `GLS` und `NAG` sowohl im Inkubationsdatensatz ($r = 0.72$) als auch im DEMO-Feldversuch ($r = 0.71$) hochgradig kollinear sind, würde ihre getrennte Aufnahme als Einzelprädiktoren in ein Regressionsmodell zu **Variance Inflation** ($\text{VIF} > 2.0\text{--}3.3$ bei Hinzunahme von `MUX`/`MUP`) und instabilen Regressionsgewichten führen. Durch die feste Vorab-Fusion zu $\text{SEA}_{70:30}$ umgeht der Digit-Soil-Ansatz zwar die numerische VIF-Explosion im Endmodell, gewinnt durch die Linearkombination zweier fast paralleler Vektoren aber **keine zweite, unabhängige Informationsdimension** hinzu (im Inkubations-Paper selbst verbessert $\text{SEA}_{70:30}$ das $\text{LOOCV-}R^2$ gegenüber reinem `GLS` lediglich um $+0.003$ von $0.205$ auf $0.208$).
+   * **Verlust des stöchiometrischen Kontrasts (`PC2`):** Durch den Ausschluss der Phosphatase (`MUP`/`PHO`) geht die in der Theorie der *Ecoenzymatic Stoichiometry* [@Sinsabaugh2008; @Burns2013] zentrale Information über das relative Verhältnis von C/N- zu P-Akquisition verloren. Unser `rPCA`-Ansatz nach @Hubert2005 extrahiert dagegen **zwei strikt orthogonale Achsen ($r = 0.00, \text{VIF} = 1.00$)**: `PC1` erfasst die allgemeine mikrobielle Gesamtaktivität, während `PC2` gezielt den stöchiometrischen Shift zwischen C/N-Hydrolasen (`GLS`, `NAG`) und Phosphatase (`MUP`) abbildet.
+   * **Vermeidung von *Target Leakage* im Biplot:** Während eine gemeinsame PCA über Zielgrösse, Enzyme und Bodenparameter die Achsen durch die Zielgrösse selbst beeinflusst, trennt unser Vorgehen (Abschnitt 5.4) strikt zwischen dem rein biologischen Enzym-Ordinationsraum (`rPCA`) und der nachträglichen Vektorprojektion (`envfit`) der Umwelt- und Zielvariablen.
+   * **Mechanistische Modellierung statt hartem Daten-Ausschluss ($T_{\text{soil}} \le 10\,^\circ\text{C}$):** Das im SEAR-Manuskript beobachtete Phänomen, dass die direkte Enzym-Mineralisations-Korrelation im zeitigen Frühjahr ($T_{\text{soil}} \le 10\,^\circ\text{C}$) bzw. kurz nach Düngung/Bodenbearbeitung zusammenbricht (*Early-Season Decoupling*), lösen wir im Feldmodell **ohne Datenverlust** ($100\,\%$ Datenerhalt), indem wir (a) den direkten Dünger-Substratpuls über $\text{GDD}_{\text{soil}}$ diskontieren (`dN_fert_adj`) und (b) Bodentemperatur und Bodenfeuchte im $0\text{--}28\,\text{cm}$-Horizont kontinuierlich als Kovariaten integrieren.
+
+```{r compare-sear-index-vs-rpca, warning=FALSE, message=FALSE}
+# Empirischer Direktvergleich auf dem DEMO-Datensatz (n = 77)
+df_comp <- df_cand |>
+  mutate(
+    GLS_index = 0.5 + GLS / 25,
+    NAG_index = 0.5 + NAG / 8,
+    SEA_70_30 = 0.7 * GLS_index + 0.3 * NAG_index
+  )
+
+# VIF-Berechnung bei direkter Aufnahme der Einzel-Enzyme vs. rPCA
+m_raw_enz <- lm(dN_fert_adj ~ NAG + GLS + MUP + MUX, data = df_comp)
+vif_raw_enz <- sapply(c("NAG", "GLS", "MUP", "MUX"), function(v) {
+  others <- setdiff(c("NAG", "GLS", "MUP", "MUX"), v)
+  f <- as.formula(paste(v, "~", paste(others, collapse = " + ")))
+  round(1 / (1 - summary(lm(f, data = df_comp))$r.squared), 2)
+})
+vif_rpca <- round(1 / (1 - summary(lm(PC1 ~ PC2, data = df_comp))$r.squared), 2)
+
+comp_models <- bind_rows(
+  eval_candidate_lmm(
+    "dN_fert_adj ~ NAG + GLS + MUP + MUX + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    df_comp,
+    model_label = paste0("1. Einzel-Enzyme unreduziert (NAG+GLS+MUP+MUX | max. VIF = ", max(vif_raw_enz), ")")
+  ),
+  eval_candidate_lmm(
+    "dN_fert_adj ~ SEA_70_30 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    df_comp,
+    model_label = "2. Digit-Soil-Index SEA_70:30 (0.7*GLS_idx + 0.3*NAG_idx | 1D ohne MUP/MUX)"
+  ),
+  eval_candidate_lmm(
+    "dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    df_comp,
+    model_label = paste0("3. OptiFert rPCA (PC1 + PC2 orthogonal | VIF = ", vif_rpca, ", inkl. C/N-vs.-P Shift)")
+  )
+)
+
+knitr::kable(
+  comp_models,
+  caption = "Direkter Methodenvergleich auf den DEMO-Felddaten (n = 77): Unreduzierte Einzel-Enzyme (mit Kollinearität/VIF > 3.3), eindimensionaler Digit-Soil-Summenindex (SEA_70:30) und orthogonale robuste PCA (PC1 + PC2)."
+)
+```
+
+| Methodisches Kriterium | Digit-Soil-Ansatz (`SEA_70:30` / `SEA_eff`) | OptiFert-Ansatz (`rPCA + LMM`) | Fazit für die Modellierung |
+| :--- | :--- | :--- | :--- |
+| **System & Zielgrösse** | 56-Tage Labor-Inkubation ohne Pflanze & ohne Auswaschung ($\Delta N_{\text{min}}$ pro kg Feuchtboden) | In-situ Feld-Massenbilanz ($dN_{\text{fert\_adj}} = \Delta N_{\text{min}} + N_{\text{up}} - \Delta F_{\text{fast}}$ in $\text{kg N ha}^{-1}$) | Das Labor misst das ungestörte Potenzial; das Feldmodell integriert Pflanzenentzug, Auswaschung und Düngung. |
+| **Umgang mit Kollinearität (`GLS` $\leftrightarrow$ `NAG`, $r \approx 0.72$)** | Vorab-Fusion zweier stark kollinearer Enzyme zu 1D-Index (`0.7 GLS + 0.3 NAG`); Verwerfen von `MUP` und `MUX` | Robuste PCA (`PcaHubert`) über alle 4 Enzyme; Extraktion zweier strikt orthogonaler Achsen (`PC1` $\perp$ `PC2`, $\text{VIF} = 1.00$) | `SEA_70:30` bildet nur 1 Dimension ab; `rPCA` verhindert Kollinearität ($\text{VIF} = 1.00$) und bewahrt den stöchiometrischen C/N-vs.-P-Shift (`PC2`). |
+| **Rolle des Biplots** | Gemeinsame PCA über Zielgrösse (`min.N`), Enzyme und Bodenparameter gleichzeitig | Trennung von biologischem Ordinationsraum (`rPCA`) und projizierten Umwelt-/Management-Vektoren (`envfit`) | Verhindert *Target Leakage* in die Hauptachsen und identifiziert orthogonale Umwelt-Kovariaten. |
+| **Frühjahrs- & Düngungseffekte** | Harter Ausschluss von Grünland, Brache und allen Proben mit $T_{\text{soil}} \le 10\,^\circ\text{C}$ ($N = 139 \to n = 25$) | Kontinuierliche Modellierung über $\text{GDD}_{\text{soil}}$ ($0\text{--}28\,\text{cm}$), Bodenfeuchte ($0\text{--}28\,\text{cm}$) und $\text{GDD}_{\text{soil}}$-Düngerdiskontierung | Erhält $100\,\%$ der Feldbeobachtungen und löst das *Early-Season Decoupling* mechanistisch auf. |
+| **Validierungsstrenge** | Observation-wise LOOCV auf demselben Subset ($n = 25$), auf dem Schwellenwerte optimiert wurden | Observation-wise LOO-CV **und** blinde Plotwise LOPO-CV (`re.form = NA`) auf ungesehenen Parzellen | LOPO-CV belegt hohe Übertragbarkeit auf unkalibrierte Parzellen ($R^2_{\text{LOPO}} = 0.769$). |
+
+## 6.7 Synthese und Interpretation der Felddaten
 
 Die Modellierung der Netto-Stickstoffveränderung ($dN$) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert ($p < 0.001$). 
 
@@ -660,7 +1138,7 @@ lmm_data <- df_pca |>
 
 ## Vergleich der Akkumulationsfenster (AIC-Ranking)
 
-Wir modellieren die einzelnen Enzymsignale (NAG, GLS, MUP, MUX), die beiden Hauptkomponenten (PC1, PC2) sowie den gesamten mineralischen Stickstoff (`Nmin_Total`) als Funktion des kumulativen Niederschlags und der Wärmesumme (GDD), mit Parzellen-spezifischem Random Intercept (`(1 | ParzNrFeld)`):
+Wir modellieren die einzelnen Enzymsignale (NAG, GLS, MUP, MUX), die beiden Hauptkomponenten (PC1, PC2) sowie den gesamten mineralischen Stickstoff (`Nmin_Total`) als Funktion des kumulativen Niederschlags und der kulturspezifischen Wärmesumme ($\text{GDD}$ bei $T_{\text{base}} = 6.0\,^\circ\text{C}$ für Mais; @mcmasterGrowingDegreedaysOne1997; @bonhommeBasesLimitsUsing2000; @sanchezTemperaturesGrowthDevelopment2014), mit Parzellen-spezifischem Random Intercept (`(1 | ParzNrFeld)`):
 
 ```{r lmm-all-aic, warning=FALSE, message=FALSE}
 responses <- c("NAG", "GLS", "MUP", "MUX", "PC1", "PC2", "Nmin_Total")

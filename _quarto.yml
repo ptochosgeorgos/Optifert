@@ -1,6 +1,7 @@
 project:
   type: book
   output-dir: docs
+  post-render: scripts/encrypt_docs.R
 
 bibliography: references.bib
 
@@ -30,6 +31,8 @@ book:
         - reports/Field_Campaign_25.qmd
         - reports/Field_Campaign_26.qmd
     - part: "ZOFE"
+      chapters:
+        - reports/ZOFE.qmd
     
 format:
   html:
