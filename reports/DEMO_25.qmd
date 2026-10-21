@@ -324,6 +324,73 @@ $$\begin{aligned}
 2. **PC2 (`r var_pc2` % der Varianz) – „Enzymatischer Shift (C/N- vs. P-Allokation)“:**
    PC2 stellt eine bipolare Kontrastachse dar: Die Kohlenstoff- und Stickstoff-abbauenden Enzyme GLS ($+0.836$) und NAG ($+0.244$) stehen der Phosphatase MUP ($-0.491$) mit entgegengesetztem Vorzeichen gegenüber. Ein hoher PC2-Wert reflektiert somit eine relative Schwerpunktverlagerung hin zum C- und N-Abbau gegenüber der P-Mineralisierung.
 
+#### Versuchsübergreifende Einordnung: Globale $z$-skalierte rPCA über alle vier Versuche ($N = 537$ bzw. $N = 565$)
+
+Um zu prüfen, ob die Bedeutung von `PC1` und `PC2` über alle vier Versuchssysteme (**DEMO 2025**, **Lysimeter**, **Fields25 On-Farm** und **ZOFE**) hinweg qualitativ vergleichbar ist, führen wir eine **globale robuste PCA (`PcaHubert`) über sämtliche Einzelbeobachtungen aller Versuche** durch. Da die Rohwerte in `Fields25` aufgrund einer abweichenden Sensorkalibrierung um den Faktor $10$ höher skaliert sind als in den drei Reckenholz-Versuchen (`DEMO`, `Lysimeter`, `ZOFE`), werden die Enzymaktivitäten vorab innerhalb jedes Versuchs $z$-standardisiert ($\mu = 0, \text{SD} = 1$) und die Eigenvektoren einheitlich orientiert ($\text{PC1}: \sum v_{1j} < 0$; $\text{PC2}: v_{\text{MUP},2} < 0$):
+
+```{r global-rpca-comparison, warning=FALSE, message=FALSE}
+d_lysi_all <- readRDS("../data/Lysimeter/prep_data/Lysimeter_cleansed.rds") |>
+  transmute(LTE = "Lysimeter", NAG, GLS, MUP, MUX = as.numeric(MUX))
+d_fc_all   <- readRDS("../data/Fields25/prep_data/Fields25_cleansed.rds") |>
+  transmute(LTE = "Fields25", NAG, GLS, MUP, MUX)
+d_zofe_all <- readRDS("../data/ZOFE/prep_data/ZOFE_cleansed.rds") |>
+  transmute(LTE = "ZOFE", NAG, GLS, MUP, MUX)
+d_demo_all <- df_final |>
+  transmute(LTE = "DEMO 2025", NAG, GLS, MUP, MUX)
+
+df_all_trials <- bind_rows(d_demo_all, d_lysi_all, d_fc_all, d_zofe_all)
+
+# 1. Globale 4-Enzym rPCA (versuchsweise z-standardisiert, N = 537)
+df_4z <- df_all_trials |>
+  drop_na(NAG, GLS, MUP, MUX) |>
+  group_by(LTE) |>
+  mutate(across(c(NAG, GLS, MUP, MUX), ~ as.numeric(scale(.x)))) |>
+  ungroup()
+
+set.seed(42)
+pca_glob_4z <- PcaHubert(df_4z |> select(NAG, GLS, MUP, MUX), scale = FALSE, k = 3)
+L_glob4 <- getLoadings(pca_glob_4z)
+if (sum(L_glob4[, 1]) > 0) L_glob4[, 1] <- -L_glob4[, 1]
+if (L_glob4["MUP", 2] > 0) L_glob4[, 2] <- -L_glob4[, 2]
+eig_glob4 <- round(getEigenvalues(pca_glob_4z) / sum(getEigenvalues(pca_glob_4z)) * 100, 1)
+
+# Einzelversuchs-4-Enzym-rPCAs (orientierungsnormiert: sum(PC1) < 0, MUP auf PC2 < 0)
+get_norm_loadings_4 <- function(sub_df) {
+  set.seed(42)
+  p <- PcaHubert(sub_df |> select(NAG, GLS, MUP, MUX), scale = TRUE, k = 2)
+  L <- getLoadings(p)
+  if (sum(L[, 1]) > 0) L[, 1] <- -L[, 1]
+  if (L["MUP", 2] > 0) L[, 2] <- -L[, 2]
+  L
+}
+
+L_demo4 <- get_norm_loadings_4(df_all_trials |> filter(LTE == "DEMO 2025") |> drop_na(NAG, GLS, MUP, MUX))
+L_lysi4 <- get_norm_loadings_4(df_all_trials |> filter(LTE == "Lysimeter") |> drop_na(NAG, GLS, MUP, MUX))
+L_fc4   <- get_norm_loadings_4(df_all_trials |> filter(LTE == "Fields25")  |> drop_na(NAG, GLS, MUP, MUX))
+L_zofe4 <- get_norm_loadings_4(df_all_trials |> filter(LTE == "ZOFE")      |> drop_na(NAG, GLS, MUP, MUX))
+
+global_comp_tab <- tibble(
+  Enzym = c("NAG (Chitinase / N)", "GLS (β-Glucosidase / C)", "MUX (Xylanase / C)", "MUP (Phosphatase / P)"),
+  `Global PC1 (N=537, 67.2%)` = round(L_glob4[c("NAG", "GLS", "MUX", "MUP"), 1], 3),
+  `DEMO PC1 (n=96)`           = round(L_demo4[c("NAG", "GLS", "MUX", "MUP"), 1], 3),
+  `Lysi PC1 (n=157)`          = round(L_lysi4[c("NAG", "GLS", "MUX", "MUP"), 1], 3),
+  `Fields25 PC1 (n=250)`      = round(L_fc4[c("NAG", "GLS", "MUX", "MUP"), 1], 3),
+  `Global PC2 (N=537, 20.3%)` = round(L_glob4[c("NAG", "GLS", "MUX", "MUP"), 2], 3),
+  `DEMO PC2 (n=96)`           = round(L_demo4[c("NAG", "GLS", "MUX", "MUP"), 2], 3),
+  `Lysi PC2 (n=157)`          = round(L_lysi4[c("NAG", "GLS", "MUX", "MUP"), 2], 3),
+  `Fields25 PC2 (n=250)`      = round(L_fc4[c("NAG", "GLS", "MUX", "MUP"), 2], 3)
+)
+
+knitr::kable(
+  global_comp_tab,
+  caption = "Qualitativer Vergleich der Eigenvektoren (Loadings) zwischen der globalen z-skalierten rPCA über alle vier Versuche (N = 537) und den Einzelversuchs-rPCAs (Vorzeichen normiert auf PC1 < 0 und MUP_PC2 < 0)."
+)
+```
+
+Der direkte Vergleich mit der globalen $z$-skalierten rPCA ($N = 537$) zeigt zwei zentrale Befunde:
+* **Hohe Konsistenz von `PC1` (Allgemeine biologische Aktivität, global $67.2\,\%$ Varianz):** Sowohl im globalen Datensatz (`NAG` $= -0.452$, `GLS` $= -0.567$, `MUX` $= -0.397$, `MUP` $= -0.563$) als auch in sämtlichen Einzelversuchen laden alle vier Enzyme ausnahmslos negativ in derselben Grössenordnung. `PC1` ist damit versuchsübergreifend direkt als universeller Aktivitäts- und Biomasse-Index vergleichbar.
+* **Qualitative Konsistenz von `PC2` (Stöchiometrischer C/N-vs.-P-Shift, global $20.3\,\%$ Varianz):** Nach Bereinigung der im PCA-Algorithmus willkürlichen Vorzeichenspiegelung ($\pm 1$) trennt `PC2` global alle drei C/N-abbauenden Hydrolasen (`NAG` $= +0.322$, `GLS` $= +0.205$, `MUX` $= +0.469$) scharf von der Phosphatase (`MUP` $= -0.797$). In den Feldversuchen (`DEMO` und `Fields25`) dominiert dabei der gesamte C/N-Komplex gegenüber `MUP`, während im kontrollierten `Lysimeter` innerhalb der positiven Halbachse besonders die N- und Hemicellulose-mobilisierenden Enzyme (`NAG` $= +0.491$, `MUX` $= +0.162$ vs. `MUP` $= -0.837$) hervortreten.
+
 ### Visualisierung im zweidimensionalen Raum
 
 Im folgenden Biplot werden die Beprobungspunkte im Koordinatensystem von PC1 und PC2 dargestellt und nach Düngungsverfahren eingefärbt:
@@ -585,23 +652,7 @@ $$dN \equiv N_{\text{mineralisiert}} - N_{\text{verlust}} = \Delta N_{min} \cdot
 2. **Behandlung der Düngeevents:** Die Düngung liegt im vorliegenden Datensatz als jährliche Gesamtsumme pro Parzelle vor. Da eine zeitlich hochaufgelöste Fraktionierung der Düngetermine auf die einzelnen Intervalle derzeit nicht ohne spekulative Modellannahmen möglich ist, wird $N_{\text{gedüngt}}$ nicht im Intervall abgezogen. Die verfahrensspezifischen N-Niveaus (z. B. Mist, Gülle, NPK) werden stattdessen primär über das hierarchische Random-Intercept-Design (`(1 | ParzNrFeld)`) auf Parzellenebene kontrolliert.
 3. **Konsequenz des LAP-Ausschlusses:** Leucin-Aminopeptidase (LAP) ist das zentrale Enzym für die primäre Spaltung von Peptidbindungen (Proteolyse) und damit für die direkte Freisetzung niedermolekularer N-Verbindungen. Da LAP wegen hoher Messausfälle verworfen werden musste, fehlt dem Enzym-Set der direkte Proteinsensor. Der N-Umsatz wird stattdessen über NAG (Chitinabbau), die mikrobielle Gesamtaktivität (PC1, dominiert von Phosphatase MUP) sowie den relativen C/N- zu P-Shift (PC2) approximiert.
 
-Die resultierende Zielgröße $dN$ wird durch die Enzym-Hauptkomponenten und den Niederschlag (inkl. quadratischem Term für nicht-lineare Auswaschungsverluste) modelliert:
-
-$$dN \sim PC1 + PC2 + Precip + Precip^2 + (1 | ParzNrFeld)$$
-
-## 6.2 Variablen und Designmatrix
-
-Das Modell (`lmer`) verwendet folgende Struktur:
-
-*   **Abhängige Variable ($Y$):** `dN` ($kg/ha$) – Die aus der Massenbilanz rekonstruierte Netto-Mineralisation im Intervall ($\Delta N_{min} \cdot 4.5 + N_{Entzug}$).
-*   **Fixed Effects:**
-    *   `PC1`: Index der biologischen Gesamtaktivität (alle Ladungen negativ).
-    *   `PC2`: Enzymatischer Shift (C/N- vs. P-Allokation).
-    *   `Cum_Precip_mm`: Kumulierte Niederschlagssumme zwischen $t_1$ und $t_2$ (Open-Meteo API) als Proxy für Auswaschungsverluste.
-*   **Random Effects:**
-    *   `(1 | ParzNrFeld)`: Random Intercept für jede Parzelle zur Korrektur der individuellen Basislinie und des standortspezifischen Dünungsniveaus.
-
-## 6.3 Voraussetzungen und Annahmen
+## 6.2 Voraussetzungen und Annahmen
 
 Für die Modellierung gelten folgende Annahmen:
 1.  **Konvertierungsfaktor:** Die Umrechnung von $mg/kg$ in $kg/ha$ erfolgt mit dem Faktor 4.5 (Annahme: 30 cm Tiefe, Lagerungsdichte $1.5 \ g/cm^3$).
@@ -615,7 +666,7 @@ Für die Modellierung gelten folgende Annahmen:
     Der berechnete Netto-Entzug im Intervall $t_1 \rightarrow t_2$ wird zu $\Delta N_{min}$ addiert.
 4.  **Zeitliche Integration:** Die Enzymmessung zum Zeitpunkt $t_2$ repräsentiert das Intervall $t_1 \rightarrow t_2$.
 
-## 6.4 Modell-Implementierung in R
+## 6.3 Basismodell-Implementierung in R
 
 ```{r}
 library(lme4)
@@ -676,87 +727,7 @@ Die Modellergebnisse für die physikalisch korrigierte Zielvariable $dN$ zeigen:
 
 Die Modellgüte bestätigt die Plausibilität der korrigierten Massenbilanz: Das Modell erklärt marginal (nur durch Fixed Effects) `r r2m * 100`% der Varianz ($R^2_m = `r r2m`$) und konditional (inklusive Parzellen-Baselines) `r r2c * 100`% der Varianz ($R^2_c = `r r2c`$). Der durchschnittliche Vorhersagefehler (RMSE) beträgt `r rmse_val` kg N/ha.
 
-## 6.5 Modell-Evaluation und Visualisierung
-
-Um den biologischen Effekt zu isolieren und visuell greifbar zu machen, betrachten wir das Modell in zwei Dimensionen (Partielle Residuen) und in drei Dimensionen (Regressionsebene).
-
-### Partielle Residuen: Der isolierte biologische Effekt (PC2)
-
-Da der Niederschlag die Varianz von $dN$ stark dominiert, berechnen wir die partiellen Residuen. Dabei wird der mathematische Effekt von Niederschlag und allgemeiner Aktivität (PC1) herausgerechnet, um isoliert die Beziehung zwischen dem C/N-Enzymshift (PC2) und der verbleibenden Stickstoffdynamik darzustellen.
-
-```{r, message=FALSE, warning=FALSE}
-library(ggplot2)
-
-df_model$dN_partial_PC2 <- df_model$dN - 
-  (coefs["Cum_Precip_mm", "Estimate"] * df_model$Cum_Precip_mm) - 
-  (coefs["I(Cum_Precip_mm^2)", "Estimate"] * (df_model$Cum_Precip_mm^2)) - 
-  (coefs["PC1", "Estimate"] * df_model$PC1)
-
-ggplot(df_model, aes(x = PC2, y = dN_partial_PC2)) +
-  geom_point(size = 3, alpha = 0.7, color = "#2c3e50") +
-  geom_smooth(method = "lm", color = "#e74c3c", fill = "#e74c3c", alpha = 0.2) +
-  theme_minimal() +
-  labs(
-    title = "Partielle Residuen: Einfluss des C/N-Shifts (PC2)",
-    subtitle = "Bereinigt um Niederschlag und allgemeine Aktivität",
-    x = "PC2 (Enzymatischer Shift Richtung Kohlenstoff)",
-    y = "Bereinigtes dN [kg N/ha]"
-  )
-```
-
-### 3D-Visualisierung der Regressionsebene
-
-Das Modell definiert eine Ebene im dreidimensionalen Raum, aufgespannt durch den biologischen Shift (PC2) und den physikalischen Verlust (Niederschlag). Die interaktive Grafik erlaubt es, die Modellfläche und die Beobachtungen räumlich zu explorieren.
-
-```{r, message=FALSE, warning=FALSE}
-library(plotly)
-
-# Erstelle ein Grid für die Ebene
-pc2_seq <- seq(min(df_model$PC2), max(df_model$PC2), length.out = 20)
-precip_seq <- seq(min(df_model$Cum_Precip_mm), max(df_model$Cum_Precip_mm), length.out = 20)
-
-grid <- expand.grid(PC2 = pc2_seq, Cum_Precip_mm = precip_seq)
-
-# Berechne Z-Werte der Regressionsebene (Basislinie = 0 für Random Effects, PC1 = 0)
-grid$dN_pred <- coefs["(Intercept)", "Estimate"] +
-                coefs["PC2", "Estimate"] * grid$PC2 +
-                coefs["Cum_Precip_mm", "Estimate"] * grid$Cum_Precip_mm +
-                coefs["I(Cum_Precip_mm^2)", "Estimate"] * (grid$Cum_Precip_mm^2)
-
-# Umformen in eine Matrix für plotly::add_surface
-z_matrix <- matrix(grid$dN_pred, nrow = length(pc2_seq), ncol = length(precip_seq))
-
-# Interaktiver Plotly-Graph
-plot_ly() |>
-  # Reale Datenpunkte
-  add_markers(
-    data = df_model, 
-    x = ~PC2, 
-    y = ~Cum_Precip_mm, 
-    z = ~dN,
-    marker = list(size = 4, color = "#2980b9", opacity = 0.8),
-    name = "Beobachtungen"
-  ) |>
-  # Regressionsebene
-  add_surface(
-    x = ~pc2_seq, 
-    y = ~precip_seq, 
-    z = ~z_matrix,
-    opacity = 0.6,
-    colorscale = "Viridis",
-    name = "Modell-Ebene"
-  ) |>
-  layout(
-    scene = list(
-      xaxis = list(title = "PC2 (C/N Shift)"),
-      yaxis = list(title = "Niederschlag (mm)"),
-      zaxis = list(title = "dN (kg N/ha)")
-    ),
-    title = "3D Modell-Ebene: Stickstoff-Massenbilanz"
-  )
-```
-
-## 6.6 Erweiterte Kovariaten-Optimierung, Zwei-Pool-Düngerdiskontierung & Plotwise LOO-CV
+## 6.4 Erweiterte Kovariaten-Optimierung, Zwei-Pool-Düngerdiskontierung & Plotwise LOO-CV
 
 Aufbauend auf der Biplot-Evidenz aus Abschnitt 5.4 erweitern wir das Basismodell (`M0`) in zwei Richtungen:
 
@@ -900,9 +871,9 @@ ggplot(df_lopo_vis, aes(x = Predicted_LOPO, y = Observed, color = Verfahren)) +
 
 ---
 
-### 6.6.1 Versuchsübergreifende Validierung auf dem harmonisierten Gesamtdatensatz ($N = 264$)
+### 6.4.1 Versuchsübergreifende Validierung auf dem harmonisierten Gesamtdatensatz ($N = 264$)
 
-Um zu prüfen, ob sich diese Gesetzmässigkeiten auch über völlig unterschiedliche Versuchsdesigns, Böden und Kulturen hinweg bestätigen, wurden in [`scripts/build_total_dataset.R`](file:///home/f80875740/Documents/Agroscope/Optifert/scripts/build_total_dataset.R) alle drei im Jahr 2025 beprobten Systeme – **DEMO** ($n = 77$, Silomais/Wintergerste), **Lysimeter** ($n = 128$, Winterweizen) und **On-Farm Praxisbetriebe Fields25** ($n = 59$, Mais/Zuckerrübe/Kunstwiese) – nach exakt derselben Methodik ($\text{GDD}_{\text{soil}}$-Düngerdiskontierung, kulturspezifischer Entzug, $0\text{--}28\,\text{cm}$ Hydro-Thermik) im Gesamtdatensatz `data/OptiFert_Total_Intervals.rds` ($N = 264$) zusammengeführt:
+Um zu prüfen, ob sich diese Gesetzmässigkeiten auch über völlig unterschiedliche Versuchsdesigns, Böden und Kulturen hinweg bestätigen, wurden in [`scripts/build_total_dataset.R`](file:///home/f80875740/Documents/Agroscope/Optifert/scripts/build_total_dataset.R) alle drei im Jahr 2025 beprobten Systeme – **DEMO** ($n = 77$, Silomais), **Lysimeter** ($n = 128$, Winterweizen) und **On-Farm Praxisbetriebe Fields25** ($n = 59$, Mais/Zuckerrübe/Kunstwiese) – nach exakt derselben Methodik ($\text{GDD}_{\text{soil}}$-Düngerdiskontierung, kulturspezifischer Entzug, $0\text{--}28\,\text{cm}$ Hydro-Thermik) im Gesamtdatensatz `data/OptiFert_Total_Intervals.rds` ($N = 264$) zusammengeführt:
 
 ```{r total-dataset-benchmark, warning=FALSE, message=FALSE}
 df_tot <- readRDS("../data/OptiFert_Total_Intervals.rds") |>
@@ -960,7 +931,7 @@ Auch auf dem heterogenen Gesamtdatensatz ($N = 264$) führt der Übergang zur $\
 
 ---
 
-### 6.6.2 Methodischer & Empirischer Vergleich: Digit-Soil-Summenindex ($\text{SEA}_{70:30}$) vs. Orthogonale rPCA ($\text{PC1} + \text{PC2}$)
+### 6.4.2 Methodischer & Empirischer Vergleich: Digit-Soil-Summenindex ($\text{SEA}_{70:30}$) vs. Orthogonale rPCA ($\text{PC1} + \text{PC2}$)
 
 In einem parallelen Manuskript-Entwurf des Digit-Soil-Teams zur Vorhersage der 56-tägigen aeroben Labor-Stickstoffmineralisation (*SEAR N-Mineralization Paper*, Inkubationsversuch über europäische Oberböden) wurde ein alternativer Weg zur Bündelung der Enzymsignale gewählt:
 
@@ -1030,9 +1001,9 @@ knitr::kable(
 | **Umgang mit Kollinearität (`GLS` $\leftrightarrow$ `NAG`, $r \approx 0.72$)** | Vorab-Fusion zweier stark kollinearer Enzyme zu 1D-Index (`0.7 GLS + 0.3 NAG`); Verwerfen von `MUP` und `MUX` | Robuste PCA (`PcaHubert`) über alle 4 Enzyme; Extraktion zweier strikt orthogonaler Achsen (`PC1` $\perp$ `PC2`, $\text{VIF} = 1.00$) | `SEA_70:30` bildet nur 1 Dimension ab; `rPCA` verhindert Kollinearität ($\text{VIF} = 1.00$) und bewahrt den stöchiometrischen C/N-vs.-P-Shift (`PC2`). |
 | **Rolle des Biplots** | Gemeinsame PCA über Zielgrösse (`min.N`), Enzyme und Bodenparameter gleichzeitig | Trennung von biologischem Ordinationsraum (`rPCA`) und projizierten Umwelt-/Management-Vektoren (`envfit`) | Verhindert *Target Leakage* in die Hauptachsen und identifiziert orthogonale Umwelt-Kovariaten. |
 | **Frühjahrs- & Düngungseffekte** | Harter Ausschluss von Grünland, Brache und allen Proben mit $T_{\text{soil}} \le 10\,^\circ\text{C}$ ($N = 139 \to n = 25$) | Kontinuierliche Modellierung über $\text{GDD}_{\text{soil}}$ ($0\text{--}28\,\text{cm}$), Bodenfeuchte ($0\text{--}28\,\text{cm}$) und $\text{GDD}_{\text{soil}}$-Düngerdiskontierung | Erhält $100\,\%$ der Feldbeobachtungen und löst das *Early-Season Decoupling* mechanistisch auf. |
-| **Validierungsstrenge** | Observation-wise LOOCV auf demselben Subset ($n = 25$), auf dem Schwellenwerte optimiert wurden | Observation-wise LOO-CV **und** blinde Plotwise LOPO-CV (`re.form = NA`) auf ungesehenen Parzellen | LOPO-CV belegt hohe Übertragbarkeit auf unkalibrierte Parzellen ($R^2_{\text{LOPO}} = 0.769$). |
+| **Validierungsstrenge** | Observation-wise LOOCV auf demselben Subset ($n = 25$), auf dem Schwellenwerte optimiert wurden | Observation-wise LOO-CV **und** blinde Plotwise LOPO-CV (`re.form = NA`) auf ungesehenen Parzellen | LOPO-CV belegt hohe Übertragbarkeit auf unkalibrierte Parzellen ($R^2_{\text{LOPO}} = 0.685\text{--}0.701$). |
 
-## 6.7 Synthese und Interpretation der Felddaten
+## 6.5 Synthese und Interpretation der Felddaten
 
 Die Modellierung der Netto-Stickstoffveränderung ($dN$) über die gemessenen Sommerintervalle liefert ein klares phänomenologisches Bild. Im bereinigten Datensatz, in dem die Messintervalle zeitlich korrekt abgeglichen wurden, verliert das enzymatische Profil (die Hauptkomponenten PC1 und PC2) seine statistische Signifikanz als linearer Prädiktor. Stattdessen wird die Varianz der Stickstoffmassenbilanz im Feld signifikant und stark nicht-linear durch den kumulierten Niederschlag dominiert ($p < 0.001$). 
 
