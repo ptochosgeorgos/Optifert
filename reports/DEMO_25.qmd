@@ -637,10 +637,7 @@ n_balance_model <- lmer(
   data = df_model
 )
 
-# 3. Modellzusammenfassung
-summary(n_balance_model)
-
-# 4. Parameter extrahieren für den Bericht
+# 3. Parameter extrahieren für den Bericht
 mod_sum <- summary(n_balance_model)
 coefs <- mod_sum$coefficients
 
@@ -828,15 +825,14 @@ bench_table <- bind_rows(
   eval_candidate_lmm("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M0: Basismodell (dN_raw, ohne Düngerdiskontierung)"),
   eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + (1|ParzNrFeld)", df_cand, model_label = "M1: dN_fert_adj | Nur Enzyme (PC1 + PC2)"),
   eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M2: dN_fert_adj | PC1 + PC2 + poly(Precip, 2)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M3: dN_fert_adj | PC1 + PC2 + poly(KWB, 2)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)", df_cand, model_label = "M4: M2 + Bodenfeuchte (0-28 cm)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Cum_GDD_Soil_Interval + (1|ParzNrFeld)", df_cand, model_label = "M5: M2 + Boden-GDD (0-28 cm)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|ParzNrFeld)", df_cand, model_label = "M6: M2 + Corg (%)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Fert_N_slow_Interval + (1|ParzNrFeld)", df_cand, model_label = "M7: M2 + Org. Dünger-Pool (slow)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + NBilanz_cum_kg_ha + (1|ParzNrFeld)", df_cand, model_label = "M8: M2 + 30J Kum. N-Bilanz"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M9: M2 + Kultur (SM vs. WG)"),
-  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M10: M2 + Bodenfeuchte (0-28 cm) + Kultur (Mit Enzymen)"),
-  eval_candidate_lmm("dN_fert_adj ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand, model_label = "M11 (Ablation): OHNE Enzyme | Nur Precip² + Bodenfeuchte + Kultur")
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + (1|ParzNrFeld)", df_cand, model_label = "M3: dN_fert_adj | PC1 + PC2 + poly(KWB, 2) [Neue Basis]"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)", df_cand, model_label = "M4: M3 + Bodenfeuchte (0-28 cm)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Cum_GDD_Soil_Interval + (1|ParzNrFeld)", df_cand, model_label = "M5: M3 + Boden-GDD (0-28 cm)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + soil_Corg + (1|ParzNrFeld)", df_cand, model_label = "M6: M3 + Corg (%)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Fert_N_slow_Interval + (1|ParzNrFeld)", df_cand, model_label = "M7: M3 + Org. Dünger-Pool (slow)"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + NBilanz_cum_kg_ha + (1|ParzNrFeld)", df_cand, model_label = "M8: M3 + 30J Kum. N-Bilanz"),
+  eval_candidate_lmm("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + (1|ParzNrFeld)", df_cand, model_label = "M9: M3 + Bodenfeuchte (0-28 cm) + Boden-GDD (0-28 cm)"),
+  eval_candidate_lmm("dN_fert_adj ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)", df_cand, model_label = "M10 (Ablation): OHNE Enzyme | Nur KWB² + Bodenfeuchte (0-28 cm)")
 )
 
 knitr::kable(
@@ -846,7 +842,7 @@ knitr::kable(
 ```
 
 ```{r plot-lopo-comparison, fig.width=10, fig.height=5, warning=FALSE, message=FALSE}
-# Visualisierung der Out-of-Plot Prognosegüte (LOPO-CV: M0 vs. M2 vs. M10)
+# Visualisierung der Out-of-Plot Prognosegüte (LOPO-CV: M0 vs. M3 vs. M4/M10)
 get_lopo_preds <- function(formula_str, data, label) {
   f <- as.formula(formula_str)
   resp <- all.vars(f)[1]
@@ -861,21 +857,20 @@ get_lopo_preds <- function(formula_str, data, label) {
     Modell = label,
     Observed = data[[resp]],
     Predicted_LOPO = y_lopo,
-    Verfahren = data$Verfahren,
-    Kultur = data$Kultur
+    Verfahren = data$Verfahren
   )
 }
 
 df_lopo_vis <- bind_rows(
   get_lopo_preds("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand,
-                 "1. Basismodell M0 (dN_raw)\nRMSE_LOPO = 50.3 kg/ha | R²_LOPO = 0.601"),
-  get_lopo_preds("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|ParzNrFeld)", df_cand,
-                 "2. GDD_soil-Düngerdiskont. M2 (dN_fert_adj)\nRMSE_LOPO = 44.8 kg/ha | R²_LOPO = 0.646"),
-  get_lopo_preds("dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)", df_cand,
-                 "3. Optimiertes Modell M10 (+Bodenfeuchte & Kultur)\nRMSE_LOPO = 36.2 kg/ha | R²_LOPO = 0.769")
+                 "1. Basismodell M0 (dN_raw | Precip²)\nRMSE_LOPO = 50.9 kg/ha | R²_LOPO = 0.592"),
+  get_lopo_preds("dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + (1|ParzNrFeld)", df_cand,
+                 "2. Neue Basis M3 (dN_fert_adj | KWB²)\nRMSE_LOPO = 43.0 kg/ha | R²_LOPO = 0.673"),
+  get_lopo_preds("dN_fert_adj ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)", df_cand,
+                 "3. Optimiertes Modell M10 (KWB² + Bodenfeuchte)\nRMSE_LOPO = 41.2 kg/ha | R²_LOPO = 0.701")
 )
 
-ggplot(df_lopo_vis, aes(x = Predicted_LOPO, y = Observed, color = Verfahren, shape = Kultur)) +
+ggplot(df_lopo_vis, aes(x = Predicted_LOPO, y = Observed, color = Verfahren)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray40", linewidth = 0.8) +
   geom_point(size = 2.8, alpha = 0.8) +
   geom_smooth(aes(group = 1), method = "lm", color = "#2c3e50", se = TRUE, alpha = 0.15, linewidth = 0.8) +
@@ -891,18 +886,17 @@ ggplot(df_lopo_vis, aes(x = Predicted_LOPO, y = Observed, color = Verfahren, sha
     subtitle = "Vorhersage ausschliesslich über Fixed Effects (re.form = NA); gestrichelte Linie = 1:1 Idealgerade",
     x = "LOPO-CV Vorhersage [kg N/ha]",
     y = "Gemessene Zielgrösse dN [kg N/ha]",
-    color = "Düngung",
-    shape = "Kultur"
+    color = "Düngung"
   )
 ```
 
 ### Zentrale Befunde des Modellvergleichs:
 1. **Substantielle Verbesserung durch $\text{GDD}_{\text{soil}}$-Düngerdiskontierung (`M0` $\to$ `M2`):**
-   Allein das Abziehen des über $\text{GDD}_{\text{soil}}$ ($0\text{--}28\,\text{cm}$) diskontierten mineralischen/Ammonium-Düngerpulses (`dN_fert_adj`) senkt das $\text{AICc}$ bei identischer Prädiktorenstruktur um **$-13.0$ Punkte** ($808.0 \to 795.0$), steigert das marginale $R^2_m$ von **$0.674$ auf $0.708$** und reduziert den Vorhersagefehler auf komplett ungesehenen Parzellen ($\text{RMSE}_{\text{LOPO}}$) von **$50.3$ auf $44.8\,\text{kg N ha}^{-1}$** ($R^2_{\text{LOPO}}$ steigt von $0.601$ auf $0.646$). Gleichzeitig schrumpft die Differenz zwischen $R^2_m$ und $R^2_c$ von $9.5\,\%$ auf $6.8\,\%$: Ein erheblicher Teil der zuvor unerklärten Zwischen-Parzellen-Varianz war folglich der unberücksichtigte mineralische Düngungsimpuls.
-2. **Hydro-thermisches Mikroklima im Wurzelraum ($0\text{--}28\,\text{cm}$, `M3`–`M5`):**
-   Der Ersatz des reinen Niederschlags durch die **klimatische Wasserbilanz (`M3`, $\text{AICc} = 785.0$)** oder die Hinzunahme der **tiefengewichteten Bodenfeuchte $0\text{--}28\,\text{cm}$ (`M4`, $\text{AICc} = 784.0$, $R^2_m = 0.748$, $R^2_{\text{LOPO}} = 0.687$)** bzw. der **Boden-Wärmesumme (`M5`, $\text{AICc} = 784.0$)** verbessert das Modell nochmals hochsignifikant ($\Delta\text{AICc} = -11.0$ gegenüber `M2`).
-3. **Kombiniertes Optimum (`M10`: Enzyme + Niederschlag + Bodenfeuchte $0\text{--}28\,\text{cm}$ + Kultur):**
-   Werden die düngerkorrigierte Zielgrösse `dN_fert_adj`, die Bodenfeuchte im $0\text{--}28\,\text{cm}$-Horizont und die angebaute Kultur (`SM` vs. `WG`) kombiniert, sinkt das $\text{AICc}$ auf **$769.0$** ($\Delta\text{AICc} = -39.0$ gegenüber `M0`). Das Modell erklärt **marginal $81.5\,\%$ der Gesamtvarianz allein über die Fixed Effects ($R^2_m = 0.815$)** und erreicht in der strengen **Plotwise LOPO-Kreuzvalidierung auf ungesehenen Parzellen $R^2_{\text{LOPO}} = 0.769$** bei einem $\text{RMSE}_{\text{LOPO}}$ von nur **$36.2\,\text{kg N ha}^{-1}$**.
+   Allein das Abziehen des über $\text{GDD}_{\text{soil}}$ ($0\text{--}28\,\text{cm}$) diskontierten mineralischen/Ammonium-Düngerpulses (`dN_fert_adj`) senkt das $\text{AICc}$ bei identischer Prädiktorenstruktur um **$-13.0$ Punkte** ($809.0 \to 796.0$), steigert das marginale $R^2_m$ von **$0.670$ auf $0.704$** und reduziert den Vorhersagefehler auf komplett ungesehenen Parzellen ($\text{RMSE}_{\text{LOPO}}$) von **$50.9$ auf $45.2\,\text{kg N ha}^{-1}$** ($R^2_{\text{LOPO}}$ steigt von $0.592$ auf $0.639$). Gleichzeitig schrumpft die Differenz zwischen $R^2_m$ und $R^2_c$ von $9.7\,\%$ auf $6.9\,\%$: Ein erheblicher Teil der zuvor unerklärten Zwischen-Parzellen-Varianz war folglich der unberücksichtigte mineralische Düngungsimpuls.
+2. **Übergang zur Klimatischen Wasserbilanz als neue Modellbasis (`M2` $\to$ `M3`):**
+   Der Ersatz des reinen Niederschlags durch die **klimatische Wasserbilanz ($\text{KWB} = P - \text{ET}_0$, `M3`)** verbessert das Modell nochmals um **$\Delta\text{AICc} = -11.0$ Punkte** ($796.0 \to 785.0$), hebt $R^2_m$ auf **$0.735$** und senkt den Out-of-Plot-Fehler $\text{RMSE}_{\text{LOPO}}$ signifikant auf **$43.0\,\text{kg N ha}^{-1}$** ($R^2_{\text{LOPO}} = 0.673$). Deshalb dient `M3` als physikalisch fundierte Basis für alle weiteren Kovariaten-Tests (`M4`–`M10`).
+3. **Hydro-thermisches Mikroklima im Wurzelraum ($0\text{--}28\,\text{cm}$, `M4`–`M5`) und Enzym-Ablation (`M10`):**
+   Die Hinzunahme der **tiefengewichteten Bodenfeuchte $0\text{--}28\,\text{cm}$ (`M4`, $\text{AICc} = 783.4$, $R^2_m = 0.747$, $R^2_{\text{LOPO}} = 0.685$)** bzw. der **Boden-Wärmesumme (`M5`, $\text{AICc} = 783.2$)** verbessert die Prognose auf ungesehenen Parzellen weiter ($\text{RMSE}_{\text{LOPO}} = 42.3\,\text{kg N ha}^{-1}$). Werden in der Ablation (`M10`) die nicht-signifikanten Enzymachsen weggelassen, sinkt das $\text{AICc}$ durch die eingesparten Freiheitsgrade auf **$779.1$** ($\text{RMSE}_{\text{LOPO}} = 41.2\,\text{kg N ha}^{-1}$, $R^2_{\text{LOPO}} = 0.701$).
 
 ---
 
@@ -1003,24 +997,24 @@ vif_rpca <- round(1 / (1 - summary(lm(PC1 ~ PC2, data = df_comp))$r.squared), 2)
 
 comp_models <- bind_rows(
   eval_candidate_lmm(
-    "dN_fert_adj ~ NAG + GLS + MUP + MUX + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    "dN_fert_adj ~ NAG + GLS + MUP + MUX + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)",
     df_comp,
     model_label = paste0("1. Einzel-Enzyme unreduziert (NAG+GLS+MUP+MUX | max. VIF = ", max(vif_raw_enz), ")")
   ),
   eval_candidate_lmm(
-    "dN_fert_adj ~ SEA_70_30 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    "dN_fert_adj ~ SEA_70_30 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)",
     df_comp,
     model_label = "2. Digit-Soil-Index SEA_70:30 (0.7*GLS_idx + 0.3*NAG_idx | 1D ohne MUP/MUX)"
   ),
   eval_candidate_lmm(
-    "dN_fert_adj ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    "dN_fert_adj ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)",
     df_comp,
     model_label = paste0("3. OptiFert rPCA (PC1 + PC2 orthogonal | VIF = ", vif_rpca, ", inkl. C/N-vs.-P Shift)")
   ),
   eval_candidate_lmm(
-    "dN_fert_adj ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|ParzNrFeld)",
+    "dN_fert_adj ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|ParzNrFeld)",
     df_comp,
-    model_label = "4. Ablation OHNE Enzyme (-2 df | Nur Hydro-Thermik & Kultur)"
+    model_label = "4. Ablation OHNE Enzyme (-2 df | Nur KWB² + Bodenfeuchte 0-28 cm)"
   )
 )
 

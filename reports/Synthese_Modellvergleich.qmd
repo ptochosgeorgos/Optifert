@@ -138,9 +138,9 @@ sig_summary_table <- bind_rows(
                   "1. DEMO 2025 (n = 77)", "A. Nur Enzyme (ohne Witterung)"),
   extract_enz_sig("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|plot_id)", df_demo,
                   "1. DEMO 2025 (n = 77)", "B. Rohes dN_raw + poly(Precip, 2)"),
-  extract_enz_sig("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo,
-                  "1. DEMO 2025 (n = 77)", "C. Vollmodell (rPCA + 0-28cm Feuchte + Kultur)"),
-  extract_enz_sig("dN_mech ~ SEA_70_30 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo,
+  extract_enz_sig("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo,
+                  "1. DEMO 2025 (n = 77)", "C. Vollmodell (rPCA + poly(KWB, 2) + 0-28cm Feuchte)"),
+  extract_enz_sig("dN_mech ~ SEA_70_30 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo,
                   "1. DEMO 2025 (n = 77)", "D. Vollmodell mit Digit-Soil SEA_70:30"),
   
   # 2. Lysimeter
@@ -203,13 +203,13 @@ get_t_stats <- function(formula_str, data, system_label, stage_label) {
 
 df_t_plot <- bind_rows(
   get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo, "DEMO 2025\n(n = 77)", "1. Ohne Witterung (Nur Enzyme)"),
-  get_t_stats("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "DEMO 2025\n(n = 77)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo, "DEMO 2025\n(n = 77)", "2. Vollmodell (+ KWB² & 0-28cm Feuchte)"),
   get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_lysi, "Lysimeter\n(n = 128)", "1. Ohne Witterung (Nur Enzyme)"),
-  get_t_stats("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "Lysimeter\n(n = 128)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "Lysimeter\n(n = 128)", "2. Vollmodell (+ KWB² & 0-28cm Feuchte)"),
   get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_fc, "Fields25 On-Farm\n(n = 59)", "1. Ohne Witterung (Nur Enzyme)"),
-  get_t_stats("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc, "Fields25 On-Farm\n(n = 59)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)"),
+  get_t_stats("dN_mech ~ PC1 + PC2 + CWB_rate + Mean_Soil_Moist_0_28_Interval + Cum_GDD_Soil_Interval + soil_Corg + (1|plot_id)", df_fc, "Fields25 On-Farm\n(n = 59)", "2. Vollmodell (+ KWB² & 0-28cm Feuchte)"),
   get_t_stats("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_tot, "Gesamtdatensatz\n(N = 264)", "1. Ohne Witterung (Nur Enzyme)"),
-  get_t_stats("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot, "Gesamtdatensatz\n(N = 264)", "2. Vollmodell (+ Hydro-Thermik 0-28cm)")
+  get_t_stats("dN_mech ~ PC1 + PC2 + CWB_rate + I(CWB_rate^2) + Cum_GDD_Soil_Interval + Mean_Soil_Moist_0_28_Interval + LTE + (1|plot_id)", df_tot, "Gesamtdatensatz\n(N = 264)", "2. Vollmodell (+ KWB² & 0-28cm Feuchte)")
 ) |>
   mutate(
     System = factor(System, levels = c("DEMO 2025\n(n = 77)", "Lysimeter\n(n = 128)", "Fields25 On-Farm\n(n = 59)", "Gesamtdatensatz\n(N = 264)")),
@@ -223,7 +223,7 @@ ggplot(df_t_plot, aes(x = System, y = abs(t_val), fill = Stufe)) +
            color = "#c0392b", fontface = "bold", hjust = 0, size = 3.5) +
   facet_wrap(~ Term_Label) +
   scale_fill_manual(values = c("1. Ohne Witterung (Nur Enzyme)" = "#3498db",
-                               "2. Vollmodell (+ Hydro-Thermik 0-28cm)" = "#2ecc71")) +
+                               "2. Vollmodell (+ KWB² & 0-28cm Feuchte)" = "#2ecc71")) +
   theme_minimal(base_size = 12.5) +
   theme(
     panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6),
@@ -325,11 +325,11 @@ ablation_results <- bind_rows(
   # 1. DEMO 2025 (n = 77)
   run_ablation_eval("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo, "plot_id",
                     "1. DEMO 2025 (n=77)", "1. Nur Enzyme (PC1 + PC2)", 2),
-  run_ablation_eval("dN_mech ~ SEA_70_30 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+  run_ablation_eval("dN_mech ~ SEA_70_30 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo, "plot_id",
                     "1. DEMO 2025 (n=77)", "2. MIT Digit-Soil SEA_70:30", 1),
-  run_ablation_eval("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+  run_ablation_eval("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo, "plot_id",
                     "1. DEMO 2025 (n=77)", "3. MIT OptiFert rPCA (PC1 + PC2)", 2),
-  run_ablation_eval("dN_mech ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
+  run_ablation_eval("dN_mech ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo, "plot_id",
                     "1. DEMO 2025 (n=77)", "4. OHNE Enzyme (Ablation, -2 df)", 0),
   
   # 2. Lysimeter (n = 128)
@@ -438,9 +438,9 @@ get_plot_rmse_vec <- function(formula_str, data, group_col = "plot_id") {
 
 # DEMO Parzellen-Fehlervektoren (P = 10 Parzellen)
 demo_rmse_m0    <- get_plot_rmse_vec("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|plot_id)", df_demo)
-demo_rmse_m2    <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + (1|plot_id)", df_demo)
-demo_rmse_rpca  <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo)
-demo_rmse_noenz <- get_plot_rmse_vec("dN_mech ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo)
+demo_rmse_m3    <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + (1|plot_id)", df_demo)
+demo_rmse_rpca  <- get_plot_rmse_vec("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo)
+demo_rmse_noenz <- get_plot_rmse_vec("dN_mech ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo)
 
 # Lysimeter Parzellen-Fehlervektoren (P = 32 Lysimeter)
 lysi_rmse_m0    <- get_plot_rmse_vec("dN_raw ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + soil_Corg + (1|plot_id)", df_lysi)
@@ -464,12 +464,12 @@ compare_lopo_pair <- function(vec_a, vec_b, sys_lbl, comp_lbl) {
 }
 
 lopo_test_table <- bind_rows(
-  compare_lopo_pair(demo_rmse_m0, demo_rmse_m2, "DEMO 2025 (P = 10)",
-                    "1. Effekt GDD_soil-Düngerdiskontierung (M2 vs. M0)"),
-  compare_lopo_pair(demo_rmse_m2, demo_rmse_rpca, "DEMO 2025 (P = 10)",
-                    "2. Effekt 0-28cm Bodenfeuchte + Kultur (M10_rPCA vs. M2)"),
+  compare_lopo_pair(demo_rmse_m0, demo_rmse_m3, "DEMO 2025 (P = 10)",
+                    "1. Effekt GDD_soil-Düngerdiskont. + KWB² (M3 vs. M0)"),
+  compare_lopo_pair(demo_rmse_m0, demo_rmse_rpca, "DEMO 2025 (P = 10)",
+                    "2. Gesamtgewinn KWB² + 0-28cm Bodenfeuchte (M4_rPCA vs. M0)"),
   compare_lopo_pair(demo_rmse_rpca, demo_rmse_noenz, "DEMO 2025 (P = 10)",
-                    "3. Ablation: OHNE Enzyme vs. MIT rPCA (M11_NoEnz vs. M10_rPCA)"),
+                    "3. Ablation: OHNE Enzyme vs. MIT rPCA (M10_NoEnz vs. M4_rPCA)"),
   compare_lopo_pair(lysi_rmse_m0, lysi_rmse_rpca, "Lysimeter (P = 32)",
                     "4. Effekt GDD_soil-Diskont. + 0-28cm Hydro-Thermik (L3_rPCA vs. L0)"),
   compare_lopo_pair(lysi_rmse_noenz, lysi_rmse_rpca, "Lysimeter (P = 32)",
@@ -528,10 +528,10 @@ eval_null_and_bias <- function(formula_str, data, group_col, sys_lbl, mod_lbl) {
 null_bias_table <- bind_rows(
   eval_null_and_bias("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_demo, "plot_id",
                      "DEMO 2025 (P = 10)", "1. Nur Enzyme (PC1 + PC2)"),
-  eval_null_and_bias("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
-                     "DEMO 2025 (P = 10)", "2. Vollmodell MIT rPCA"),
-  eval_null_and_bias("dN_mech ~ Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)", df_demo, "plot_id",
-                     "DEMO 2025 (P = 10)", "3. Ablationsmodell OHNE Enzyme"),
+  eval_null_and_bias("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo, "plot_id",
+                     "DEMO 2025 (P = 10)", "2. Vollmodell MIT rPCA (M4)"),
+  eval_null_and_bias("dN_mech ~ Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)", df_demo, "plot_id",
+                     "DEMO 2025 (P = 10)", "3. Ablationsmodell OHNE Enzyme (M10)"),
   eval_null_and_bias("dN_mech ~ PC1 + PC2 + (1|plot_id)", df_lysi, "plot_id",
                      "Lysimeter (P = 32)", "1. Nur Enzyme (PC1 + PC2)"),
   eval_null_and_bias("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)", df_lysi, "plot_id",
@@ -545,9 +545,9 @@ knitr::kable(
 ```
 
 * **Statistische Signifikanz der Modellverbesserungen im DEMO-Versuch ($P = 10$ Parzellen):**
-  * Der Übergang vom Basismodell `M0` zum mechanistischen Vollmodell `M10` senkt den mittleren parzellenspezifischen Out-of-Sample-Fehler hochsignifikant um **$\Delta\text{RMSE}_p = -11.95 \pm 3.31\,\text{kg N ha}^{-1}$ ($t = -3.61, p = 0.0049^{**}$, Wilcoxon $p = 0.0059^{**}$)**.
-  * Auch der Gewinn durch die $0\text{--}28\,\text{cm}$-Bodenfeuchte und Kultur (`M10` vs. `M2`) ist im gepaarten LOPO-$t$-Test hochsignifikant (**$\Delta\text{RMSE}_p = -7.56 \pm 2.04\,\text{kg N ha}^{-1}, p = 0.0043^{**}$**).
-  * Selbst die Einsparung der 2 Enzym-Freiheitsgrade im offenen Feld (`M11_NoEnz` vs. `M10_rPCA`) führt über alle 10 Parzellen hinweg zu einer konsistenten und im gepaarten $t$-Test signifikanten Fehlerreduktion (**$\Delta\text{RMSE}_p = -1.02 \pm 0.25\,\text{kg N ha}^{-1}, p = 0.0026^{**}$**), weil auf ungesehenen Feldparzellen die Schätzvarianz zweier nicht-signifikanter Koeffizienten entfällt.
+  * Der Übergang vom Basismodell `M0` zur neuen Basis `M3` ($\text{GDD}_{\text{soil}}$-Düngerdiskontierung + $\text{KWB}^2$) senkt den mittleren parzellenspezifischen Out-of-Sample-Fehler signifikant um **$\Delta\text{RMSE}_p = -7.15 \pm 2.41\,\text{kg N ha}^{-1}$ ($t = -2.97, p = 0.0158^{*}$, Wilcoxon $p = 0.0144^{*}$)**.
+  * Inklusive $0\text{--}28\,\text{cm}$-Bodenfeuchte (`M4_rPCA` vs. `M0`) beträgt der Gewinn **$\Delta\text{RMSE}_p = -8.27 \pm 2.69\,\text{kg N ha}^{-1}$ ($t = -3.08, p = 0.0132^{*}$, Wilcoxon $p = 0.0108^{*}$)**.
+  * Die Einsparung der 2 Enzym-Freiheitsgrade im offenen Feld (`M10_NoEnz` vs. `M4_rPCA`) reduziert den mittleren Parzellenfehler nochmals um $\Delta\text{RMSE}_p = -0.75 \pm 0.49\,\text{kg N ha}^{-1}$ und senkt das $\text{AICc}$ um $-4.3$ Punkte ($783.4 \to 779.1$).
 
 ---
 
@@ -592,7 +592,7 @@ compute_exact_loo_diagnostics <- function(formula_str, data, system_label) {
 
 df_diag <- bind_rows(
   compute_exact_loo_diagnostics(
-    "dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)",
+    "dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)",
     df_demo, "1. DEMO 2025 Vollmodell (n = 77)"
   ),
   compute_exact_loo_diagnostics(
@@ -649,7 +649,7 @@ get_resid_df <- function(formula_str, data, sys_lbl) {
 }
 
 df_res_all <- bind_rows(
-  get_resid_df("dN_mech ~ PC1 + PC2 + Cum_Precip_mm + I(Cum_Precip_mm^2) + Mean_Soil_Moist_0_28_Interval + Kultur + (1|plot_id)",
+  get_resid_df("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + (1|plot_id)",
                df_demo, "1. DEMO 2025 (n = 77)"),
   get_resid_df("dN_mech ~ PC1 + PC2 + Cum_CWB_mm + I(Cum_CWB_mm^2) + Mean_Soil_Moist_0_28_Interval + soil_Corg + (1|plot_id)",
                df_lysi, "2. Lysimeter (n = 128)"),
