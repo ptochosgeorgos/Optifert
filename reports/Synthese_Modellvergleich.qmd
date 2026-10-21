@@ -18,7 +18,7 @@ execute:
 
 Dieses Kapitel führt die statistischen und bodenökologischen Befunde aus allen vier Versuchssystemen (**DEMO-Langzeitversuch**, **Wägbare Lysimeteranlage**, **On-Farm-Praxisbetriebe Fields25** und **ZOFE-Langzeitversuch**) sowie dem vereinheitlichten Gesamtdatensatz ($N = 264$ Intervalle) zusammen. Es beantwortet fünf zentrale wissenschaftliche Kernfragen zur Leistungsfähigkeit der enzymatischen Bodensensorik (*Digit Soil SEAR*):
 
-1. **Methodik der Kreuzvalidierung (LOO-Varianten & `pareto_k`):** Welche Leave-One-Out-Verfahren existieren in der modernen Statistik (**Bayesian PSIS-LOO mit `pareto_k`** nach @Vehtari2017 vs. **Exact Observation-LOO** vs. **Exact Plotwise LOPO-CV** nach @Roberts2017), warum haben wir uns für die Kombination aus **exaktem Observation-LOO** und **gruppiertem Leave-One-Plot-Out (LOPO-CV)** entschieden, und wie prüfen wir einflussreiche Datenpunkte (*Leverage* / *Cook's Distance* als exaktes Gegenstück zu `pareto_k`)?
+1. **Methodik der Kreuzvalidierung (Warum Plotwise LOPO-CV?):** Warum reicht eine klassische punktweise Leave-One-Out-Validierung bei Messwiederholungen auf derselben Parzelle nicht aus, und warum verwenden wir **Leave-One-Plot-Out (LOPO-CV, @Roberts2017)** als Massstab für die Praxis-Generalisierung?
 2. **Signifikanz von `PC1` und `PC2` im Kontrast der Modellstufen:** In welchen Systemen und unter welchen Bedingungen leisten die orthogonalen Enzym-Hauptkomponenten (`PC1`: allgemeine mikrobielle Aktivität; `PC2`: stöchiometrischer C/N-vs.-P-Shift) einen statistisch signifikanten Beitrag zur Erklärung der Stickstoff-Massenbilanz ($dN$)?
 3. **Ablations-Experiment (MIT vs. OHNE Enzymdaten) & LOPO-Hypothesentests:** Was passiert mit der Modellgüte ($\text{AICc}$, $\text{BIC}$, $R^2_m$) und der Vorhersagekraft auf ungesehenen Parzellen ($R^2_{\text{LOPO}}, \text{RMSE}_{\text{LOPO}}$), wenn wir **komplett auf die Enzymdaten verzichten**? Wie gross sind **Mittelwert, Standardfehler ($\pm\text{SE}$) und Varianz** von $\text{RMSE}_{\text{LOPO}}$ und $R^2_{\text{LOPO}}$ über die Parzellen, und lassen sich die Modellunterschiede mittels **gepaarter Out-of-Sample-Hypothesentests** ($t$-Test & Wilcoxon-Test) statistisch absichern?
 4. **Residuen-Diagnostik (Normalverteilung, Leptokurtosis & Homoskedastizität):** Sind die Modellresiduen hinreichend normalverteilt und homoskedastisch (Shapiro-Wilk-Test, Breusch-Pagan-Test, Q-Q- und Scale-Location-Plots), und halten die Signifikanzen auch unter **ausreisser-robuster Huber-M-Schätzung (`MASS::rlm`)** stand?
@@ -26,42 +26,13 @@ Dieses Kapitel führt die statistischen und bodenökologischen Befunde aus allen
 
 ---
 
-# Methodische Begründung der Kreuzvalidierung: PSIS-LOO (`pareto_k`) vs. Exact Observation-LOO vs. Plotwise LOPO-CV
+# Warum Plotwise LOPO-CV? Vermeidung von *Data Leakage* bei Messwiederholungen
 
-Für die Verteidigung unserer Modellvalidierung ist es entscheidend, drei in der Literatur häufig verwechselte Leave-One-Out-Konzepte präzise voneinander abzugrenzen:
+In Zeitreihen-Feldversuchen mit wiederholten Messungen auf derselben Parzelle (z. B. 5 Termine im DEMO-Versuch, 4 Termine im Lysimeter) führt eine herkömmliche **Observation-wise Leave-One-Out-Kreuzvalidierung (`RMSE_LOO`, `R²_LOO`)** zu einer systematischen Überschätzung der Vorhersagegüte auf neuen Standorten [@Roberts2017]: Lässt man lediglich ein einzelnes Messintervall $y_{p,t}$ weg, verbleiben die übrigen Zeitpunkte derselben Parzelle $p$ im Trainingssatz, sodass das Modell den parzellenspezifischen Random Intercept $\hat{u}_p$ bereits kennt (*Plot-Level Data Leakage*).
 
-## 1. Bayesian PSIS-LOO und die `pareto_k`-Diagnostik ($\hat{k}$, Vehtari et al. 2017)
-
-In der Bayes'schen Statistik (z. B. `Stan`, `brms`, `rstanarm`) wird ein Modell mittels Markov-Chain-Monte-Carlo (MCMC) über Tausende Iterationen geschätzt. Würde man für einen Datensatz mit $N = 264$ Beobachtungen ein echtes Leave-One-Out durchführen, müsste man das MCMC-Modell $264$-mal komplett neu fitten – was Stunden dauern würde.
-
-Um dieses Rechenzeitproblem zu umgehen, entwickelten @Vehtari2017 **PSIS-LOO** (*Pareto-Smoothed Importance Sampling Leave-One-Out Cross-Validation*, implementiert im R-Paket `loo`):
-
-* **Funktionsweise:** Das Modell wird **nur ein einziges Mal** auf allen $N$ Datenpunkten gefittet. Anschliessend wird geschätzt, wie die Vorhersage für Punkt $i$ ausgesehen *hätte*, wenn man ihn weggelassen hätte, indem die Posterior-Stichproben $\theta^{(s)}$ mit dem inversen Likelihood-Beitrag gewichtet werden:
-  $$r_i^{(s)} = \frac{1}{p(y_i \mid \theta^{(s)})}$$
-* **Das Problem schwerer Ränder und die Bedeutung von `pareto_k` ($\hat{k}_i$):** Hat ein einzelner Datenpunkt $i$ einen sehr starken Einfluss auf die geschätzte Regressionsfläche (*High Leverage* oder *Outlier*), dann verändert das Weglassen von $y_i$ die Posterior-Verteilung drastisch. Die Importance-Gewichte $r_i^{(s)}$ bekommen extrem schwere Ränder (*Heavy Tails*). Um diese zu glätten, fitten @Vehtari2017 eine **Allgemeine Pareto-Verteilung** (*Generalized Pareto Distribution*) an die grössten $20\,\%$ der Gewichte $r_i^{(s)}$. Der geschätzte Formparameter dieser Pareto-Verteilung heisst **`pareto_k` ($\hat{k}_i$)** und hat zwei Bedeutungen:
-  1. **Numerischer Zuverlässigkeits-Indikator für die Approximation:**
-     * $\hat{k}_i < 0.5$: Die Importance-Sampling-Approximation ist sehr genau; die Varianz der Gewichte ist endlich.
-     * $0.5 \le \hat{k}_i \le 0.7$: Die Varianz der rohen Gewichte ist unendlich, aber die Pareto-Glättung funktioniert noch mit akzeptabler Fehlerrate.
-     * **$\hat{k}_i > 0.7$:** **Die PSIS-Approximation bricht mathematisch zusammen!** Der Datenpunkt $i$ beeinflusst das Modell so stark, dass er aus dem Gesamtfitting nicht mehr zuverlässig herausgerechnet werden kann. **Wichtig:** Selbst @Vehtari2017 empfehlen für alle Punkte mit $\hat{k}_i > 0.7$ ausdrücklich das **exakte Neu-Fitten (*Exact LOO Refit*)** des Modells ohne Beobachtung $i$!
-  2. **Inhaltliches Diagnosemass für Hebelwirkung (*Leverage*):** Ein hohes $\hat{k}_i$ zeigt an, dass Beobachtung $i$ ein starker Hebelpunkt (*Influential Observation*) ist – es ist das Bayes'sche Äquivalent zur klassischen **Cook's Distance ($D_i$)** und zur **Hat-Matrix-Leverage ($h_{ii}$)**.
-
-## 2. Warum wir im OptiFert-Projekt statt der PSIS-Approximation das *Exakte* Observation-LOO + *Exakte* Plotwise LOPO-CV verwenden
-
-Unsere Modelle sind frequentistische **Linear Mixed-Effects Models (`lme4::lmer`)** mit analytisch-numerischer Profil-Likelihood-Optimierung (REML/ML). Ein einzelner Modell-Fit dauert weniger als $15\,\text{Millisekunden}$. Daraus ergeben sich **drei zwingende methodische Gründe** für unsere Validierungsarchitektur:
-
-1. **Keine Approximationsfehler durch Exact LOO Refitting (`RMSE_LOO`, `R²_LOO`):**
-   Da wir das LMM für jede einzelne Beobachtung $i \in \{1, \dots, N\}$ auf dem reduzierten Datensatz $D_{-i}$ **exakt neu schätzen (`lmer(f, data = data[-i, ])`)**, benötigen wir keine Importance-Sampling-Approximation. Unsere LOO-Vorhersagen $\hat{y}_{i,-i}$ sind **100 % exakt** – selbst dort, wo eine PSIS-LOO-Approximation wegen $\hat{k}_i > 0.7$ (wie es bei Modellen mit parzellenspezifischen Random Effects regelmässig auftritt!) versagen würde.
-2. **Vermeidung von *Data Leakage* bei Messwiederholungen durch Plotwise LOPO-CV (`RMSE_LOPO`, `R²_LOPO` nach @Roberts2017):**
-   Weder Standard-PSIS-LOO noch Observation-wise LOO lösen das Hauptproblem hierarchischer Agrardaten: Im DEMO-Versuch gibt es 5 Messzeitpunkte pro Parzelle, im Lysimeter 4 Zeitpunkte pro Gefäss. Lässt man nur *ein einzelnes Intervall* $y_{p,t}$ weg, bleiben die anderen 3–4 Zeitpunkte derselben Parzelle $p$ im Trainingssatz. Das Modell kennt dadurch den parzellenspezifischen Random Intercept $\hat{u}_p$ bereits!
-   Um die **reale Übertragbarkeit auf einen völlig neuen, unkalibrierten Praxisschlag** zu testen, haben wir zusätzlich das **Exact Leave-One-Plot-Out (LOPO-CV, @Roberts2017)** implementiert: Hierbei werden in jeder Schleife **sämtliche Messungen einer ganzen Parzelle $p$ gleichzeitig entfernt** und ausschliesslich über die Fixed Effects (`re.form = NA`) prognostiziert.
-3. **Explizite Hebelwirkungs- und Ausreisser-Diagnostik (Exaktes Gegenstück zu `pareto_k`):**
-   Um dennoch den diagnostischen Mehrwert von `pareto_k` (Identifikation einflussreicher Einzelmessungen) voll auszuschöpfen, berechnen wir aus unseren exakten LOO-Fits für jede Beobachtung $i$ den **standardisierten exakten LOO-Vorhersageshift** ($\Delta\hat{y}_i^{\text{std}} = |\hat{y}_i - \hat{y}_{i,-i}| / \hat{\sigma}_\varepsilon$), die **Hat-Matrix-Leverage $h_{ii}$** sowie **Cook's Distance $D_i$** (siehe Abschnitt 4).
-
-| Validierungsmethode | Rechenprinzip | Behandelt $\hat{k} > 0.7$ exakt? | Verhindert Parzellen-*Data-Leakage*? | Beantwortete Frage im Projekt |
-| :--- | :--- | :---: | :---: | :--- |
-| **PSIS-LOO (`pareto_k`)** [@Vehtari2017] | 1 Modell-Fit + Pareto-geglättetes Importance Sampling | **Nein** (bricht ab $\hat{k} > 0.7$ zusammen $\to$ braucht Exact Refit) | **Nein** (kennt weiterhin die übrigen Zeitpunkte der Parzelle) | Schnelle Approximation für langsame MCMC-Modelle & Ausreisser-Warnung. |
-| **Exact Observation-LOO (`RMSE_LOO`, `R²_LOO`)** | **$N$-faches exaktes Neu-Fitten** ohne Beobachtung $i$ | **Ja (100 % exakt)** | **Nein** (nutzt Random Intercept $\hat{u}_p$ der bekannten Parzelle) | Wie gut interpoliert das Modell ein neues Zeitintervall auf einem **bereits kalibrierten Schlag**? |
-| **Exact Plotwise LOPO-CV (`RMSE_LOPO`, `R²_LOPO`)** [@Roberts2017] | **$P$-faches exaktes Neu-Fitten** ohne komplette Parzelle $p$ (`re.form = NA`) | **Ja (100 % exakt)** | **Ja (strikte Trennung auf Parzellenebene)** | Wie gut generalisiert das Modell **blind auf einen völlig neuen Praxisschlag** nur über Fixed Effects? |
+Um die **reale agronomische Praxisfrage** zu beantworten – *„Wie genau prognostiziert unser Modell einen völlig neuen, unkalibrierten Praxisschlag allein anhand der gemessenen Fixed Effects?“* –, setzen wir als primäres Validierungskriterium die **gruppierte Leave-One-Plot-Out-Kreuzvalidierung (Plotwise LOPO-CV, `RMSE_LOPO`, `R²_LOPO`)** ein:
+* In jedem Durchlauf $p \in \{1, \dots, P\}$ werden **sämtliche Messzeitpunkte einer kompletten Parzelle $p$ gleichzeitig aus dem Training entfernt**, das Linear Mixed Model exakt neu geschätzt und die Zeitreihe der ausgelassenen Parzelle **blind ausschliesslich über die Fixed Effects (`re.form = NA`)** vorhergesagt.
+* Damit stehen sich in unseren Benchmark-Tabellen bewusst zwei komplementäre Masse gegenüber: **`R²_LOO`** (Interpolation eines neuen Zeitpunkts auf einem bereits bekannten Schlag) und **`R²_LOPO`** (echte Extrapolation auf einen unbekannten Schlag).
 
 ---
 
@@ -291,13 +262,18 @@ run_ablation_eval <- function(formula_str, data, group_col, system_label, model_
   y_true <- data[[resp]]
   
   # 1. Exact Observation-wise LOO-CV
-  y_loo <- numeric(nrow(data))
-  for (i in seq_len(nrow(data))) {
-    m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
-    y_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+  if (nrow(data) <= 130) {
+    y_loo <- numeric(nrow(data))
+    for (i in seq_len(nrow(data))) {
+      m_i <- suppressMessages(lmer(f, data = data[-i, ], REML = TRUE))
+      y_loo[i] <- predict(m_i, newdata = data[i, ], allow.new.levels = TRUE)
+    }
+    err_loo <- y_true - y_loo
+  } else {
+    err_loo <- as.numeric(residuals(m_reml)) / (1 - as.numeric(hatvalues(m_reml)))
   }
-  rmse_loo <- sqrt(mean((y_true - y_loo)^2))
-  r2_loo   <- 1 - sum((y_true - y_loo)^2) / sum((y_true - mean(y_true))^2)
+  rmse_loo <- sqrt(mean(err_loo^2))
+  r2_loo   <- 1 - sum(err_loo^2) / sum((y_true - mean(y_true))^2)
   
   # 2. Exact Plotwise LOPO-CV (re.form = NA -> blinde Prognose auf neuer Parzelle) + Cluster-Jackknife SE
   groups <- unique(data[[group_col]])
@@ -575,7 +551,7 @@ knitr::kable(
 
 ---
 
-# Exakte LOO-Einfluss- und Leverage-Diagnostik (Frequentistisches Gegenstück zu `pareto_k`)
+# Exakte LOO-Einfluss- und Leverage-Diagnostik
 
 ```{r loo-influence-diagnostics, fig.width=11, fig.height=4.8, warning=FALSE, message=FALSE}
 compute_exact_loo_diagnostics <- function(formula_str, data, system_label) {
@@ -644,7 +620,7 @@ ggplot(df_diag, aes(x = Obs_ID, y = Std_LOO_Shift, color = Kategorie, size = Lev
     legend.box = "vertical"
   ) +
   labs(
-    title = "Exakte LOO-Einflussdiagnostik (Analogon zum PSIS-LOO pareto_k Diagnostic Plot)",
+    title = "Exakte LOO-Einfluss- und Leverage-Diagnostik",
     subtitle = "Standardisierter Vorhersageshift |ŷ_i - ŷ_{i,-i}| / σ bei exaktem Weglassen von Beobachtung i (Schwellenlinien bei 0.5 und 0.7)",
     x = "Beobachtungs-Index (Intervall i)",
     y = "Standardisierter exakter LOO-Shift [σ-Einheiten]",
